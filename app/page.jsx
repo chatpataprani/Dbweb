@@ -1,7 +1,10 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createClient } from "@supabase/supabase-js";
 import { Search, CreditCard, ShieldCheck, History, Settings, LogIn, UserPlus, Upload, Copy, Check, X } from "lucide-react";
+
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder");
 
 const plans = [
   { name: "1 Day", price: 30, days: 1 },
@@ -18,6 +21,15 @@ export default function Home() {
   const [error, setError] = useState("");
   const [page, setPage] = useState("lookup");
   const [receipt, setReceipt] = useState(null);
+  const [user, setUser] = useState(null);
+  const [authReady, setAuthReady] = useState(false);
+
+  useEffect(() => {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) { setAuthReady(true); return; }
+    supabase.auth.getSession().then(({data}) => { setUser(data.session?.user || null); setAuthReady(true); });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user || null));
+    return () => listener.subscription.unsubscribe();
+  }, []);
 
   async function lookup(e) {
     e.preventDefault();
@@ -54,7 +66,7 @@ export default function Home() {
       <main>
         <header>
           <div><h1>{pageTitle(page)}</h1><p>{pageSubtitle(page)}</p></div>
-          <div className="creditPill"><CreditCard size={15}/> {credits} credits</div>
+          <div className="creditPill"><CreditCard size={15}/> {credits} credits {user ? "· " + user.email : ""}</div>
         </header>
 
         {page === "lookup" && <Lookup type={type} setType={setType} query={query} setQuery={setQuery} lookup={lookup} loading={loading} error={error} result={result}/>}
@@ -62,7 +74,7 @@ export default function Home() {
         {page === "payment" && <Payment plan={receipt || plans[0]}/>}
         {page === "history" && <Empty icon={History} title="No searches yet" text="Your completed searches will appear here."/>}
         {page === "settings" && <SettingsPage/>}
-        {(page === "signin" || page === "register") && <Auth register={page === "register"}/>}
+        {(page === "signin" || page === "register") && <Auth register={page === "register"} onAuth={(u)=>{setUser(u);setPage("lookup")}}/>}
       </main>
     </div>
   );
@@ -112,7 +124,7 @@ function Payment({plan}) {
   }
   return <div className="paymentGrid"><section className="card">
     <h2>{plan.name} plan</h2><div className="price">₹{plan.price}</div><p>Pay exactly this amount through your UPI app.</p>
-    <div className="kv"><span>UPI ID</span><strong>{process.env.NEXT_PUBLIC_UPI_ID || "Configure UPI_ID in .env"}</strong></div>
+    <div className="kv"><span>UPI ID</span><strong>{process.env.NEXT_PUBLIC_UPI_ID || "Configure NEXT_PUBLIC_UPI_ID"}</strong></div>
     <div className="kv"><span>Duration</span><strong>{plan.days} day{plan.days>1?"s":""}</strong></div>
   </section><section className="card">
     <h2>Submit receipt</h2><form onSubmit={submit}>
@@ -122,8 +134,15 @@ function Payment({plan}) {
   </section></div>
 }
 
-function Auth({register}) {
-  return <section className="card auth"><div className="brand large"><span className="brandIcon"><ShieldCheck size={16}/></span>Lookup Console</div><h2>{register?"Create account":"Sign in"}</h2><p>{register?"You receive 10 credits once.":"Use your email and password, or request an OTP."}</p><input placeholder="Email" type="email"/><input placeholder="Password" type="password"/><button className="primary wide">{register?"Create account":"Sign in"}</button><button className="secondary wide">Send OTP</button></section>
+function Auth({register,onAuth}) {
+  const [email,setEmail]=useState(""); const [password,setPassword]=useState(""); const [message,setMessage]=useState(""); const [busy,setBusy]=useState(false);
+  async function submit(e){e.preventDefault();setBusy(true);setMessage("");
+    if(!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY){setMessage("Add Supabase environment variables first.");setBusy(false);return;}
+    const r=register ? await supabase.auth.signUp({email,password}) : await supabase.auth.signInWithPassword({email,password});
+    if(r.error){setMessage(r.error.message);setBusy(false);return;} setMessage(register?"Check your email to confirm the account.":"Signed in."); if(r.data.user && !register) onAuth(r.data.user); setBusy(false);
+  }
+  async function otp(){setBusy(true);setMessage(""); if(!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY){setMessage("Add Supabase environment variables first.");setBusy(false);return;} const r=await supabase.auth.signInWithOtp({email}); setMessage(r.error?.message || "OTP sent to your email.");setBusy(false);}
+  return <section className="card auth"><div className="brand large"><span className="brandIcon"><ShieldCheck size={16}/></span>Lookup Console</div><h2>{register?"Create account":"Sign in"}</h2><p>{register?"You receive 10 credits once.":"Use your email and password, or request an OTP."}</p><form onSubmit={submit}><input placeholder="Email" type="email" value={email} onChange={e=>setEmail(e.target.value)} required/><input placeholder="Password (8+ characters)" type="password" value={password} onChange={e=>setPassword(e.target.value)} minLength={8} required/><button className="primary wide" disabled={busy}>{busy?"Please wait…":register?"Create account":"Sign in"}</button></form><button className="secondary wide" onClick={otp} disabled={busy}>Send OTP</button>{message&&<div className="hint">{message}</div>}</section>
 }
 function SettingsPage(){ return <section className="card"><h2>Settings</h2><div className="row"><ShieldCheck size={17}/><div><b>Privacy</b><p>Use lookup services only for records you are authorized to access.</p></div></div><div className="row"><Settings size={17}/><div><b>Admin</b><p>Admin contact: lumenomore@hotmail.com</p></div></div></section> }
 function Empty({icon:Icon,title,text}){return <section className="card empty"><Icon size={30}/><h2>{title}</h2><p>{text}</p></section>}
