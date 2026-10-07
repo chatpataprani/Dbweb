@@ -16,8 +16,8 @@ A zero-upfront-cost web console based on the supplied **Lookup Console UI**.
 ## Run
 
 1. Copy `.env.example` to `.env.local`.
-2. Add your UPI ID.
-3. Verify that the supplied lookup APIs are authorized for your use.
+2. Add your private lookup API bases and UPI ID locally.
+3. Verify that the supplied lookup APIs are authorized for your use. Never commit `.env.local` or real API endpoints to GitHub.
 4. Run:
 
 ```bash
