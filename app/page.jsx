@@ -8,7 +8,7 @@ const supabase=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||"https://place
 const plans=[{name:"1 Day",price:30,days:1},{name:"7 Days",price:100,days:7},{name:"30 Days",price:300,days:30}];
 function authRedirectUrl(){
  const configured=process.env.NEXT_PUBLIC_SITE_URL?.trim();
- if(configured) return configured.replace(/\\/$/,"");
+ if(configured) return configured.replace(/\/$/,"");
  if(typeof window!=="undefined" && window.location.origin) return window.location.origin;
  return "http://localhost:3000";
 }
