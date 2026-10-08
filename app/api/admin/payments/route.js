@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { sendUserPaymentResult } from "../../../../lib/mailer";
 const BUCKET="payment-receipts";
 const ADMIN=(process.env.ADMIN_EMAIL||"lumenomore@hotmail.com").toLowerCase();
 function db(){return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY,{auth:{autoRefreshToken:false,persistSession:false}});}
@@ -22,7 +23,29 @@ export async function POST(request){
   const body=await request.json();const id=Number(body.payment_id);const action=body.action;
   if(!Number.isInteger(id)||!["approve","reject"].includes(action))return NextResponse.json({error:"Invalid admin action."},{status:400});
   const client=db();
-  if(action==="approve"){const r=await client.rpc("approve_payment",{p_payment_id:id,p_admin_email:u.email});if(r.error)return NextResponse.json({error:r.error.message},{status:400});}
-  else{const current=await client.from("payments").select("status").eq("id",id).single();if(current.error)return NextResponse.json({error:current.error.message},{status:404});if(current.data.status!=="pending")return NextResponse.json({error:"Payment is already reviewed."},{status:409});const r=await client.from("payments").update({status:"rejected",reviewed_at:new Date().toISOString(),reviewed_by:u.email}).eq("id",id).eq("status","pending");if(r.error)return NextResponse.json({error:r.error.message},{status:500});}
+  const payment=await client.from("payments").select("id,user_id,plan_days,amount,status,profiles(email)").eq("id",id).single();
+  if(payment.error)return NextResponse.json({error:payment.error.message},{status:404});
+  if(payment.data.status!=="pending")return NextResponse.json({error:"Payment is already reviewed."},{status:409});
+  const userEmail=payment.data.profiles?.email;
+  if(action==="approve"){
+    const r=await client.rpc("approve_payment",{p_payment_id:id,p_admin_email:u.email});
+    if(r.error)return NextResponse.json({error:r.error.message},{status:400});
+  } else {
+    const r=await client.from("payments").update({status:"rejected",reviewed_at:new Date().toISOString(),reviewed_by:u.email}).eq("id",id).eq("status","pending");
+    if(r.error)return NextResponse.json({error:r.error.message},{status:500});
+  }
+  if(userEmail){
+    try {
+      await sendUserPaymentResult({
+        email:userEmail,
+        paymentId:id,
+        status:action==="approve" ? "approved" : "rejected",
+        planDays:payment.data.plan_days,
+        amount:payment.data.amount
+      });
+    } catch(mailError) {
+      console.error("Dbweb user payment email failed:", mailError);
+    }
+  }
   return NextResponse.json({ok:true});
 }
