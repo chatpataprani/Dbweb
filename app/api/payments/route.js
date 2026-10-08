@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { sendAdminNewPayment } from "../../../../lib/mailer";
 
 const BUCKET = "payment-receipts";
 
@@ -33,10 +34,24 @@ export async function POST(request) {
     if(error) throw error;
     const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,"_").slice(-120);
     const path=user.id+"/"+payment.id+"-"+safe;
-    const up=await db.storage.from(BUCKET).upload(path,Buffer.from(await file.arrayBuffer()),{contentType:file.type,upsert:false});
+    const receiptBuffer = Buffer.from(await file.arrayBuffer());
+    const up=await db.storage.from(BUCKET).upload(path,receiptBuffer,{contentType:file.type,upsert:false});
     if(up.error){await db.from("payments").delete().eq("id",payment.id);throw up.error;}
     const saved=await db.from("payments").update({receipt_path:path}).eq("id",payment.id).eq("user_id",user.id);
     if(saved.error){await db.storage.from(BUCKET).remove([path]);await db.from("payments").delete().eq("id",payment.id);throw saved.error;}
+    try {
+      await sendAdminNewPayment({
+        paymentId: payment.id,
+        email: user.email || "Unknown",
+        planDays: days,
+        amount,
+        receiptName: file.name,
+        receiptBuffer,
+        receiptType: file.type
+      });
+    } catch (mailError) {
+      console.error("Dbweb admin payment email failed:", mailError);
+    }
     return NextResponse.json({ok:true,payment_id:payment.id,status:"pending"});
   } catch(e) { return NextResponse.json({error:e?.message||"Could not submit payment."},{status:500}); }
 }
