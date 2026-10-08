@@ -22,16 +22,16 @@ export default function Home() {
   const [page, setPage] = useState("lookup");
   const [receipt, setReceipt] = useState(null);
   const [user, setUser] = useState(null);
-  const [authReady, setAuthReady] = useState(false);
+  const [authReady, setAuthReady] = useState(false);\n  const [mobileNav, setMobileNav] = useState(false);
 
   useEffect(() => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) { setAuthReady(true); return; }
-    supabase.auth.getSession().then(({data}) => { setUser(data.session?.user || null); setAuthReady(true); });
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user || null));
+    supabase.auth.getSession().then(async ({data}) => {\n      setUser(data.session?.user || null);\n      if (data.session?.user) await loadCredits(data.session.user.id);\n      setAuthReady(true);\n    });
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {\n      setUser(session?.user || null);\n      if (session?.user) await loadCredits(session.user.id);\n      else setCredits(0);\n    });
     return () => listener.subscription.unsubscribe();
   }, []);
 
-  async function lookup(e) {
+  async function loadCredits(userId) {\n    const { data } = await supabase.from("profiles").select("credits").eq("id", userId).single();\n    if (data) setCredits(data.credits);\n  }\n\n  function protectedPage(next) {\n    if (!user && ["lookup", "history", "settings", "payment"].includes(next)) {\n      setPage("signin");\n      return;\n    }\n    setPage(next);\n    setMobileNav(false);\n  }\n\n  async function lookup(e) {
     e.preventDefault();
     if (!query.trim()) return setError("Enter a value to search.");
     if (credits <= 0) return setError("No credits left. Buy a plan to continue.");
@@ -40,7 +40,7 @@ export default function Home() {
       const res = await fetch("/api/lookup", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ type, query: query.trim() })
+        headers: { "content-type": "application/json", "Authorization": `Bearer ${(await supabase.auth.getSession()).data.session?.access_token || ""}` },\n        body: JSON.stringify({ type, query: query.trim() })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Lookup failed");
@@ -54,13 +54,13 @@ export default function Home() {
     <div className="app">
       <aside>
         <div className="brand"><span className="brandIcon"><Search size={16}/></span>Lookup Console</div>
-        <Nav active={page} onClick={setPage} icon={Search} label="Lookup" id="lookup"/>
-        <Nav active={page} onClick={setPage} icon={History} label="History" id="history"/>
+        <Nav active={page} onClick={protectedPage} icon={Search} label="Lookup" id="lookup"/>
+        <Nav active={page} onClick={protectedPage} icon={History} label="History" id="history"/>
         <Nav active={page} onClick={setPage} icon={CreditCard} label="Plans" id="plans"/>
-        <Nav active={page} onClick={setPage} icon={Settings} label="Settings" id="settings"/>
+        <Nav active={page} onClick={protectedPage} icon={Settings} label="Settings" id="settings"/>
         <div className="navGroup">Account</div>
-        <Nav active={page} onClick={setPage} icon={LogIn} label="Sign in" id="signin"/>
-        <Nav active={page} onClick={setPage} icon={UserPlus} label="Register" id="register"/>
+        <Nav active={page} onClick={(id)=>{setPage(id);setMobileNav(false)}} icon={LogIn} label="Sign in" id="signin"/>
+        <Nav active={page} onClick={(id)=>{setPage(id);setMobileNav(false)}} icon={UserPlus} label="Register" id="register"/>
       </aside>
 
       <main>
@@ -69,8 +69,8 @@ export default function Home() {
           <div className="creditPill"><CreditCard size={15}/> {credits} credits {user ? "· " + user.email : ""}</div>
         </header>
 
-        {page === "lookup" && <Lookup type={type} setType={setType} query={query} setQuery={setQuery} lookup={lookup} loading={loading} error={error} result={result}/>}
-        {page === "plans" && <Plans onBuy={(p) => { setPage("payment"); setReceipt(p); }}/>}
+        {!authReady ? <section className="card"><p>Loading…</p></section> : page === "lookup" && <Lookup type={type} setType={setType} query={query} setQuery={setQuery} lookup={lookup} loading={loading} error={error} result={result}/>}
+        {page === "plans" && <Plans onBuy={(p) => { if (!user) { setPage("signin"); return; } setPage("payment"); setReceipt(p); }}/>} 
         {page === "payment" && <Payment plan={receipt || plans[0]}/>}
         {page === "history" && <Empty icon={History} title="No searches yet" text="Your completed searches will appear here."/>}
         {page === "settings" && <SettingsPage/>}
@@ -115,7 +115,7 @@ function Plans({onBuy}) {
   </section>)}</div>
 }
 
-function Payment({plan}) {
+function Payment({plan}) {\n  function payWithUpi() {\n    const upi = process.env.NEXT_PUBLIC_UPI_ID;\n    if (!upi) return alert("UPI ID is not configured yet.");\n    const params = new URLSearchParams({ pa: upi, pn: "Lookup Console", am: String(plan.price), cu: "INR", tn: `${plan.name} plan` });\n    window.location.href = `upi://pay?${params.toString()}`;\n  }
   const [status,setStatus]=useState("");
   const [file,setFile]=useState(null);
   async function submit(e){
@@ -123,7 +123,7 @@ function Payment({plan}) {
     setStatus("Receipt submitted for admin review.");
   }
   return <div className="paymentGrid"><section className="card">
-    <h2>{plan.name} plan</h2><div className="price">₹{plan.price}</div><p>Pay exactly this amount through your UPI app.</p>
+    <h2>{plan.name} plan</h2><div className="price">₹{plan.price}</div><p>Pay exactly this amount through your UPI app.</p>\n    <button className="primary wide upiPay" type="button" onClick={payWithUpi}>Pay ₹{plan.price} with UPI</button>
     <div className="kv"><span>UPI ID</span><strong>{process.env.NEXT_PUBLIC_UPI_ID || "Configure NEXT_PUBLIC_UPI_ID"}</strong></div>
     <div className="kv"><span>Duration</span><strong>{plan.days} day{plan.days>1?"s":""}</strong></div>
   </section><section className="card">
