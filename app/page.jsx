@@ -1,148 +1,27 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-import { Search, CreditCard, ShieldCheck, History, Settings, LogIn, UserPlus, Upload, Copy, Check, X } from "lucide-react";
+import {useEffect,useState} from "react";
+import {createClient} from "@supabase/supabase-js";
+import {Search,CreditCard,ShieldCheck,History,Settings,LogIn,UserPlus,Upload,Copy,Check,X,Menu,RefreshCw} from "lucide-react";
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder");
+const supabase=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||"https://placeholder.supabase.co",process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||"placeholder");
+const plans=[{name:"1 Day",price:30,days:1},{name:"7 Days",price:100,days:7},{name:"30 Days",price:300,days:30}];
 
-const plans = [
-  { name: "1 Day", price: 30, days: 1 },
-  { name: "7 Days", price: 100, days: 7 },
-  { name: "30 Days", price: 300, days: 30 }
-];
-
-export default function Home() {
-  const [type, setType] = useState("number");
-  const [query, setQuery] = useState("");
-  const [credits, setCredits] = useState(10);
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [page, setPage] = useState("lookup");
-  const [receipt, setReceipt] = useState(null);
-  const [user, setUser] = useState(null);
-  const [authReady, setAuthReady] = useState(false);\n  const [mobileNav, setMobileNav] = useState(false);
-
-  useEffect(() => {
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) { setAuthReady(true); return; }
-    supabase.auth.getSession().then(async ({data}) => {\n      setUser(data.session?.user || null);\n      if (data.session?.user) await loadCredits(data.session.user.id);\n      setAuthReady(true);\n    });
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {\n      setUser(session?.user || null);\n      if (session?.user) await loadCredits(session.user.id);\n      else setCredits(0);\n    });
-    return () => listener.subscription.unsubscribe();
-  }, []);
-
-  async function loadCredits(userId) {\n    const { data } = await supabase.from("profiles").select("credits").eq("id", userId).single();\n    if (data) setCredits(data.credits);\n  }\n\n  function protectedPage(next) {\n    if (!user && ["lookup", "history", "settings", "payment"].includes(next)) {\n      setPage("signin");\n      return;\n    }\n    setPage(next);\n    setMobileNav(false);\n  }\n\n  async function lookup(e) {
-    e.preventDefault();
-    if (!query.trim()) return setError("Enter a value to search.");
-    if (credits <= 0) return setError("No credits left. Buy a plan to continue.");
-    setLoading(true); setError(""); setResult(null);
-    try {
-      const res = await fetch("/api/lookup", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        headers: { "content-type": "application/json", "Authorization": `Bearer ${(await supabase.auth.getSession()).data.session?.access_token || ""}` },\n        body: JSON.stringify({ type, query: query.trim() })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Lookup failed");
-      setResult(data);
-      setCredits(c => Math.max(0, c - 1));
-    } catch (err) { setError(err.message); }
-    finally { setLoading(false); }
-  }
-
-  return (
-    <div className="app">
-      <aside>
-        <div className="brand"><span className="brandIcon"><Search size={16}/></span>Lookup Console</div>
-        <Nav active={page} onClick={protectedPage} icon={Search} label="Lookup" id="lookup"/>
-        <Nav active={page} onClick={protectedPage} icon={History} label="History" id="history"/>
-        <Nav active={page} onClick={setPage} icon={CreditCard} label="Plans" id="plans"/>
-        <Nav active={page} onClick={protectedPage} icon={Settings} label="Settings" id="settings"/>
-        <div className="navGroup">Account</div>
-        <Nav active={page} onClick={(id)=>{setPage(id);setMobileNav(false)}} icon={LogIn} label="Sign in" id="signin"/>
-        <Nav active={page} onClick={(id)=>{setPage(id);setMobileNav(false)}} icon={UserPlus} label="Register" id="register"/>
-      </aside>
-
-      <main>
-        <header>
-          <div><h1>{pageTitle(page)}</h1><p>{pageSubtitle(page)}</p></div>
-          <div className="creditPill"><CreditCard size={15}/> {credits} credits {user ? "· " + user.email : ""}</div>
-        </header>
-
-        {!authReady ? <section className="card"><p>Loading…</p></section> : page === "lookup" && <Lookup type={type} setType={setType} query={query} setQuery={setQuery} lookup={lookup} loading={loading} error={error} result={result}/>}
-        {page === "plans" && <Plans onBuy={(p) => { if (!user) { setPage("signin"); return; } setPage("payment"); setReceipt(p); }}/>} 
-        {page === "payment" && <Payment plan={receipt || plans[0]}/>}
-        {page === "history" && <Empty icon={History} title="No searches yet" text="Your completed searches will appear here."/>}
-        {page === "settings" && <SettingsPage/>}
-        {(page === "signin" || page === "register") && <Auth register={page === "register"} onAuth={(u)=>{setUser(u);setPage("lookup")}}/>}
-      </main>
-    </div>
-  );
+export default function Home(){
+ const [type,setType]=useState("number"),[query,setQuery]=useState(""),[credits,setCredits]=useState(0),[result,setResult]=useState(null),[loading,setLoading]=useState(false),[error,setError]=useState(""),[page,setPage]=useState("lookup"),[receiptPlan,setReceiptPlan]=useState(null),[user,setUser]=useState(null),[authReady,setAuthReady]=useState(false),[mobileNav,setMobileNav]=useState(false);
+ useEffect(()=>{if(!process.env.NEXT_PUBLIC_SUPABASE_URL||!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY){setAuthReady(true);return;}supabase.auth.getSession().then(async({data})=>{setUser(data.session?.user||null);if(data.session?.user)await loadCredits(data.session.user.id);setAuthReady(true);});const {data:listener}=supabase.auth.onAuthStateChange(async(_e,session)=>{setUser(session?.user||null);if(session?.user)await loadCredits(session.user.id);else setCredits(0);});return()=>listener.subscription.unsubscribe();},[]);
+ async function loadCredits(id){const {data}=await supabase.from("profiles").select("credits").eq("id",id).single();if(data)setCredits(data.credits);}
+ function go(next){if(["lookup","history","settings","payment"].includes(next)&&!user){setPage("signin");}else setPage(next);setMobileNav(false);}
+ async function lookup(e){e.preventDefault();if(!user)return setError("Please sign in or register before searching.");if(!query.trim())return setError("Enter a value to search.");if(credits<=0)return setError("No credits left. Buy a plan to continue.");setLoading(true);setError("");setResult(null);try{const s=await supabase.auth.getSession();const r=await fetch("/api/lookup",{method:"POST",headers:{"content-type":"application/json",Authorization:"Bearer "+(s.data.session?.access_token||"")},body:JSON.stringify({type,query:query.trim()})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Lookup failed");setResult(d);await loadCredits(user.id);}catch(e){setError(e.message);}finally{setLoading(false);}}
+ return <div className="app"><aside className={mobileNav?"mobileOpen":""}><div className="brand"><span className="brandIcon"><Search size={16}/></span>Lookup Console</div><Nav active={page} onClick={go} icon={Search} label="Lookup" id="lookup"/><Nav active={page} onClick={go} icon={History} label="History" id="history"/><Nav active={page} onClick={go} icon={CreditCard} label="Plans" id="plans"/><Nav active={page} onClick={go} icon={Settings} label="Settings" id="settings"/><div className="navGroup">Account</div><Nav active={page} onClick={go} icon={LogIn} label="Sign in" id="signin"/><Nav active={page} onClick={go} icon={UserPlus} label="Register" id="register"/>{user?.email?.toLowerCase()===(process.env.NEXT_PUBLIC_ADMIN_EMAIL||"lumenomore@hotmail.com").toLowerCase()&&<Nav active={page} onClick={go} icon={ShieldCheck} label="Admin" id="admin"/>}</aside><button className="mobileMenu" onClick={()=>setMobileNav(v=>!v)} aria-label="Open menu"><Menu size={20}/></button><main><header><div><h1>{title(page)}</h1><p>{subtitle(page)}</p></div>{user&&<div className="creditPill"><CreditCard size={15}/> {credits} credits</div>}</header>{!authReady?<section className="card"><p>Loading…</p></section>:page==="lookup"?<Lookup type={type} setType={setType} query={query} setQuery={setQuery} lookup={lookup} loading={loading} error={error} result={result}/>:page==="plans"?<Plans onBuy={p=>{if(!user){setPage("signin");return;}setReceiptPlan(p);setPage("payment");}}/>:page==="payment"?<Payment plan={receiptPlan||plans[0]}/>:page==="admin"?<Admin/>:page==="history"?<Empty icon={History} title="No searches yet" text="Your completed searches will appear here."/>:page==="settings"?<SettingsPage/>:(page==="signin"||page==="register")?<Auth register={page==="register"} onAuth={u=>{setUser(u);setPage("lookup");}}/>:null}</main></div>;
 }
-
-function Nav({active,onClick,icon:Icon,label,id}) {
-  return <button className={"nav " + (active===id ? "on" : "")} onClick={()=>onClick(id)}><Icon size={17}/>{label}</button>
-}
-function pageTitle(p){ return ({lookup:"Lookup",plans:"Plans",payment:"Payment",history:"History",settings:"Settings",signin:"Sign in",register:"Create account"}[p]||"Lookup"); }
-function pageSubtitle(p){ return ({lookup:"Search an authorized number or Aadhaar record.",plans:"Simple plans with no automatic daily credit refill.",payment:"Pay by UPI and submit the receipt for admin approval.",history:"Your recent searches.",settings:"Account and privacy controls.",signin:"Sign in with email and password or OTP.",register:"Create your account and receive 10 free credits."}[p]||""); }
-
-function Lookup({type,setType,query,setQuery,lookup,loading,error,result}) {
-  return <div className="stack">
-    <section className="card">
-      <div className="seg">
-        <button className={type==="number"?"on":""} onClick={()=>setType("number")}>Number</button>
-        <button className={type==="aadhar"?"on":""} onClick={()=>setType("aadhar")}>Aadhaar</button>
-      </div>
-      <form onSubmit={lookup} className="lookupForm">
-        <input value={query} onChange={e=>setQuery(e.target.value)} placeholder={type==="number"?"Enter phone number":"Enter Aadhaar number"} inputMode={type==="number"?"tel":"numeric"}/>
-        <button className="primary" disabled={loading}><Search size={17}/>{loading?"Searching…":"Search"}</button>
-      </form>
-      {error && <div className="error"><X size={16}/>{error}</div>}
-      <p className="hint">Each completed lookup uses 1 credit. Free allowance is 10 credits once per account.</p>
-    </section>
-
-    {result && <section className="card">
-      <div className="resultHead"><div><h2>Result</h2><p>Returned by the configured API.</p></div><button className="iconBtn" onClick={()=>navigator.clipboard?.writeText(JSON.stringify(result.data,null,2))}><Copy size={16}/></button></div>
-      <pre>{JSON.stringify(result.data,null,2)}</pre>
-    </section>}
-  </div>
-}
-
-function Plans({onBuy}) {
-  return <div className="grid3">{plans.map(p=><section className="card plan" key={p.days}>
-    <div className="planIcon"><CreditCard size={18}/></div><h2>{p.name}</h2><div className="price">₹{p.price}</div><p>Premium access for {p.days} day{p.days>1?"s":""}.</p>
-    <button className="primary wide" onClick={()=>onBuy(p)}>Pay with UPI</button>
-  </section>)}</div>
-}
-
-function Payment({plan}) {\n  function payWithUpi() {\n    const upi = process.env.NEXT_PUBLIC_UPI_ID;\n    if (!upi) return alert("UPI ID is not configured yet.");\n    const params = new URLSearchParams({ pa: upi, pn: "Lookup Console", am: String(plan.price), cu: "INR", tn: `${plan.name} plan` });\n    window.location.href = `upi://pay?${params.toString()}`;\n  }
-  const [status,setStatus]=useState("");
-  const [file,setFile]=useState(null);
-  async function submit(e){
-    e.preventDefault(); if(!file) return setStatus("Select your payment receipt first.");
-    setStatus("Receipt submitted for admin review.");
-  }
-  return <div className="paymentGrid"><section className="card">
-    <h2>{plan.name} plan</h2><div className="price">₹{plan.price}</div><p>Pay exactly this amount through your UPI app.</p>\n    <button className="primary wide upiPay" type="button" onClick={payWithUpi}>Pay ₹{plan.price} with UPI</button>
-    <div className="kv"><span>UPI ID</span><strong>{process.env.NEXT_PUBLIC_UPI_ID || "Configure NEXT_PUBLIC_UPI_ID"}</strong></div>
-    <div className="kv"><span>Duration</span><strong>{plan.days} day{plan.days>1?"s":""}</strong></div>
-  </section><section className="card">
-    <h2>Submit receipt</h2><form onSubmit={submit}>
-      <label className="drop"><Upload size={22}/><span>{file ? file.name : "Choose screenshot or PDF"}</span><input type="file" accept="image/*,.pdf" onChange={e=>setFile(e.target.files?.[0]||null)} hidden/></label>
-      <button className="primary wide">Submit for approval</button>
-    </form>{status&&<div className="success"><Check size={16}/>{status}</div>}
-  </section></div>
-}
-
-function Auth({register,onAuth}) {
-  const [email,setEmail]=useState(""); const [password,setPassword]=useState(""); const [message,setMessage]=useState(""); const [busy,setBusy]=useState(false);
-  async function submit(e){e.preventDefault();setBusy(true);setMessage("");
-    if(!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY){setMessage("Add Supabase environment variables first.");setBusy(false);return;}
-    const r=register ? await supabase.auth.signUp({email,password}) : await supabase.auth.signInWithPassword({email,password});
-    if(r.error){setMessage(r.error.message);setBusy(false);return;} setMessage(register?"Check your email to confirm the account.":"Signed in."); if(r.data.user && !register) onAuth(r.data.user); setBusy(false);
-  }
-  async function otp(){setBusy(true);setMessage(""); if(!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY){setMessage("Add Supabase environment variables first.");setBusy(false);return;} const r=await supabase.auth.signInWithOtp({email}); setMessage(r.error?.message || "OTP sent to your email.");setBusy(false);}
-  return <section className="card auth"><div className="brand large"><span className="brandIcon"><ShieldCheck size={16}/></span>Lookup Console</div><h2>{register?"Create account":"Sign in"}</h2><p>{register?"You receive 10 credits once.":"Use your email and password, or request an OTP."}</p><form onSubmit={submit}><input placeholder="Email" type="email" value={email} onChange={e=>setEmail(e.target.value)} required/><input placeholder="Password (8+ characters)" type="password" value={password} onChange={e=>setPassword(e.target.value)} minLength={8} required/><button className="primary wide" disabled={busy}>{busy?"Please wait…":register?"Create account":"Sign in"}</button></form><button className="secondary wide" onClick={otp} disabled={busy}>Send OTP</button>{message&&<div className="hint">{message}</div>}</section>
-}
-function SettingsPage(){ return <section className="card"><h2>Settings</h2><div className="row"><ShieldCheck size={17}/><div><b>Privacy</b><p>Use lookup services only for records you are authorized to access.</p></div></div><div className="row"><Settings size={17}/><div><b>Admin</b><p>Admin contact: lumenomore@hotmail.com</p></div></div></section> }
-function Empty({icon:Icon,title,text}){return <section className="card empty"><Icon size={30}/><h2>{title}</h2><p>{text}</p></section>}
+function Nav({active,onClick,icon:Icon,label,id}){return <button className={"nav "+(active===id?"on":"")} onClick={()=>onClick(id)}><Icon size={17}/>{label}</button>;}
+function title(p){return({lookup:"Lookup",plans:"Plans",payment:"Payment",history:"History",settings:"Settings",signin:"Sign in",register:"Create account",admin:"Admin"}[p]||"Lookup");}
+function subtitle(p){return({lookup:"Search an authorized number or Aadhaar record.",plans:"Choose a plan.",payment:"Pay by UPI and submit your receipt for approval.",history:"Your recent searches.",settings:"Account and privacy controls.",signin:"Sign in with email and password or OTP.",register:"Create your account and receive 10 free credits.",admin:"Review UPI payments."}[p]||"");}
+function Lookup({type,setType,query,setQuery,lookup,loading,error,result}){return <div className="stack"><section className="card"><div className="seg"><button className={type==="number"?"on":""} onClick={()=>setType("number")}>Number</button><button className={type==="aadhar"?"on":""} onClick={()=>setType("aadhar")}>Aadhaar</button></div><form onSubmit={lookup} className="lookupForm"><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={type==="number"?"Enter phone number":"Enter Aadhaar number"} inputMode={type==="number"?"tel":"numeric"}/><button className="primary" disabled={loading}><Search size={17}/>{loading?"Searching…":"Search"}</button></form>{error&&<div className="error"><X size={16}/>{error}</div>}<p className="hint">Each completed lookup uses 1 credit. Free allowance is 10 credits once per account.</p></section>{result&&<section className="card"><div className="resultHead"><div><h2>Result</h2><p>Returned by the configured API.</p></div><button className="iconBtn" onClick={()=>navigator.clipboard?.writeText(JSON.stringify(result.data,null,2))}><Copy size={16}/></button></div><pre>{JSON.stringify(result.data,null,2)}</pre></section>}</div>;}
+function Plans({onBuy}){return <div className="grid3">{plans.map(p=><section className="card plan" key={p.days}><div className="planIcon"><CreditCard size={18}/></div><h2>{p.name}</h2><div className="price">₹{p.price}</div><p>Premium access for {p.days} day{p.days>1?"s":""}.</p><button className="primary wide" onClick={()=>onBuy(p)}>Pay with UPI</button></section>)}</div>;}
+function Payment({plan}){const [status,setStatus]=useState(""),[file,setFile]=useState(null),[busy,setBusy]=useState(false);function pay(){const upi=process.env.NEXT_PUBLIC_UPI_ID;if(!upi)return setStatus("UPI ID is not configured.");const q=new URLSearchParams({pa:upi,pn:"Lookup Console",am:String(plan.price),cu:"INR",tn:plan.name+" plan"});window.location.href="upi://pay?"+q.toString();}async function submit(e){e.preventDefault();if(!file)return setStatus("Select your payment receipt first.");setBusy(true);setStatus("");try{const s=await supabase.auth.getSession();const f=new FormData();f.append("plan_days",String(plan.days));f.append("amount",String(plan.price));f.append("receipt",file);const r=await fetch("/api/payments",{method:"POST",headers:{Authorization:"Bearer "+(s.data.session?.access_token||"")},body:f});const d=await r.json();if(!r.ok)throw new Error(d.error||"Could not submit receipt.");setStatus("Payment #"+d.payment_id+" submitted. Wait for admin approval.");setFile(null);}catch(e){setStatus(e.message);}finally{setBusy(false);}}return <div className="paymentGrid"><section className="card"><h2>{plan.name} plan</h2><div className="price">₹{plan.price}</div><p>Pay exactly this amount through your UPI app.</p><button className="primary wide upiPay" type="button" onClick={pay}>Pay ₹{plan.price} with UPI</button><div className="kv"><span>UPI ID</span><strong>{process.env.NEXT_PUBLIC_UPI_ID||"Configure NEXT_PUBLIC_UPI_ID"}</strong></div><div className="kv"><span>Duration</span><strong>{plan.days} day{plan.days>1?"s":""}</strong></div></section><section className="card"><h2>Submit receipt</h2><p className="hint">Upload the receipt after completing payment.</p><form onSubmit={submit}><label className="drop"><Upload size={22}/><span>{file?file.name:"Choose screenshot or PDF"}</span><input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" onChange={e=>setFile(e.target.files?.[0]||null)} hidden/></label><button className="primary wide" disabled={busy}>{busy?"Uploading…":"Submit for approval"}</button></form>{status&&<div className="success"><Check size={16}/>{status}</div>}</section></div>;}
+function Auth({register,onAuth}){const [email,setEmail]=useState(""),[password,setPassword]=useState(""),[message,setMessage]=useState(""),[busy,setBusy]=useState(false);async function submit(e){e.preventDefault();setBusy(true);setMessage("");const r=register?await supabase.auth.signUp({email,password}):await supabase.auth.signInWithPassword({email,password});if(r.error){setMessage(r.error.message);setBusy(false);return;}if(r.data.user&&!register)onAuth(r.data.user);setMessage(register?"Check your email to confirm the account.":"Signed in.");setBusy(false);}async function otp(){setBusy(true);const r=await supabase.auth.signInWithOtp({email});setMessage(r.error?.message||"OTP sent to your email.");setBusy(false);}return <section className="card auth"><div className="brand large"><span className="brandIcon"><ShieldCheck size={16}/></span>Lookup Console</div><h2>{register?"Create account":"Sign in"}</h2><p>{register?"You receive 10 credits once.":"Use your email and password, or request an OTP."}</p><form onSubmit={submit}><input placeholder="Email" type="email" value={email} onChange={e=>setEmail(e.target.value)} required/><input placeholder="Password (8+ characters)" type="password" value={password} onChange={e=>setPassword(e.target.value)} minLength={8} required/><button className="primary wide" disabled={busy}>{busy?"Please wait…":register?"Create account":"Sign in"}</button></form><button className="secondary wide" onClick={otp} disabled={busy}>Send OTP</button>{message&&<div className="hint">{message}</div>}</section>;}
+function Admin(){const [payments,setPayments]=useState([]),[message,setMessage]=useState(""),[loading,setLoading]=useState(true),[busy,setBusy]=useState(null);async function token(){return(await supabase.auth.getSession()).data.session?.access_token||"";}async function load(){setLoading(true);const r=await fetch("/api/admin/payments",{headers:{Authorization:"Bearer "+await token()}});const d=await r.json();setPayments(d.payments||[]);setMessage(r.ok?"":(d.error||"Unable to load payments."));setLoading(false);}async function act(id,action){setBusy(id);const r=await fetch("/api/admin/payments",{method:"POST",headers:{"content-type":"application/json",Authorization:"Bearer "+await token()},body:JSON.stringify({payment_id:id,action})});const d=await r.json();setMessage(r.ok?"Payment #"+id+" "+action+"d.":(d.error||"Action failed."));setBusy(null);if(r.ok)load();}useEffect(()=>{load();},[]);return <section className="card adminPanel"><div className="resultHead"><div><h2>Admin payments</h2><p>Review receipts and approve or reject payments.</p></div><button className="iconBtn" onClick={load} disabled={loading}><RefreshCw size={16}/></button></div>{message&&<div className="hint">{message}</div>}{loading?<p>Loading…</p>:payments.length===0?<p>No payments yet.</p>:<div className="adminList">{payments.map(p=><div className="adminItem" key={p.id}><div><b>#{p.id} · ₹{p.amount} · {p.plan_days} day{p.plan_days>1?"s":""}</b><p>{p.profiles?.email||p.user_id}</p><p>{new Date(p.created_at).toLocaleString()} · {p.status}</p></div><div className="adminActions">{p.receipt_url&&<a className="secondary" href={p.receipt_url} target="_blank" rel="noreferrer">Receipt</a>}{p.status==="pending"&&<><button className="primary" onClick={()=>act(p.id,"approve")} disabled={busy===p.id}><Check size={15}/>Approve</button><button className="secondary" onClick={()=>act(p.id,"reject")} disabled={busy===p.id}><X size={15}/>Reject</button></>}</div></div>)}</div>}</section>;}
+function SettingsPage(){return <section className="card"><h2>Settings</h2><div className="row"><ShieldCheck size={17}/><div><b>Privacy</b><p>Use lookup services only for records you are authorized to access.</p></div></div><div className="row"><Settings size={17}/><div><b>Admin</b><p>Admin contact: lumenomore@hotmail.com</p></div></div></section>;}
+function Empty({icon:Icon,title,text}){return <section className="card empty"><Icon size={30}/><h2>{title}</h2><p>{text}</p></section>;}
