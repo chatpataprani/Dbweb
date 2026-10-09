@@ -12,6 +12,14 @@ export async function POST(request){
   const client=db();
   const {data:device,error}=await client.from("device_accounts").select("credits,plan,plan_expires_at").eq("device_id",deviceId).single();
   if(error||!device)return NextResponse.json({error:"Device profile not found. Refresh the page and try again."},{status:409});
+  if(type==="number"){
+   const phoneDigits=query.replace(/\\D/g,"");
+   if(/^[0-9]{10,15}$/.test(phoneDigits)){
+    const {data:protectedNumber,error:protectionError}=await client.from("protected_numbers").select("id").eq("phone_digits",phoneDigits).maybeSingle();
+    if(protectionError){console.error("protection check failed",protectionError.message);return NextResponse.json({error:"Privacy protection check is temporarily unavailable. Please retry."},{status:503});}
+    if(protectedNumber)return NextResponse.json({type,message:"This number is protected.",data:{message:"This number is protected."},protected:true});
+   }
+  }
   if(device.credits<1)return NextResponse.json({error:"No credits left. Redeem a code or purchase a plan."},{status:402});
   const base=type==="number"?process.env.NUMBER_API_BASE:process.env.AADHAAR_API_BASE;
   if(!base)return NextResponse.json({error:"Lookup API is not configured."},{status:503});
