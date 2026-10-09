@@ -13,11 +13,10 @@ export async function POST(request){
   const {type,query}=await request.json();
   if(!["number","aadhar"].includes(type)||typeof query!=="string"||!query.trim())return NextResponse.json({error:"Invalid lookup request."},{status:400});
   if(type==="number"&&query.replace(/[^0-9]/g,"").includes("7546085732"))return NextResponse.json({error:"You are not allowed to search this number."},{status:403});
-  const client=db();
   const {data:device,error}=await client.from("device_accounts").select("credits,plan,plan_expires_at").eq("device_id",deviceId).single();
   if(error||!device)return NextResponse.json({error:"Device profile not found. Refresh the page and try again."},{status:409});
   if(type==="number"){
-   const phoneDigits=query.replace(/\\D/g,"");
+   const phoneDigits=query.replace(/\D/g,"");
    if(/^[0-9]{10,15}$/.test(phoneDigits)){
     const {data:protectedNumber,error:protectionError}=await client.from("protected_numbers").select("id").eq("phone_digits",phoneDigits).maybeSingle();
     if(protectionError){console.error("protection check failed",protectionError.message);return NextResponse.json({error:"Privacy protection check is temporarily unavailable. Please retry."},{status:503});}
