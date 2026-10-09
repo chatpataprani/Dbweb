@@ -4,7 +4,7 @@
 
 import {useEffect,useState} from "react";
 import {createClient} from "@supabase/supabase-js";
-import {Search,CreditCard,ShieldCheck,History,Settings,LogIn,LogOut,UserPlus,Upload,Copy,Check,X,Menu,RefreshCw} from "lucide-react";
+import {Search,CreditCard,ShieldCheck,History,Settings,LogIn,LogOut,UserPlus,Upload,Copy,Check,X,Menu,RefreshCw,Download} from "lucide-react";
 
 const supabase=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||"https://placeholder.supabase.co",process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||"placeholder");
 const plans=[{name:"1 Day",price:30,days:1},{name:"7 Days",price:100,days:7},{name:"30 Days",price:300,days:30}];
@@ -26,7 +26,42 @@ export default function Home(){
 function Nav({active,onClick,icon:Icon,label,id}){return <button className={"nav "+(active===id?"on":"")} onClick={()=>onClick(id)}><Icon size={17}/>{label}</button>;}
 function title(p){return({lookup:"Lookup",plans:"Plans",payment:"Payment",history:"History",settings:"Settings",signin:"Sign in",register:"Create account",admin:"Admin"}[p]||"Lookup");}
 function subtitle(p){return({lookup:"Search an authorized number or Aadhaar record.",plans:"Choose a plan.",payment:"Pay by UPI and submit your receipt for approval.",history:"Your recent searches.",settings:"Account and privacy controls.",signin:"Sign in with email and password or 8-digit OTP.",register:"Create your account and receive 10 free credits.",admin:"Review UPI payments."}[p]||"");}
-function Lookup({type,setType,query,setQuery,lookup,loading,error,result}){return <div className="stack"><section className="card"><div className="seg"><button className={type==="number"?"on":""} onClick={()=>setType("number")}>Number</button><button className={type==="aadhar"?"on":""} onClick={()=>setType("aadhar")}>Aadhaar</button></div><form onSubmit={lookup} className="lookupForm"><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={type==="number"?"Enter phone number":"Enter Aadhaar number"} inputMode={type==="number"?"tel":"numeric"}/><button className="primary" disabled={loading}><Search size={17}/>{loading?"Searching…":"Search"}</button></form>{error&&<div className="error"><X size={16}/>{error}</div>}<p className="hint">Each completed lookup uses 1 credit. Free allowance is 10 credits once per account.</p></section>{result&&<section className="card"><div className="resultHead"><div><h2>Result</h2><p>Returned by the configured API.</p></div><button className="iconBtn" onClick={()=>navigator.clipboard?.writeText(JSON.stringify(result.data,null,2))}><Copy size={16}/></button></div><pre>{JSON.stringify(result.data,null,2)}</pre></section>}</div>;}
+function cleanResult(value){
+ const hidden=new Set(["district","pincode","state","town","source"]);
+ if(Array.isArray(value)){
+  const seen=new Set();
+  return value.map(cleanResult).filter(item=>{
+   const key=JSON.stringify(item);
+   if(seen.has(key))return false;
+   seen.add(key);return true;
+  });
+ }
+ if(value&&typeof value==="object"){
+  const out={};
+  for(const [key,item] of Object.entries(value)){
+   if(hidden.has(key.toLowerCase())||item===null||item===undefined)continue;
+   out[key]=cleanResult(item);
+  }
+  return out;
+ }
+ return value;
+}
+function downloadResult(data){
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json;charset=utf-8"});
+ const url=URL.createObjectURL(blob);const a=document.createElement("a");
+ a.href=url;a.download="dbweb-result.json";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
+function prettyKey(key){return key.replace(/([A-Z])/g," $1").replace(/[_-]+/g," ").replace(/^\\w/,c=>c.toUpperCase());}
+function ResultValue({value}){
+ if(Array.isArray(value))return <div className="resultNested">{value.map((item,i)=><div className="resultNestedItem" key={i}><ResultValue value={item}/></div>)}</div>;
+ if(value&&typeof value==="object")return <div className="resultFields">{Object.entries(value).map(([key,item])=><div className="resultField" key={key}><span>{prettyKey(key)}</span><strong>{typeof item==="object"?<ResultValue value={item}/>:String(item)}</strong></div>)}</div>;
+ return <>{String(value)}</>;
+}
+function Lookup({type,setType,query,setQuery,lookup,loading,error,result}){
+ const cleaned=result?cleanResult(result.data):null;
+ return <div className="stack"><section className="card"><div className="seg"><button className={type==="number"?"on":""} onClick={()=>setType("number")}>Number</button><button className={type==="aadhar"?"on":""} onClick={()=>setType("aadhar")}>Aadhaar</button></div><form onSubmit={lookup} className="lookupForm"><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={type==="number"?"Enter phone number":"Enter Aadhaar number"} inputMode={type==="number"?"tel":"numeric"}/><button className="primary" disabled={loading}><Search size={17}/>{loading?"Searching…":"Search"}</button></form>{error&&<div className="error"><X size={16}/>{error}</div>}<p className="hint">Sign in is required for every search. Each completed lookup uses 1 credit.</p></section>{result&&<section className="card"><div className="resultHead"><div><h2>Search result</h2><p>{Array.isArray(cleaned)?cleaned.length+" unique records":"Cleaned result"} · duplicate entries removed</p></div><div className="resultTools"><button className="secondary" onClick={()=>downloadResult(cleaned)}><DownloadIcon/>Download JSON</button><button className="iconBtn" aria-label="Copy result" onClick={()=>navigator.clipboard?.writeText(JSON.stringify(cleaned,null,2))}><Copy size={16}/></button></div></div>{cleaned&&typeof cleaned==="object"?<ResultValue value={cleaned}/>:<div className="resultValue">{String(cleaned??"No result data")}</div>}</section>}</div>;
+}
+function DownloadIcon(){return <Download size={16}/>}
 function Plans({onBuy}){return <div className="grid3">{plans.map(p=><section className="card plan" key={p.days}><div className="planIcon"><CreditCard size={18}/></div><h2>{p.name}</h2><div className="price">₹{p.price}</div><p>Premium access for {p.days} day{p.days>1?"s":""}.</p><button className="primary wide" onClick={()=>onBuy(p)}>Pay with UPI</button></section>)}</div>;}
 function Payment({plan}){const [status,setStatus]=useState(""),[file,setFile]=useState(null),[busy,setBusy]=useState(false);function pay(){const upi=process.env.NEXT_PUBLIC_UPI_ID;if(!upi)return setStatus("UPI ID is not configured.");const q=new URLSearchParams({pa:upi,pn:"Lookup Console",am:String(plan.price),cu:"INR",tn:plan.name+" plan"});window.location.href="upi://pay?"+q.toString();}async function submit(e){e.preventDefault();if(!file)return setStatus("Select your payment receipt first.");setBusy(true);setStatus("");try{const s=await supabase.auth.getSession();const f=new FormData();f.append("plan_days",String(plan.days));f.append("amount",String(plan.price));f.append("receipt",file);const r=await fetch("/api/payments",{method:"POST",headers:{Authorization:"Bearer "+(s.data.session?.access_token||"")},body:f});const d=await r.json();if(!r.ok)throw new Error(d.error||"Could not submit receipt.");setStatus("Payment #"+d.payment_id+" submitted. Wait for admin approval.");setFile(null);}catch(e){setStatus(e.message);}finally{setBusy(false);}}return <div className="paymentGrid"><section className="card"><h2>{plan.name} plan</h2><div className="price">₹{plan.price}</div><p>Pay exactly this amount through your UPI app.</p><button className="primary wide upiPay" type="button" onClick={pay}>Pay ₹{plan.price} with UPI</button><div className="kv"><span>UPI ID</span><strong>{process.env.NEXT_PUBLIC_UPI_ID||"Configure NEXT_PUBLIC_UPI_ID"}</strong></div><div className="kv"><span>Duration</span><strong>{plan.days} day{plan.days>1?"s":""}</strong></div></section><section className="card"><h2>Submit receipt</h2><p className="hint">Upload the receipt after completing payment.</p><form onSubmit={submit}><label className="drop"><Upload size={22}/><span>{file?file.name:"Choose screenshot or PDF"}</span><input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" onChange={e=>setFile(e.target.files?.[0]||null)} hidden/></label><button className="primary wide" disabled={busy}>{busy?"Uploading…":"Submit for approval"}</button></form>{status&&<div className="success"><Check size={16}/>{status}</div>}</section></div>;}
 function Auth({register,onAuth}){const [email,setEmail]=useState(""),[password,setPassword]=useState(""),[otpCode,setOtpCode]=useState(""),[otpSent,setOtpSent]=useState(false),[cooldown,setCooldown]=useState(0),[message,setMessage]=useState(""),[busy,setBusy]=useState(false);
