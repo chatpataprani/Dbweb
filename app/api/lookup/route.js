@@ -23,14 +23,17 @@ export async function POST(request){
     if(protectedNumber)return NextResponse.json({type,message:"This number is protected.",data:{message:"This number is protected."},protected:true});
    }
   }
-  if(device.credits<1)return NextResponse.json({error:"No credits left. Redeem a code or purchase a plan."},{status:402});
+  const premiumActive=Boolean(device.plan&&device.plan_expires_at&&new Date(device.plan_expires_at).getTime()>Date.now());
+  if(!premiumActive&&device.credits<1)return NextResponse.json({error:"No credits left. Redeem a code or purchase a plan."},{status:402});
   const base=type==="number"?process.env.NUMBER_API_BASE:process.env.AADHAAR_API_BASE;
   if(!base)return NextResponse.json({error:"Lookup API is not configured."},{status:503});
   const response=await fetch(base+encodeURIComponent(query.trim()),{headers:{accept:"application/json,text/plain,*/*"},cache:"no-store"});
   const body=await response.text();let data;try{data=JSON.parse(body)}catch{data=body}
   if(!response.ok)return NextResponse.json({error:"Upstream lookup failed.",status:response.status},{status:502});
-  const {data:updated,error:creditError}=await client.from("device_accounts").update({credits:device.credits-1,updated_at:new Date().toISOString()}).eq("device_id",deviceId).eq("credits",device.credits).select("credits").maybeSingle();
-  if(creditError||!updated)return NextResponse.json({error:"Credit balance changed; please retry."},{status:409});
+  if(!premiumActive){
+   const {data:updated,error:creditError}=await client.from("device_accounts").update({credits:device.credits-1,updated_at:new Date().toISOString()}).eq("device_id",deviceId).eq("credits",device.credits).select("credits").maybeSingle();
+   if(creditError||!updated)return NextResponse.json({error:"Credit balance changed; please retry."},{status:409});
+  }
   const queryHash=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(query.trim())).then(buf=>Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join(""));
   await client.from("device_lookups").insert({device_id:deviceId,lookup_type:type,query_hash:queryHash});
   return NextResponse.json({type,data});
