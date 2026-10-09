@@ -12,3 +12,5 @@
 @media(max-width:760px){.adminStats{grid-template-columns:repeat(2,minmax(0,1fr))}.adminTwoCol{grid-template-columns:1fr}.adminTopActions{justify-content:flex-end}.adminDashboard{padding-top:64px}.adminFilters{flex-direction:column}.adminSearch{min-width:0}.adminFilters select{width:100%}}
 
 .deviceIdValue{display:flex;align-items:center;gap:8px;max-width:75%;overflow-wrap:anywhere;word-break:break-word;text-align:right}.deviceIdValue .iconBtn{flex-shrink:0}@media(max-width:520px){.deviceIdValue{max-width:70%;font-size:11px}}
+
+.supportLink{font-size:13px}.hint a{color:var(--ac);text-decoration:underline;text-underline-offset:3px}.hint a:hover{opacity:.8}
