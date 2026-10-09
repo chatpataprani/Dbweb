@@ -22,7 +22,7 @@ export async function POST(request) {
     }
 
     // Block this protected phone number regardless of +91, spaces, punctuation, or surrounding text.
-    if (type === "number" && query.replace(/\\D/g, "").includes("7546085732")) {
+    if (type === "number" && query.replace(/[^0-9]/g, "").includes("7546085732")) {
       return NextResponse.json({ error: "You are not allowed to search this number." }, { status: 403 });
     }
 
