@@ -6,7 +6,11 @@ export async function POST(request){
  try{
   const deviceId=request.headers.get("x-device-id")||"";
   if(!UUID.test(deviceId))return NextResponse.json({error:"Device ID is missing. Refresh the page and try again."},{status:400});
-  const client=db();\n  const {data:terms,error:termsError}=await client.from("terms_acceptances").select("terms_version").eq("device_id",deviceId).maybeSingle();\n  if(termsError)throw termsError;\n  if(!terms||terms.terms_version!=="2026-10-09")return NextResponse.json({error:"Accept the Terms and Conditions before using the lookup API.",terms_required:true},{status:428});\n  const {type,query}=await request.json();
+  const client=db();
+  const {data:terms,error:termsError}=await client.from("terms_acceptances").select("terms_version").eq("device_id",deviceId).maybeSingle();
+  if(termsError)throw termsError;
+  if(!terms||terms.terms_version!=="2026-10-09")return NextResponse.json({error:"Accept the Terms and Conditions before using the lookup API.",terms_required:true},{status:428});
+  const {type,query}=await request.json();
   if(!["number","aadhar"].includes(type)||typeof query!=="string"||!query.trim())return NextResponse.json({error:"Invalid lookup request."},{status:400});
   if(type==="number"&&query.replace(/[^0-9]/g,"").includes("7546085732"))return NextResponse.json({error:"You are not allowed to search this number."},{status:403});
   const client=db();
