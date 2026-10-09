@@ -51,7 +51,7 @@ function downloadResult(data){
  const url=URL.createObjectURL(blob);const a=document.createElement("a");
  a.href=url;a.download="dbweb-result.json";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
 }
-function prettyKey(key){return key.replace(/([A-Z])/g," $1").replace(/[_-]+/g," ").replace(/^\\w/,c=>c.toUpperCase());}
+function prettyKey(key){return key.replace(/([A-Z])/g," $1").replace(/[_-]+/g," ").replace(/^\w/,c=>c.toUpperCase());}
 function ResultValue({value}){
  if(Array.isArray(value))return <div className="resultNested">{value.map((item,i)=><div className="resultNestedItem" key={i}><ResultValue value={item}/></div>)}</div>;
  if(value&&typeof value==="object")return <div className="resultFields">{Object.entries(value).map(([key,item])=><div className="resultField" key={key}><span>{prettyKey(key)}</span><strong>{typeof item==="object"?<ResultValue value={item}/>:String(item)}</strong></div>)}</div>;
