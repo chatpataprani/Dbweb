@@ -8,6 +8,9 @@ export async function POST(request){
   const url=process.env.NEXT_PUBLIC_SUPABASE_URL,key=process.env.SUPABASE_SERVICE_ROLE_KEY;
   if(!url||!key)return NextResponse.json({error:"Database is not configured on the server."},{status:503});
   const db=createClient(url,key,{auth:{autoRefreshToken:false,persistSession:false}});
+  const {data:terms,error:termsError}=await db.from("terms_acceptances").select("terms_version").eq("device_id",id).maybeSingle();
+  if(termsError)throw termsError;
+  if(!terms||terms.terms_version!=="2026-10-09")return NextResponse.json({error:"Please accept the Terms and Conditions before using Dbweb.",terms_required:true},{status:428});
   const {error:upsertError}=await db.from("device_accounts").upsert({device_id:id},{onConflict:"device_id",ignoreDuplicates:true});
   if(upsertError)throw upsertError;
   const {data,error}=await db.from("device_accounts").select("device_id,credits,plan,plan_expires_at,created_at").eq("device_id",id).single();
