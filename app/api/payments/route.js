@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { sendAdminNewPayment } from "../../../../lib/mailer";
+import { sendAdminNewPayment } from "../../../lib/mailer";
 
 const BUCKET = "payment-receipts";
 
