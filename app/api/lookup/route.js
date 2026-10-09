@@ -1,78 +1,27 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-
-export async function POST(request) {
-  try {
-    const authHeader = request.headers.get("authorization") || "";
-    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
-    if (!token) return NextResponse.json({ error: "Please sign in before searching." }, { status: 401 });
-
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      { global: { headers: { Authorization: `Bearer ${token}` } } }
-    );
-
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-    if (userError || !userData.user) return NextResponse.json({ error: "Your session has expired. Please sign in again." }, { status: 401 });
-
-    const { type, query } = await request.json();
-    if (!["number", "aadhar"].includes(type) || !query?.trim()) {
-      return NextResponse.json({ error: "Invalid lookup request." }, { status: 400 });
-    }
-
-    // Block this protected phone number regardless of +91, spaces, punctuation, or surrounding text.
-    if (type === "number" && query.replace(/[^0-9]/g, "").includes("7546085732")) {
-      return NextResponse.json({ error: "You are not allowed to search this number." }, { status: 403 });
-    }
-
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("credits")
-      .eq("id", userData.user.id)
-      .single();
-
-    if (profileError || !profile) return NextResponse.json({ error: "Your account profile is not ready yet." }, { status: 409 });
-    if (profile.credits <= 0) return NextResponse.json({ error: "No credits left. Buy a plan to continue." }, { status: 402 });
-
-    const base = type === "number" ? process.env.NUMBER_API_BASE : process.env.AADHAAR_API_BASE;
-    if (!base) return NextResponse.json({ error: "Lookup API is not configured." }, { status: 503 });
-
-    const response = await fetch(base + encodeURIComponent(query.trim()), {
-      headers: { accept: "application/json,text/plain,*/*" },
-      cache: "no-store"
-    });
-
-    const text = await response.text();
-    let data;
-    try { data = JSON.parse(text); } catch { data = text; }
-
-    if (!response.ok) {
-      return NextResponse.json({ error: "Upstream lookup failed.", status: response.status }, { status: 502 });
-    }
-
-    const newCredits = profile.credits - 1;
-    const { error: creditError } = await supabase
-      .from("profiles")
-      .update({ credits: newCredits })
-      .eq("id", userData.user.id)
-      .eq("credits", profile.credits);
-
-    if (creditError) return NextResponse.json({ error: "Could not update your credits. Please try again." }, { status: 500 });
-
-    const queryHash = await crypto.subtle.digest(
-      "SHA-256",
-      new TextEncoder().encode(query.trim())
-    ).then(buf => Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join(""));
-
-    await supabase.from("lookups").insert({
-      user_id: userData.user.id,
-      lookup_type: type,
-      query_hash: queryHash
-    });
-
-    return NextResponse.json({ type, data });
-  } catch {
-    return NextResponse.json({ error: "Unable to complete lookup." }, { status: 500 });
-  }
+const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function db(){return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY,{auth:{autoRefreshToken:false,persistSession:false}});}
+export async function POST(request){
+ try{
+  const deviceId=request.headers.get("x-device-id")||"";
+  if(!UUID.test(deviceId))return NextResponse.json({error:"Device ID is missing. Refresh the page and try again."},{status:400});
+  const {type,query}=await request.json();
+  if(!["number","aadhar"].includes(type)||typeof query!=="string"||!query.trim())return NextResponse.json({error:"Invalid lookup request."},{status:400});
+  if(type==="number"&&query.replace(/[^0-9]/g,"").includes("7546085732"))return NextResponse.json({error:"You are not allowed to search this number."},{status:403});
+  const client=db();
+  const {data:device,error}=await client.from("device_accounts").select("credits,plan,plan_expires_at").eq("device_id",deviceId).single();
+  if(error||!device)return NextResponse.json({error:"Device profile not found. Refresh the page and try again."},{status:409});
+  if(device.credits<1)return NextResponse.json({error:"No credits left. Redeem a code or purchase a plan."},{status:402});
+  const base=type==="number"?process.env.NUMBER_API_BASE:process.env.AADHAAR_API_BASE;
+  if(!base)return NextResponse.json({error:"Lookup API is not configured."},{status:503});
+  const response=await fetch(base+encodeURIComponent(query.trim()),{headers:{accept:"application/json,text/plain,*/*"},cache:"no-store"});
+  const body=await response.text();let data;try{data=JSON.parse(body)}catch{data=body}
+  if(!response.ok)return NextResponse.json({error:"Upstream lookup failed.",status:response.status},{status:502});
+  const {data:updated,error:creditError}=await client.from("device_accounts").update({credits:device.credits-1,updated_at:new Date().toISOString()}).eq("device_id",deviceId).eq("credits",device.credits).select("credits").maybeSingle();
+  if(creditError||!updated)return NextResponse.json({error:"Credit balance changed; please retry."},{status:409});
+  const queryHash=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(query.trim())).then(buf=>Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join(""));
+  await client.from("device_lookups").insert({device_id:deviceId,lookup_type:type,query_hash:queryHash});
+  return NextResponse.json({type,data});
+ }catch(e){console.error("lookup error",e?.message);return NextResponse.json({error:"Unable to complete lookup."},{status:500});}
 }
