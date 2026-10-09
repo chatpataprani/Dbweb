@@ -39,7 +39,8 @@ create or replace function public.redeem_device_code(p_device_id uuid,p_code tex
 returns jsonb language plpgsql security definer set search_path=public as $$
 declare v_hash text; v_code public.redeem_codes; v_account public.device_accounts; v_expiry timestamptz; v_message text;
 begin
- v_hash:=encode(digest(lower(trim(p_code)),'sha256'),'hex');
+ -- p_code is a SHA-256 hex digest computed by the server API.
+ v_hash:=lower(trim(p_code));
  select * into v_code from public.redeem_codes where code_hash=v_hash for update;
  if not found or not v_code.active then raise exception 'invalid code'; end if;
  if v_code.expires_at is not null and v_code.expires_at<=now() then raise exception 'code expired'; end if;
