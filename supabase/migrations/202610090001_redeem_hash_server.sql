@@ -61,8 +61,8 @@ BEGIN
 
     v_expiry := CASE
         WHEN v_code.premium_days > 0 THEN
-            pg_catalog.greatest(
-                pg_catalog.coalesce(v_account.plan_expires_at, pg_catalog.now()),
+            greatest(
+                coalesce(v_account.plan_expires_at, pg_catalog.now()),
                 pg_catalog.now()
             ) + pg_catalog.make_interval(days => v_code.premium_days)
         ELSE v_account.plan_expires_at
