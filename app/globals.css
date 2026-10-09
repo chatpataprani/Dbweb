@@ -14,3 +14,12 @@
 .deviceIdValue{display:flex;align-items:center;gap:8px;max-width:75%;overflow-wrap:anywhere;word-break:break-word;text-align:right}.deviceIdValue .iconBtn{flex-shrink:0}@media(max-width:520px){.deviceIdValue{max-width:70%;font-size:11px}}
 
 .supportLink{font-size:13px}.hint a{color:var(--ac);text-decoration:underline;text-underline-offset:3px}.hint a:hover{opacity:.8}
+
+/* Terms acceptance gate */
+.termsOverlay{position:fixed;inset:0;z-index:1000;background:rgba(10,12,18,.82);backdrop-filter:blur(8px);display:grid;place-items:center;padding:14px}
+.termsModal{width:min(760px,100%);max-height:94vh;display:flex;flex-direction:column;gap:12px;background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:22px;box-shadow:0 24px 80px #0006}
+.termsModal h1{font-size:22px;line-height:1.25}.termsIntro{color:var(--mu)}
+.termsScroll{overflow-y:auto;overscroll-behavior:contain;border:1px solid var(--bd);background:var(--bg);border-radius:9px;padding:16px;display:grid;gap:8px}
+.termsScroll h2{font-size:14px;margin-top:8px}.termsScroll p{line-height:1.65;color:var(--mu)}
+.termsActions{display:grid;grid-template-columns:1fr 1.5fr;gap:10px}.termsActions button{min-height:48px}
+@media(max-width:520px){.termsModal{padding:15px;max-height:96vh}.termsModal h1{font-size:19px}.termsScroll{padding:12px}.termsActions{grid-template-columns:1fr}.termsActions button{width:100%}}
