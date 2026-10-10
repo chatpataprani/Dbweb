@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function dedupeData(value){if(Array.isArray(value)){const seen=new Set();return value.map(dedupeData).filter(item=>{const key=JSON.stringify(item);if(seen.has(key))return false;seen.add(key);return true;});}if(value&&typeof value==="object"){return Object.fromEntries(Object.entries(value).map(([k,v])=>[k,dedupeData(v)]));}return value;}
 function db(){return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY,{auth:{autoRefreshToken:false,persistSession:false}});}
 export async function POST(request){
  try{
@@ -28,7 +29,7 @@ export async function POST(request){
   const base=type==="number"?process.env.NUMBER_API_BASE:process.env.AADHAAR_API_BASE;
   if(!base)return NextResponse.json({error:"Lookup API is not configured."},{status:503});
   const response=await fetch(base+encodeURIComponent(query.trim()),{headers:{accept:"application/json,text/plain,*/*"},cache:"no-store"});
-  const body=await response.text();let data;try{data=JSON.parse(body)}catch{data=body}
+  const body=await response.text();let data;try{data=JSON.parse(body)}catch{data=body}data=dedupeData(data);
   if(!response.ok)return NextResponse.json({error:"Upstream lookup failed.",status:response.status},{status:502});
   if(!premiumActive){
    const {data:updated,error:creditError}=await client.from("device_accounts").update({credits:device.credits-1,updated_at:new Date().toISOString()}).eq("device_id",deviceId).eq("credits",device.credits).select("credits").maybeSingle();
