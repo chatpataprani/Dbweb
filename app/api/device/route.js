@@ -15,7 +15,7 @@ export async function POST(request){
   if(upsertError)throw upsertError;
   const {error:termsStampError}=await db.from("device_accounts").update({terms_accepted_at:new Date().toISOString(),terms_version:"2026-10-09"}).eq("device_id",id);
   if(termsStampError)throw termsStampError;
-  const {data,error}=await db.from("device_accounts").select("device_id,credits,plan,plan_expires_at,created_at,updated_at,terms_accepted_at,terms_version").eq("device_id",id).single();
+  const {data,error}=await db.from("device_accounts").select("device_id,display_name,credits,plan,plan_expires_at,created_at,updated_at,terms_accepted_at,terms_version").eq("device_id",id).single();
   if(error)throw error;
   return NextResponse.json({account:data});
  }catch(e){console.error("device initialization failed",e?.message);return NextResponse.json({error:"Could not initialize device account. Check the database schema and server environment variables."},{status:500});}
