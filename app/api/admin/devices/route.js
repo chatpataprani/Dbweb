@@ -6,7 +6,8 @@ export async function GET(request){
  if(!validAdminRequest(request))return NextResponse.json({error:"Admin access required."},{status:403});
  try{
   const client=db();
-  const {data:accounts,error}=await client.from("device_accounts").select("device_id,display_name,credits,plan,plan_expires_at,created_at,updated_at,terms_accepted_at,terms_version").order("created_at",{ascending:false}).limit(2000);
+  let {data:accounts,error}=await client.from("device_accounts").select("device_id,display_name,credits,plan,plan_expires_at,created_at,updated_at,terms_accepted_at,terms_version").order("created_at",{ascending:false}).limit(2000);
+  if(error&&String(error.message||"").toLowerCase().includes("display_name"))({data:accounts,error}=await client.from("device_accounts").select("device_id,credits,plan,plan_expires_at,created_at,updated_at,terms_accepted_at,terms_version").order("created_at",{ascending:false}).limit(2000));
   if(error)throw error;
   const ids=(accounts||[]).map(a=>a.device_id);
   let payments=[],lookups=[],acceptances=[];
