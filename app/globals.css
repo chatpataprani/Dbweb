@@ -23,3 +23,5 @@
 .termsScroll h2{font-size:14px;margin-top:8px}.termsScroll p{line-height:1.65;color:var(--mu)}
 .termsActions{display:grid;grid-template-columns:1fr 1.5fr;gap:10px}.termsActions button{min-height:48px}
 @media(max-width:520px){.termsModal{padding:15px;max-height:96vh}.termsModal h1{font-size:19px}.termsScroll{padding:12px}.termsActions{grid-template-columns:1fr}.termsActions button{width:100%}}
+
+.termsNameLabel{display:grid;gap:6px;font-size:12px;color:var(--mu)}.termsNameInput{width:100%;min-height:44px;border:1px solid var(--bd);border-radius:7px;padding:10px 12px;background:var(--bg);color:var(--tx);outline:none}.termsNameInput:focus{border-color:var(--ac);box-shadow:0 0 0 2px var(--acs)}.termsReadLink{align-self:flex-start;border:0;padding:0;background:transparent;color:var(--ac);text-decoration:underline;text-underline-offset:3px;cursor:pointer}.resultFields{min-width:0}.resultFields .resultFields{margin-top:7px}.resultFields .resultNested{display:grid;gap:8px;min-width:0}.resultFields .resultNestedItem{overflow-wrap:anywhere;word-break:break-word}.resultFields .resultField{min-width:0}.resultFields .resultField strong{font-weight:500}
