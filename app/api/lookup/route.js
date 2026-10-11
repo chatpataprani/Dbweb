@@ -13,7 +13,17 @@ export async function POST(request){
   if(!terms||terms.terms_version!=="2026-10-09")return NextResponse.json({error:"Accept the Terms and Conditions before using the lookup API.",terms_required:true},{status:428});
   const {type,query}=await request.json();
   if(!["number","aadhar"].includes(type)||typeof query!=="string"||!query.trim())return NextResponse.json({error:"Invalid lookup request."},{status:400});
-  if(type==="number"&&query.replace(/[^0-9]/g,"").includes("7546085732"))return NextResponse.json({error:"You are not allowed to search this number."},{status:403});
+  let lookupQuery=query.trim();
+  if(type==="number"){
+   const digits=lookupQuery.replace(/\\D/g,"");
+   // Normalize Indian mobile numbers: +91 75496 98703 -> 7549698703.
+   if(digits.length===12&&digits.startsWith("91"))lookupQuery=digits.slice(2);
+   else if(digits.length===10)lookupQuery=digits;
+   else if(digits.length>10&&digits.startsWith("91"))lookupQuery=digits.slice(2);
+   else lookupQuery=digits;
+   if(lookupQuery.length!==10)return NextResponse.json({error:"Enter a valid 10-digit phone number, with or without the +91 country code."},{status:400});
+   if(lookupQuery.includes("7546085732"))return NextResponse.json({error:"You are not allowed to search this number."},{status:403});
+  }
   const {data:device,error}=await client.from("device_accounts").select("credits,plan,plan_expires_at").eq("device_id",deviceId).single();
   if(error||!device)return NextResponse.json({error:"Device profile not found. Refresh the page and try again."},{status:409});
   if(type==="number"){
@@ -28,14 +38,14 @@ export async function POST(request){
   if(!premiumActive&&device.credits<1)return NextResponse.json({error:"No credits left. Redeem a code or purchase a plan."},{status:402});
   const base=type==="number"?process.env.NUMBER_API_BASE:process.env.AADHAAR_API_BASE;
   if(!base)return NextResponse.json({error:"Lookup API is not configured."},{status:503});
-  const response=await fetch(base+encodeURIComponent(query.trim()),{headers:{accept:"application/json,text/plain,*/*"},cache:"no-store"});
+  const response=await fetch(base+encodeURIComponent(lookupQuery),{headers:{accept:"application/json,text/plain,*/*"},cache:"no-store"});
   const body=await response.text();let data;try{data=JSON.parse(body)}catch{data=body}data=dedupeData(data);
   if(!response.ok)return NextResponse.json({error:"Upstream lookup failed.",status:response.status},{status:502});
   if(!premiumActive){
    const {data:updated,error:creditError}=await client.from("device_accounts").update({credits:device.credits-1,updated_at:new Date().toISOString()}).eq("device_id",deviceId).eq("credits",device.credits).select("credits").maybeSingle();
    if(creditError||!updated)return NextResponse.json({error:"Credit balance changed; please retry."},{status:409});
   }
-  const queryHash=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(query.trim())).then(buf=>Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join(""));
+  const queryHash=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(lookupQuery)).then(buf=>Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join(""));
   await client.from("device_lookups").insert({device_id:deviceId,lookup_type:type,query_hash:queryHash});
   return NextResponse.json({type,data});
  }catch(e){console.error("lookup error",e?.message);return NextResponse.json({error:"Unable to complete lookup."},{status:500});}
