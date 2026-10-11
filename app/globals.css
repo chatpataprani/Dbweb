@@ -38,3 +38,21 @@
 
 /* Lookup loading animation */
 .searchSubmit{position:relative;overflow:hidden;transition:transform .2s ease,box-shadow .2s ease}.searchSubmit:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 7px 20px #3d5bd933}.searchSubmit.isSearching{cursor:wait;box-shadow:0 0 0 3px var(--acs);min-width:128px}.searchPulse{display:inline-flex;gap:3px;align-items:center}.searchPulse i,.progressDots i{display:block;width:5px;height:5px;border-radius:50%;background:currentColor;animation:dbweb-dot 1s ease-in-out infinite}.searchPulse i:nth-child(2),.progressDots i:nth-child(2){animation-delay:.15s}.searchPulse i:nth-child(3),.progressDots i:nth-child(3){animation-delay:.3s}@keyframes dbweb-dot{0%,60%,100%{opacity:.3;transform:translateY(0) scale(.8)}30%{opacity:1;transform:translateY(-4px) scale(1.1)}}.lookupProgress{position:relative;overflow:hidden;margin-top:15px;padding:16px 15px 13px;border:1px solid #cdd5fb;border-radius:10px;background:linear-gradient(115deg,#f7f8ff,#fff 48%,#eef1ff);animation:dbweb-rise .28s ease-out both}.lookupProgressCore{display:flex;align-items:center;gap:12px;position:relative;z-index:1}.lookupProgressCore strong{font-size:13px}.lookupProgressCore p{font-size:12px;color:var(--mu);margin-top:3px}.radarIcon{width:40px;height:40px;flex-shrink:0;display:grid;place-items:center;border-radius:12px;background:#e4e9ff;color:var(--ac);animation:dbweb-radar 1.5s ease-in-out infinite}.progressDots{display:flex;gap:4px;margin-left:auto;color:var(--ac)}.progressTrack{height:3px;background:#dfe4ff;border-radius:20px;margin-top:14px;overflow:hidden}.progressTrack span{display:block;height:100%;width:35%;border-radius:20px;background:var(--ac);animation:dbweb-scan 1.3s ease-in-out infinite}.scanLine{position:absolute;top:0;bottom:0;width:30%;left:-35%;background:linear-gradient(90deg,transparent,#fff9,transparent);animation:dbweb-sheen 1.8s ease-in-out infinite;pointer-events:none}@keyframes dbweb-radar{0%,100%{transform:scale(1);box-shadow:0 0 0 0 #3d5bd91c}50%{transform:scale(1.06);box-shadow:0 0 0 7px #3d5bd900}}@keyframes dbweb-scan{0%{transform:translateX(-110%)}100%{transform:translateX(310%)}}@keyframes dbweb-sheen{0%{left:-35%}100%{left:110%}}@keyframes dbweb-rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}@media(prefers-reduced-motion:reduce){.searchPulse i,.progressDots i,.radarIcon,.progressTrack span,.scanLine,.lookupProgress,.searchSubmit{animation:none!important;transition:none!important}}
+
+/* Persistent light/dark appearance themes */
+:root[data-theme="dark"]{color-scheme:dark;--bg:#101217;--s1:#191c24;--s2:#242936;--bd:#303644;--tx:#eef0f6;--mu:#a2a9bb;--ac:#91a5ff;--acs:#282f4b;--ok:#64d49a;--er:#ff827c}
+:root[data-theme="dark"] body{background:var(--bg);color:var(--tx)}
+:root[data-theme="dark"] .error{background:#3c2225;color:#ffaaa5}
+:root[data-theme="dark"] .success{background:#193629;color:#8be0ae}
+:root[data-theme="dark"] .lookupProgress{border-color:#343d5c;background:linear-gradient(115deg,#20263a,#191c24 48%,#242b43)}
+:root[data-theme="dark"] .radarIcon{background:#303958;color:var(--ac)}
+:root[data-theme="dark"] .progressTrack{background:#343d5c}
+:root[data-theme="dark"] .termsOverlay{background:rgba(0,0,0,.86)}
+:root[data-theme="dark"] .copyButton.copied{background:#193629;color:#8be0ae;border-color:#326d4b}
+:root[data-theme="dark"] .generatedCode{background:#193629;color:#8be0ae;border-color:#326d4b}
+.themeSwitch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.themeOption{min-height:48px;display:flex;align-items:center;justify-content:center;gap:9px;border:1px solid var(--bd);border-radius:9px;background:var(--bg);color:var(--tx);cursor:pointer;transition:border-color .18s ease,background .18s ease,transform .18s ease}
+.themeOption:hover{transform:translateY(-1px)}
+.themeOption.active{background:var(--acs);border-color:var(--ac);box-shadow:0 0 0 1px var(--ac) inset}
+:root[data-theme="dark"] .themeOption.active{color:#eef0ff}
+@media(max-width:420px){.themeSwitch{grid-template-columns:1fr}}
