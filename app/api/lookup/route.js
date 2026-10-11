@@ -27,7 +27,7 @@ export async function POST(request){
   const {data:device,error}=await client.from("device_accounts").select("credits,plan,plan_expires_at").eq("device_id",deviceId).single();
   if(error||!device)return NextResponse.json({error:"Device profile not found. Refresh the page and try again."},{status:409});
   if(type==="number"){
-   const phoneDigits=query.replace(/\D/g,"");
+   const phoneDigits=lookupQuery.replace(/\D/g,"");
    if(/^[0-9]{10,15}$/.test(phoneDigits)){
     const {data:protectedNumber,error:protectionError}=await client.from("protected_numbers").select("id").eq("phone_digits",phoneDigits).maybeSingle();
     if(protectionError){console.error("protection check failed",protectionError.message);return NextResponse.json({error:"Privacy protection check is temporarily unavailable. Please retry."},{status:503});}
@@ -38,7 +38,9 @@ export async function POST(request){
   if(!premiumActive&&device.credits<1)return NextResponse.json({error:"No credits left. Redeem a code or purchase a plan."},{status:402});
   const base=type==="number"?process.env.NUMBER_API_BASE:process.env.AADHAAR_API_BASE;
   if(!base)return NextResponse.json({error:"Lookup API is not configured."},{status:503});
-  const response=await fetch(base+encodeURIComponent(lookupQuery),{headers:{accept:"application/json,text/plain,*/*"},cache:"no-store"});
+  let response;
+  try{response=await fetch(base+encodeURIComponent(lookupQuery),{headers:{accept:"application/json,text/plain,*/*"},cache:"no-store",signal:AbortSignal.timeout(12000)});}
+  catch(fetchError){if(fetchError?.name==="TimeoutError"||fetchError?.name==="AbortError")return NextResponse.json({error:"Lookup service timed out. Please try again."},{status:504});throw fetchError;}
   const body=await response.text();let data;try{data=JSON.parse(body)}catch{data=body}data=dedupeData(data);
   if(!response.ok)return NextResponse.json({error:"Upstream lookup failed.",status:response.status},{status:502});
   if(!premiumActive){
