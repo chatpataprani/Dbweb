@@ -15,7 +15,7 @@ export async function POST(request){
   if(!["number","aadhar"].includes(type)||typeof query!=="string"||!query.trim())return NextResponse.json({error:"Invalid lookup request."},{status:400});
   let lookupQuery=query.trim();
   if(type==="number"){
-   const digits=lookupQuery.replace(/\\D/g,"");
+   const digits=lookupQuery.replace(/\D/g,"");
    // Normalize Indian mobile numbers: +91 75496 98703 -> 7549698703.
    if(digits.length===12&&digits.startsWith("91"))lookupQuery=digits.slice(2);
    else if(digits.length===10)lookupQuery=digits;
