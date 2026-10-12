@@ -191,6 +191,29 @@
     <meta name="twitter:description" content="Free online PDF and image tools — merge, split, compress, convert, resize PDFs and images. 100% client-side, privacy-first.">
     <meta name="twitter:image" content="https://Dbweb.pages.dev/og-image.svg">
     <meta name="theme-color" content="#e94560">
+
+    <style>
+      :root { --db-bg:#0b1020; --db-panel:rgba(20,28,49,.82); --db-line:rgba(151,170,220,.17); --db-text:#eef3ff; --db-muted:#a8b5d2; --db-accent:#8da5ff; }
+      body { background:radial-gradient(ellipse at 15% 0%,#1c2a50 0,transparent 40%),radial-gradient(ellipse at 90% 15%,#202044 0,transparent 35%),#0b1020!important; color:var(--db-text); }
+      .homepage-hero { padding:72px 22px 48px!important; }
+      .homepage-hero h1 { font-size:clamp(2.15rem,5vw,3.7rem)!important; line-height:1.08; letter-spacing:-.045em; }
+      .homepage-hero p { max-width:680px; margin:18px auto 0; color:var(--db-muted); font-size:1.05rem; }
+      .tools-grid { grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr))!important; gap:16px!important; padding:24px 0 36px!important; }
+      .tool-card { background:linear-gradient(150deg,rgba(28,38,65,.92),rgba(17,24,42,.94))!important; border:1px solid var(--db-line)!important; border-radius:18px!important; padding:22px!important; min-height:190px; box-shadow:0 8px 28px #0002; transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease!important; text-decoration:none!important; }
+      .tool-card:hover { transform:translateY(-4px); border-color:rgba(141,165,255,.62)!important; box-shadow:0 18px 40px #0004; }
+      .tool-icon { width:46px!important;height:46px!important;display:grid;place-items:center;border-radius:14px;background:rgba(141,165,255,.13);color:var(--db-accent);font-size:1.15rem;margin-bottom:17px; }
+      .tool-title { color:var(--db-text)!important;font-size:1.05rem!important; }
+      .tool-description { color:var(--db-muted)!important; }
+      .category-title { font-size:clamp(1.25rem,3vw,1.65rem)!important; gap:11px!important; }
+      .category-title i { color:var(--db-accent)!important; }
+      .tag { border-radius:999px!important; }
+      .info-section { gap:16px; }
+      .info-card { background:var(--db-panel)!important;border:1px solid var(--db-line)!important;border-radius:16px!important; }
+      .info-content h3 { color:var(--db-text)!important; }
+      .info-content p { color:var(--db-muted)!important; }
+      @media(max-width:600px){.homepage-hero{padding:46px 14px 28px!important}.tools-grid{gap:12px!important}.tool-card{padding:18px!important;min-height:0}}
+    </style>
+
 </head>
 <body>
     <!-- Header -->
@@ -653,43 +676,6 @@
         </section>
     </main>
 
-    <!-- Footer -->
-    <footer class="homepage-footer">
-        <div class="footer-grid">
-            <div class="footer-brand">
-                <h3><i class="fas fa-shield-halved"></i> Dbweb Tools</h3>
-                <p>Professional digital forensics platform for law enforcement agencies. All tools operate client-side ensuring data privacy and security.</p>
-            </div>
-            <div class="footer-column">
-                <h4>Resources</h4>
-                <ul>
-                    <li><a href="https://upload.indiacode.nic.in/schedulefile?aid=AC_CEN_5_23_00049_2023-47_1719292804654&rid=1163" target="_blank">Official BSA Form <i class="fas fa-external-link-alt" style="font-size: 0.7rem;"></i></a></li>
-                    <li><a href="https://www.indiacode.nic.in/handle/123456789/20063" target="_blank">BSA 2023 Full Text <i class="fas fa-external-link-alt" style="font-size: 0.7rem;"></i></a></li>
-                    <li><a href="https://github.com/PBhadoo/Dbweb.pages.dev" target="_blank">GitHub Source <i class="fab fa-github" style="font-size: 0.8rem;"></i></a></li>
-                    <li><a href="/tools/sitemap.xml">Sitemap</a></li>
-                </ul>
-            </div>
-            <div class="footer-column">
-                <h4>Legal</h4>
-                <ul>
-                    <li><a href="/tools/disclaimer.html">Disclaimer</a></li>
-                    <li><a href="/tools/privacy.html">Privacy Policy</a></li>
-                    <li><a href="/tools/terms.html">Terms of Use</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© 2024-<span id="currentYear"></span> Dbweb Tools. Open source tool for electronic evidence authentication.</p>
-        </div>
-    </footer>
 
-    <!-- Hit Counter -->
-    <div style="text-align: center; padding: 20px 0;">
-        </div>
-
-    <script>
-        // Set current year
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
-    </script>
 </body>
 </html>
