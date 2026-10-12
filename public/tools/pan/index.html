@@ -19,7 +19,7 @@
     <meta property="og:url" content="https://dbweb.vercel.app/tools/pan/">
     <meta property="og:title" content="PAN Card Validator | Dbweb Tools">
     <meta property="og:description" content="Validate PAN card number format and decode entity type, taxpayer category from the PAN structure.">
-    <meta property="og:image" content="https://Dbweb.pages.dev/og-image.svg">
+    <meta property="og:image" content="https://dbweb.vercel.app/tools/og-image.svg">
     <meta name="theme-color" content="#e94560">
 
     <style>
@@ -576,7 +576,7 @@
                 text += `Check Digit : ${pan[9]}\n\n`;
             }
             text += `Validated at: ${new Date().toLocaleString()}\n`;
-            text += `Source: Dbweb Tools — https://Dbweb.pages.dev/pan/\n`;
+            text += `Source: Dbweb Tools — https://dbweb.vercel.app/tools/pan/\n`;
             text += `\nNOTE: Format validation only. For official PAN verification visit https://www.incometax.gov.in/`;
             navigator.clipboard.writeText(text).then(() => showToast('Result copied!')).catch(() => showToast('Copy failed'));
         }
