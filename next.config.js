@@ -3,7 +3,9 @@ const nextConfig = {
   poweredByHeader: false,
   async rewrites() {
     return [
-      // Keep the individual static tools available, but let /tools use app/tools/page.jsx.
+      // Pretty URLs for static HTML tool pages under public/tools.
+      // The specific /tools hub stays owned by the Next.js app route.
+      { source: "/tools/:tool/", destination: "/tools/:tool/index.html" },
       { source: "/tools/:tool/:path*/", destination: "/tools/:tool/:path*/index.html" },
     ];
   },
