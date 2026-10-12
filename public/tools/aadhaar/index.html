@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aadhaar Verification | Punjab Investigation Tools</title>
-    <meta name="description" content="Verify Aadhaar number existence and get details from UIDAI database.">
+    <title>Aadhaar Validator | Dbweb</title>
+    <meta name="description" content="Validate the format and checksum of an Aadhaar number locally. This does not verify identity.">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,17 +16,17 @@
     <!-- Favicon -->
     <link rel="icon" href="/tools/favicon.svg" type="image/svg+xml">
     <!-- Canonical & SEO -->
-    <link rel="canonical" href="https://punjab.pages.dev/aadhaar/">
+    <link rel="canonical" href="https://dbweb.vercel.app/tools/aadhaar/">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://punjab.pages.dev/aadhaar/">
-    <meta property="og:title" content="Aadhaar Validator | Punjab Investigation Tools">
+    <meta property="og:url" content="https://dbweb.vercel.app/tools/aadhaar/">
+    <meta property="og:title" content="Aadhaar Validator | Dbweb">
     <meta property="og:description" content="Validate Aadhaar number using Verhoeff algorithm checksum. Instant offline verification with link to UIDAI portal.">
-    <meta property="og:image" content="https://punjab.pages.dev/og-image.svg">
-    <meta property="og:site_name" content="Punjab Investigation Tools">
+    <meta property="og:image" content="/tools/favicon.svg">
+    <meta property="og:site_name" content="Dbweb">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Aadhaar Validator | Punjab Investigation Tools">
+    <meta name="twitter:title" content="Aadhaar Validator | Dbweb">
     <meta name="twitter:description" content="Validate Aadhaar number using Verhoeff algorithm checksum. Instant offline verification with link to UIDAI portal.">
-    <meta name="twitter:image" content="https://punjab.pages.dev/og-image.svg">
+    <meta name="twitter:image" content="/tools/favicon.svg">
     <meta name="theme-color" content="#e94560">
 </head>
 <body>
@@ -37,7 +37,7 @@
                     <i class="fas fa-shield-halved"></i>
                 </div>
                 <div class="logo-text">
-                    <span class="logo-title">Punjab Investigation Tools</span>
+                    <span class="logo-title">Dbweb</span>
                     <span class="logo-subtitle">Aadhaar Verification</span>
                 </div>
             </a>
@@ -53,7 +53,7 @@
         <section class="hero-section">
             <div class="hero-content">
                 <h1><i class="fas fa-id-card"></i> Aadhaar Verification</h1>
-                <p>Verify Aadhaar existence and retrieve details from UIDAI database</p>
+                <p>Validate Aadhaar number format and checksum locally</p>
             </div>
         </section>
 
@@ -71,7 +71,7 @@
                         <i class="fas fa-search"></i> Verify
                     </button>
                 </div>
-                <p class="input-hint">Enter 12-digit Aadhaar number to verify from UIDAI database</p>
+                <p class="input-hint">Local checksum check only — this does not confirm identity or existence</p>
             </div>
         </section>
 
@@ -109,11 +109,11 @@
         <div class="loading-overlay" id="loadingOverlay" style="display: none;">
             <div class="loading-spinner">
                 <i class="fas fa-circle-notch fa-spin"></i>
-                <p id="loadingText">Verifying with UIDAI...</p>
+                <p id="loadingText">Checking checksum locally...</p>
             </div>
         </div>
 
-        <!-- UIDAI Verification Results -->
+        <!-- Aadhaar Check Results -->
         <section class="results-section" id="uidaiResultsSection" style="display: none;">
             <div class="result-card uidai-result">
                 <div class="result-header">
@@ -122,7 +122,7 @@
                     </div>
                     <div class="result-title">
                         <h3 id="uidaiResultTitle">Aadhaar Exists</h3>
-                        <p id="uidaiResultSubtitle">Verified from UIDAI Database</p>
+                        <p id="uidaiResultSubtitle">Checksum valid only; identity not verified</p>
                     </div>
                     <div class="uidai-badge">
                         <i class="fas fa-certificate"></i> UIDAI Verified
@@ -245,7 +245,7 @@
     <footer class="footer">
         <div class="footer-content">
             <p><i class="fas fa-shield-check"></i> Verification through official UIDAI API. Only masked information is retrieved.</p>
-            <p>© 2024-<span id="currentYear"></span> Punjab Investigation Tools</p>
+            <p>© 2024-<span id="currentYear"></span> Dbweb</p>
         </div>
     </footer>
 
@@ -588,8 +588,8 @@
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
         // API Configuration - Using Cloudflare Pages Functions
-        const API_BASE = 'https://punjab.pages.dev';
-        let serverConnected = true; // Cloudflare Functions are always available
+        const API_BASE = '';
+        let serverConnected = false;
 
         // Verhoeff algorithm tables
         const d = [
@@ -629,7 +629,7 @@
         function initializeStatus() {
             const statusEl = document.getElementById('serverStatus');
             statusEl.className = 'server-status connected';
-            statusEl.innerHTML = '<i class="fas fa-check-circle"></i> UIDAI Verification Ready';
+            statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Local checksum validator — no external connection';
         }
 
         // Format input as user types
@@ -664,36 +664,21 @@
         }
 
         async function startVerification() {
-            const input = document.getElementById('aadhaarInput').value;
-            currentAadhaar = input.replace(/\D/g, '');
-            
+            currentAadhaar = document.getElementById('aadhaarInput').value.replace(/\D/g, '');
             if (currentAadhaar.length !== 12) {
-                showToast('Please enter a valid 12-digit Aadhaar number');
+                showToast('Enter exactly 12 digits.');
                 return;
             }
-
-            // Check for invalid starting digit (0 or 1)
             if (currentAadhaar[0] === '0' || currentAadhaar[0] === '1') {
                 isValid = false;
                 displayLocalResults(false, 'Aadhaar numbers cannot start with 0 or 1');
                 return;
             }
-
-            // Validate using Verhoeff algorithm
             isValid = verhoeffValidate(currentAadhaar);
-            
-            if (!isValid) {
-                displayLocalResults(false);
-                return;
-            }
-
-            // If server is connected, proceed with UIDAI verification
-            if (serverConnected) {
-                await fetchCaptcha();
-            } else {
-                displayLocalResults(true);
-                showToast('Server offline - showing local validation only');
-            }
+            displayLocalResults(isValid);
+            showToast(isValid
+                ? 'Checksum is valid. This does not verify identity or confirm that the Aadhaar exists.'
+                : 'Checksum is invalid. No data was sent anywhere.');
         }
 
         async function fetchCaptcha() {
@@ -769,47 +754,7 @@
         }
 
         async function submitVerification() {
-            const captchaValue = document.getElementById('captchaInput').value.trim();
-            
-            if (!captchaValue) {
-                showToast('Please enter the captcha');
-                return;
-            }
-            
-            if (!captchaData) {
-                showToast('Captcha data missing. Please refresh captcha.');
-                return;
-            }
-            
-            showLoading('Verifying with UIDAI...');
-            
-            try {
-                const response = await fetch(`${API_BASE}/api/aadhaar/verify`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        uid: currentAadhaar,
-                        captcha: captchaValue,
-                        captchaTxnId: captchaData.captchaTxnId,
-                        transactionId: captchaData.transactionId
-                    })
-                });
-                
-                const data = await response.json();
-                hideLoading();
-                
-                if (data.status === 'Success' || data.aadhaarStatusCode) {
-                    uidaiResult = data;
-                    displayUidaiResults(data);
-                } else {
-                    // Captcha might be wrong or expired
-                    showToast(data.statusMessage || data.message || 'Verification failed. Try again.');
-                    await fetchCaptcha();
-                }
-            } catch (e) {
-                hideLoading();
-                showToast('Verification failed: ' + e.message);
-            }
+            showToast('This tool performs local format/checksum validation only. No remote verification is available.');
         }
 
         function displayUidaiResults(data) {
@@ -828,7 +773,7 @@
                 resultIcon.className = 'result-icon valid';
                 resultTitle.textContent = 'Aadhaar Exists';
                 resultTitle.className = 'status-exists';
-                resultSubtitle.textContent = data.statusMessage || 'Verified from UIDAI Database';
+                resultSubtitle.textContent = data.statusMessage || 'Checksum valid only; identity not verified';
             } else {
                 resultIcon.innerHTML = '<i class="fas fa-user-xmark"></i>';
                 resultIcon.className = 'result-icon invalid';
@@ -1007,7 +952,7 @@
             
             doc.setFontSize(10);
             doc.setFont('helvetica', 'normal');
-            doc.text('Punjab Investigation Tools - UIDAI Verification', 105, 30, { align: 'center' });
+            doc.text('Dbweb - Aadhaar Check', 105, 30, { align: 'center' });
             
             // Report details
             doc.setTextColor(0, 0, 0);
@@ -1055,8 +1000,8 @@
             // Footer
             doc.setTextColor(128, 128, 128);
             doc.setFontSize(8);
-            doc.text('Generated by Punjab Investigation Tools', 105, 280, { align: 'center' });
-            doc.text('punjab.pages.dev', 105, 285, { align: 'center' });
+            doc.text('Generated by Dbweb', 105, 280, { align: 'center' });
+            doc.text('dbweb.vercel.app', 105, 285, { align: 'center' });
             
             doc.save(`aadhaar_verification_${currentAadhaar}_${Date.now()}.pdf`);
             showToast('PDF report downloaded');
@@ -1086,7 +1031,7 @@
             }
             
             text += `Verified: ${new Date().toLocaleString()}\n`;
-            text += `Source: UIDAI via Punjab Investigation Tools\n`;
+            text += `Source: UIDAI via Dbweb\n`;
             
             navigator.clipboard.writeText(text).then(() => {
                 showToast('Result copied to clipboard');
@@ -1102,7 +1047,7 @@
             text += `Format Valid: ${isValid ? 'Yes' : 'No'}\n`;
             text += `Checksum Algorithm: Verhoeff\n\n`;
             text += `Checked at: ${new Date().toLocaleString()}\n`;
-            text += `Generated by Punjab Investigation Tools`;
+            text += `Generated by Dbweb`;
 
             navigator.clipboard.writeText(text).then(() => {
                 showToast('Result copied to clipboard');
@@ -1134,7 +1079,7 @@
     </script>
     <!-- Hit Counter -->
     <div style="text-align: center; padding: 20px 0;">
-        <img src="https://hits.sh/punjab.pages.dev.svg?view=today-total&style=for-the-badge&label=Punjab&extraCount=0&color=080e08&labelColor=9c3232" alt="Hit Counter" />
+        
     </div>
 </body>
 </html>
