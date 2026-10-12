@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Search, ArrowUpRight, Wrench, FileText, Fingerprint, Image, Smartphone, Phone, GitCompare, ScanFace, FileSearch, Activity, CreditCard, QrCode, ScanText, ShieldCheck, KeyRound, Globe, Type, CarFront, CalendarDays, Landmark, FileBadge, FileImage, Sparkles } from "lucide-react";
 
 const tools = [
-  { name: "General File Tools", description: "Work with PDFs and images: convert, compress, resize, merge, split and more.", href: "/tools/general/", category: "Files", Icon: FileImage },
+  { name: "General File Tools", description: "Work with PDFs and images: convert, compress, resize, merge, split and more.", href: "/tools/general/index.html", category: "Files", Icon: FileImage },
   { name: "Hash Generator", description: "Create file and text hashes using common cryptographic algorithms.", href: "/tools/hash/", category: "Security", Icon: Fingerprint },
   { name: "Image Analysis", description: "Inspect image metadata and look for signs of editing.", href: "/tools/image-forensics/", category: "Files", Icon: Image },
   { name: "IMEI Validator", description: "Check an IMEI format and its checksum.", href: "/tools/imei/", category: "Validation", Icon: Smartphone },
