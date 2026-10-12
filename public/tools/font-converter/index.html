@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gurmukhi Font Converter | Punjab Investigation Tools</title>
-    <meta name="description" content="Convert Punjabi text between AnmolLipi, Raavi (Unicode), Asees, Joy, DrChatrik, GurbaniLipi, Satluj and Gurmukhi fonts instantly.">
+    <title>Gurmukhi Font Converter | Dbweb Tools</title>
+    <meta name="description" content="Convert Dbwebi text between AnmolLipi, Raavi (Unicode), Asees, Joy, DrChatrik, GurbaniLipi, Satluj and Gurmukhi fonts instantly.">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,8 +12,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/tool-common.css">
-    <!-- Punjabi font faces -->
-    <link rel="stylesheet" href="punjabi-font.css">
+    <!-- Dbwebi font faces -->
+    <link rel="stylesheet" href="Dbwebi-font.css">
 
     <style>
         .converter-container { max-width: 950px; margin: 0 auto; }
@@ -65,17 +65,17 @@
     <!-- Favicon -->
     <link rel="icon" href="/tools/favicon.svg" type="image/svg+xml">
     <!-- Canonical & SEO -->
-    <link rel="canonical" href="https://punjab.pages.dev/font-converter/">
+    <link rel="canonical" href="https://dbweb.vercel.app/tools/font-converter/">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://punjab.pages.dev/font-converter/">
-    <meta property="og:title" content="Gurmukhi Font Converter | Punjab Investigation Tools">
-    <meta property="og:description" content="Convert Punjabi text between 7 Gurmukhi fonts — Unicode, AnmolLipi, Asees, GurbaniLipi, DrChatrik, Joy and Satluj.">
-    <meta property="og:image" content="https://punjab.pages.dev/og-image.svg">
-    <meta property="og:site_name" content="Punjab Investigation Tools">
+    <meta property="og:url" content="https://dbweb.vercel.app/tools/font-converter/">
+    <meta property="og:title" content="Gurmukhi Font Converter | Dbweb Tools">
+    <meta property="og:description" content="Convert Dbwebi text between 7 Gurmukhi fonts — Unicode, AnmolLipi, Asees, GurbaniLipi, DrChatrik, Joy and Satluj.">
+    <meta property="og:image" content="https://Dbweb.pages.dev/og-image.svg">
+    <meta property="og:site_name" content="Dbweb Tools">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Gurmukhi Font Converter | Punjab Investigation Tools">
-    <meta name="twitter:description" content="Convert Punjabi text between 7 Gurmukhi fonts — Unicode, AnmolLipi, Asees, GurbaniLipi, DrChatrik, Joy and Satluj.">
-    <meta name="twitter:image" content="https://punjab.pages.dev/og-image.svg">
+    <meta name="twitter:title" content="Gurmukhi Font Converter | Dbweb Tools">
+    <meta name="twitter:description" content="Convert Dbwebi text between 7 Gurmukhi fonts — Unicode, AnmolLipi, Asees, GurbaniLipi, DrChatrik, Joy and Satluj.">
+    <meta name="twitter:image" content="https://Dbweb.pages.dev/og-image.svg">
     <meta name="theme-color" content="#e94560">
 </head>
 <body>
@@ -84,7 +84,7 @@
             <a href="/tools/" class="logo" style="text-decoration:none;color:inherit;">
                 <div class="logo-icon"><i class="fas fa-shield-halved"></i></div>
                 <div class="logo-text">
-                    <span class="logo-title">Punjab Investigation Tools</span>
+                    <span class="logo-title">Dbweb Tools</span>
                     <span class="logo-subtitle">Gurmukhi Font Converter</span>
                 </div>
             </a>
@@ -99,7 +99,7 @@
         <section class="hero-section">
             <div class="hero-content">
                 <h1><i class="fas fa-repeat"></i> Gurmukhi Font Converter</h1>
-                <p>Convert Punjabi text between 7 Gurmukhi fonts instantly — AnmolLipi, Unicode (Raavi), Asees, Joy, DrChatrik, GurbaniLipi & Satluj.</p>
+                <p>Convert Dbwebi text between 7 Gurmukhi fonts instantly — AnmolLipi, Unicode (Raavi), Asees, Joy, DrChatrik, GurbaniLipi & Satluj.</p>
             </div>
         </section>
 
@@ -142,7 +142,7 @@
                             <span>Input</span>
                             <span class="font-badge" id="inputBadge">Unicode (Raavi)</span>
                         </div>
-                        <textarea class="text-area" id="_text_in" placeholder="Paste your Punjabi text here..."></textarea>
+                        <textarea class="text-area" id="_text_in" placeholder="Paste your Dbwebi text here..."></textarea>
                         <div class="toolbar-row">
                             <button class="tool-btn" onclick="pasteInput()"><i class="fas fa-paste"></i> Paste</button>
                             <button class="tool-btn" onclick="clearAll()"><i class="fas fa-trash-alt"></i> Clear</button>
@@ -232,14 +232,14 @@
 
     <footer class="footer">
         <div class="footer-content">
-            <p>&copy; 2024-<span id="currentYear"></span> Punjab Investigation Tools. All processing happens locally in your browser.</p>
+            <p>&copy; 2024-<span id="currentYear"></span> Dbweb Tools. All processing happens locally in your browser.</p>
         </div>
     </footer>
 
     <div class="toast" id="toast"><span id="toastMessage"></span></div>
 
     <!-- Conversion engine from typingbaba.com -->
-    <script src="punjabi-converter.js"></script>
+    <script src="Dbwebi-converter.js"></script>
 
     <script>
         document.getElementById('currentYear').textContent = new Date().getFullYear();
@@ -316,7 +316,7 @@
 
             remaining.forEach(font => {
                 try {
-                    const converted = PunjabiFontConvertor.convert(input, font, fromFont);
+                    const converted = DbwebiFontConvertor.convert(input, font, fromFont);
                     const div = document.createElement('div');
                     div.style.marginBottom = '16px';
                     div.innerHTML = `
@@ -410,7 +410,6 @@
     </script>
 
     <div style="text-align:center;padding:20px 0;">
-        <img src="https://hits.sh/punjab.pages.dev/font-converter.svg?view=today-total&style=for-the-badge&label=Font+Converter&extraCount=0&color=080e08&labelColor=9c3232" alt="Hit Counter" />
-    </div>
+        </div>
 </body>
 </html>
