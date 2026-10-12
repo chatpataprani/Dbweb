@@ -3,7 +3,7 @@ const nextConfig = {
   poweredByHeader: false,
   async rewrites() {
     return [
-      { source: "/tools", destination: "/tools/index.html" },
+      // Keep the individual static tools available, but let /tools use app/tools/page.jsx.
       { source: "/tools/:path*/", destination: "/tools/:path*/index.html" },
     ];
   },
