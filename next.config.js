@@ -4,7 +4,7 @@ const nextConfig = {
   async rewrites() {
     return [
       // Keep the individual static tools available, but let /tools use app/tools/page.jsx.
-      { source: "/tools/:path*/", destination: "/tools/:path*/index.html" },
+      { source: "/tools/:tool/:path*/", destination: "/tools/:tool/:path*/index.html" },
     ];
   },
   async headers() {
