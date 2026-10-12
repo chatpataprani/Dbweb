@@ -23,8 +23,9 @@ jobs:
       - name: Download the upstream tool suite
         run: |
           git clone --depth 1 https://github.com/PBhadoo/punjab.pages.dev.git /tmp/tool-suite
+          rm -rf public/tools
           mkdir -p public/tools
-          cp -a /tmp/tool-suite/. public/tools/
+          tar --exclude=.git -C /tmp/tool-suite -cf - . | tar -xf - -C public/tools
           rm -f public/tools/README.md public/tools/TEMP_GENERAL_TOOLS_PLAN.md public/tools/wrangler.toml
       - name: Adapt tool links for Dbweb
         run: |
