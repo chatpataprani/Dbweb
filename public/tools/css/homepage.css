@@ -1,4 +1,4 @@
-/* Punjab Investigation Tools - Homepage Styles */
+/* Dbweb unified homepage styles */
 
 /* Hero Section for Homepage */
 .homepage-hero {
@@ -541,3 +541,17 @@
         grid-template-columns: 1fr;
     }
 }
+
+
+/* Keep legacy standalone pages visually consistent with the Dbweb app */
+.homepage-hero,.homepage-header,.homepage-nav,.homepage-footer,.footer-grid,.footer-links,.footer-column,.footer-brand,.copyright,.info-section,.info-card,.disclaimer,.legal-notice { display:none !important; }
+.tools-container { max-width:1120px !important; padding:20px 18px 40px !important; }
+.tools-grid { grid-template-columns:repeat(auto-fill,minmax(250px,1fr)) !important; gap:14px !important; padding:18px 0 !important; }
+.category-section { margin-bottom:28px !important; }
+.category-title { color:#202338 !important; font-size:clamp(20px,3vw,26px) !important; gap:10px !important; }
+.tools-grid .tool-card,.tool-card { background:rgba(255,255,255,.9) !important; color:#171923 !important; border:1px solid #e2e6f0 !important; border-radius:15px !important; box-shadow:0 6px 24px rgba(28,35,70,.045) !important; text-decoration:none !important; }
+.tools-grid .tool-card:hover,.tool-card:hover { border-color:#a5b4fc !important; transform:translateY(-2px) !important; box-shadow:0 12px 30px rgba(79,70,229,.1) !important; }
+.tool-title { color:#202338 !important; }
+.tool-description { color:#626a7c !important; }
+.tag { background:#f0f2ff !important; border-color:#dfe3ff !important; color:#4f46e5 !important; }
+@media(max-width:560px){.tools-container{padding:16px 14px 28px!important}.tools-grid{grid-template-columns:1fr!important}.category-title{font-size:21px!important}}
