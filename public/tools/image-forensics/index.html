@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Forensics | Punjab Investigation Tools</title>
+    <meta name="description" content="Analyze images for manipulation detection, error level analysis, and metadata extraction for forensic investigation.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/tool-common.css">
+    
+    <!-- EXIF.js for metadata extraction -->
+    <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+    <!-- hash-wasm for image hash calculation -->
+    <script src="https://cdn.jsdelivr.net/npm/hash-wasm@4"></script>
+    <!-- PDF Generation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <link rel="stylesheet" href="image-forensics.css">
+    <!-- Favicon -->
+    <link rel="icon" href="/tools/favicon.svg" type="image/svg+xml">
+    <!-- Canonical & SEO -->
+    <link rel="canonical" href="https://punjab.pages.dev/image-forensics/">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://punjab.pages.dev/image-forensics/">
+    <meta property="og:title" content="Image Forensics | Punjab Investigation Tools">
+    <meta property="og:description" content="Detect image manipulation with ELA analysis, EXIF metadata extraction, noise analysis and clone detection. Client-side image forensics.">
+    <meta property="og:image" content="https://punjab.pages.dev/og-image.svg">
+    <meta property="og:site_name" content="Punjab Investigation Tools">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Image Forensics | Punjab Investigation Tools">
+    <meta name="twitter:description" content="Detect image manipulation with ELA analysis, EXIF metadata extraction, noise analysis and clone detection. Client-side image forensics.">
+    <meta name="twitter:image" content="https://punjab.pages.dev/og-image.svg">
+    <meta name="theme-color" content="#e94560">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-slash" id="spinnerSlash">|</div>
+        </div>
+        <div class="loading-text" id="loadingText">Analyzing Image...</div>
+        <div class="loading-progress" id="loadingProgress">Initializing...</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </div>
+
+    <header class="header">
+        <div class="header-container">
+            <a href="/tools/" class="logo" style="text-decoration: none; color: inherit;">
+                <div class="logo-icon">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-title">Punjab Investigation Tools</span>
+                    <span class="logo-subtitle">Image Forensics</span>
+                </div>
+            </a>
+            <div class="header-actions">
+                <a href="/tools/" class="back-home-btn">
+                    <i class="fas fa-home"></i> All Tools
+                </a>
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    <span id="statusText">Ready</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1><i class="fas fa-magnifying-glass-chart"></i> Image Forensics Analyzer</h1>
+                <p>Detect image manipulation, analyze error levels, and extract hidden metadata for forensic investigation</p>
+            </div>
+        </section>
+
+        <section class="upload-section">
+            <div class="upload-container">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <h3>Drop image here or click to upload</h3>
+                    <p>Supports JPG, PNG, WebP, BMP formats</p>
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open"></i> Select Image
+                    </button>
+                    <input type="file" id="fileInput" accept="image/*" hidden>
+                </div>
+            </div>
+        </section>
+
+        <section class="results-section" id="resultsSection" style="display: none;">
+            <!-- Manipulation Probability Score -->
+            <div class="manipulation-score" id="manipulationScore">
+                <h2><i class="fas fa-chart-pie"></i> Manipulation Probability Analysis</h2>
+                <div class="score-display">
+                    <div class="score-circle" id="scoreCircle" style="--score: 0">
+                        <span class="score-value" id="scoreValue">0%</span>
+                        <span class="score-label">Probability</span>
+                    </div>
+                    <div class="score-verdict">
+                        <div class="verdict-text" id="verdictText">Analyzing...</div>
+                        <div class="verdict-desc" id="verdictDesc">Processing image data to determine manipulation likelihood.</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="analysis-container">
+                <!-- Original Image -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-image"></i> Original Image</h3>
+                    <div class="image-display">
+                        <img id="originalImage" alt="Original">
+                    </div>
+                    <div class="image-info" id="imageInfo"></div>
+                </div>
+
+                <!-- ELA Analysis -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-wave-square"></i> Error Level Analysis (ELA)</h3>
+                    <div class="image-display">
+                        <canvas id="elaCanvas"></canvas>
+                    </div>
+                    <div class="ela-info">
+                        <p><i class="fas fa-info-circle"></i> Brighter areas may indicate manipulation. Uniform brightness suggests original content.</p>
+                    </div>
+                    <div class="ela-controls">
+                        <label>ELA Quality: <span id="qualityValue">95</span>%</label>
+                        <input type="range" id="elaQuality" min="50" max="99" value="95" onchange="updateELA()">
+                        <label>Enhancement: <span id="enhanceValue">15</span>x</label>
+                        <input type="range" id="elaEnhance" min="5" max="50" value="15" onchange="updateELA()">
+                    </div>
+                </div>
+
+                <!-- Color Channel Separation -->
+                <div class="analysis-card full-width">
+                    <h3><i class="fas fa-palette"></i> Color Channel Separation</h3>
+                    <p class="analysis-desc">View individual RGB channels to detect inconsistencies in spliced or edited regions.</p>
+                    <div class="channel-grid">
+                        <div class="channel-item">
+                            <h4 style="color: #ff6b6b;">Red Channel</h4>
+                            <canvas id="redChannel"></canvas>
+                        </div>
+                        <div class="channel-item">
+                            <h4 style="color: #51cf66;">Green Channel</h4>
+                            <canvas id="greenChannel"></canvas>
+                        </div>
+                        <div class="channel-item">
+                            <h4 style="color: #339af0;">Blue Channel</h4>
+                            <canvas id="blueChannel"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edge Detection -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-border-all"></i> Edge Detection (Sobel)</h3>
+                    <p class="analysis-desc">Highlights edges to reveal unnatural boundaries from splicing or cloning.</p>
+                    <div class="image-display">
+                        <canvas id="edgeCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Histogram Analysis -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-chart-bar"></i> Histogram Analysis</h3>
+                    <p class="analysis-desc">Gaps or spikes in histogram may indicate manipulation or level adjustments.</p>
+                    <div class="image-display">
+                        <canvas id="histogramCanvas" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Luminance Gradient -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-sun"></i> Luminance Gradient Map</h3>
+                    <p class="analysis-desc">Visualizes light direction. Inconsistent gradients may indicate compositing.</p>
+                    <div class="image-display">
+                        <canvas id="luminanceCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Noise Analysis -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-wave-square"></i> Noise Analysis</h3>
+                    <p class="analysis-desc">Extracts sensor noise pattern. Different noise levels indicate different sources or editing.</p>
+                    <div class="image-display">
+                        <canvas id="noiseCanvas"></canvas>
+                    </div>
+                    <div class="ela-controls">
+                        <label>Noise Amplification: <span id="noiseAmpValue">10</span>x</label>
+                        <input type="range" id="noiseAmp" min="5" max="30" value="10" onchange="updateNoise()">
+                    </div>
+                </div>
+
+                <!-- JPEG Ghost Detection -->
+                <div class="analysis-card full-width">
+                    <h3><i class="fas fa-ghost"></i> JPEG Ghost Detection</h3>
+                    <p class="analysis-desc">Detects regions saved at different JPEG quality levels - indicates double compression or editing.</p>
+                    <div class="ghost-grid">
+                        <div class="ghost-item">
+                            <h4>Q: 60%</h4>
+                            <canvas id="ghostCanvas60"></canvas>
+                        </div>
+                        <div class="ghost-item">
+                            <h4>Q: 70%</h4>
+                            <canvas id="ghostCanvas70"></canvas>
+                        </div>
+                        <div class="ghost-item">
+                            <h4>Q: 80%</h4>
+                            <canvas id="ghostCanvas80"></canvas>
+                        </div>
+                        <div class="ghost-item">
+                            <h4>Q: 90%</h4>
+                            <canvas id="ghostCanvas90"></canvas>
+                        </div>
+                    </div>
+                    <p class="analysis-desc" style="margin-top: 10px;"><i class="fas fa-info-circle"></i> Darker regions at a specific quality suggest that area was originally saved at that quality level.</p>
+                </div>
+
+                <!-- Bit Plane Analysis -->
+                <div class="analysis-card full-width">
+                    <h3><i class="fas fa-layer-group"></i> Bit Plane Extraction</h3>
+                    <p class="analysis-desc">View individual bit planes (LSB to MSB). LSB manipulation may indicate steganography.</p>
+                    <div class="bitplane-grid">
+                        <div class="bitplane-item"><h4>Bit 0 (LSB)</h4><canvas id="bitplane0"></canvas></div>
+                        <div class="bitplane-item"><h4>Bit 1</h4><canvas id="bitplane1"></canvas></div>
+                        <div class="bitplane-item"><h4>Bit 2</h4><canvas id="bitplane2"></canvas></div>
+                        <div class="bitplane-item"><h4>Bit 3</h4><canvas id="bitplane3"></canvas></div>
+                        <div class="bitplane-item"><h4>Bit 4</h4><canvas id="bitplane4"></canvas></div>
+                        <div class="bitplane-item"><h4>Bit 5</h4><canvas id="bitplane5"></canvas></div>
+                        <div class="bitplane-item"><h4>Bit 6</h4><canvas id="bitplane6"></canvas></div>
+                        <div class="bitplane-item"><h4>Bit 7 (MSB)</h4><canvas id="bitplane7"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- Min/Max RGB -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-arrows-up-down"></i> Min/Max RGB</h3>
+                    <p class="analysis-desc">Highlights extreme color values. Clipping or unnatural extremes may indicate editing.</p>
+                    <div class="image-display">
+                        <canvas id="minmaxCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Block Artifact Grid -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-grid"></i> JPEG Block Grid</h3>
+                    <p class="analysis-desc">Overlays 8x8 JPEG block boundaries. Misaligned blocks indicate splicing.</p>
+                    <div class="image-display">
+                        <canvas id="blockGridCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Saturation Map -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-palette"></i> Saturation Map</h3>
+                    <p class="analysis-desc">Highlights color saturation levels. Edited areas often show abnormal saturation.</p>
+                    <div class="image-display">
+                        <canvas id="saturationCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Local Contrast Map -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-adjust"></i> Local Contrast Map</h3>
+                    <p class="analysis-desc">Shows local contrast variation. Edited regions may have different contrast patterns.</p>
+                    <div class="image-display">
+                        <canvas id="contrastCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Inverted/Negative View -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-image"></i> Inverted (Negative)</h3>
+                    <p class="analysis-desc">Inverted colors reveal hidden details and manipulation artifacts.</p>
+                    <div class="image-display">
+                        <canvas id="invertedCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Principal Component Analysis -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-layer-group"></i> PCA Projection</h3>
+                    <p class="analysis-desc">Principal component projection reveals underlying image structure patterns.</p>
+                    <div class="image-display">
+                        <canvas id="pcaCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Grayscale Conversion -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-circle-half-stroke"></i> Grayscale View</h3>
+                    <p class="analysis-desc">Luminance-weighted grayscale reveals tonal inconsistencies in edited areas.</p>
+                    <div class="image-display">
+                        <canvas id="grayscaleCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Sharpen Filter -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-bolt"></i> Sharpened View</h3>
+                    <p class="analysis-desc">Sharpening enhances edges and reveals subtle manipulation boundaries.</p>
+                    <div class="image-display">
+                        <canvas id="sharpenCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Emboss Filter -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-stamp"></i> Emboss Effect</h3>
+                    <p class="analysis-desc">Embossing highlights surface texture and reveals clone stamp artifacts.</p>
+                    <div class="image-display">
+                        <canvas id="embossCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Laplacian Edge -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-border-all"></i> Laplacian Edges</h3>
+                    <p class="analysis-desc">Second derivative edge detection shows fine edge details and noise patterns.</p>
+                    <div class="image-display">
+                        <canvas id="laplacianCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Threshold Binary -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-circle-half-stroke"></i> Threshold Binary</h3>
+                    <p class="analysis-desc">Binary threshold at midpoint reveals hidden patterns and luminance variations.</p>
+                    <div class="image-display">
+                        <canvas id="thresholdCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Posterize -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-paint-brush"></i> Posterized (4 Levels)</h3>
+                    <p class="analysis-desc">Reduced color levels expose banding artifacts from editing.</p>
+                    <div class="image-display">
+                        <canvas id="posterizeCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Solarize -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-sun"></i> Solarize Effect</h3>
+                    <p class="analysis-desc">Partial inversion at threshold reveals tonality manipulation.</p>
+                    <div class="image-display">
+                        <canvas id="solarizeCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Standard Deviation Map -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-chart-area"></i> Std Deviation Map</h3>
+                    <p class="analysis-desc">Local variance detection highlights areas with unusual texture uniformity.</p>
+                    <div class="image-display">
+                        <canvas id="stddevCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Gamma Correction -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-sliders-h"></i> High Gamma (3.0)</h3>
+                    <p class="analysis-desc">Extreme gamma reveals details in dark regions and shadow manipulation.</p>
+                    <div class="image-display">
+                        <canvas id="gammaCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Metadata -->
+                <div class="analysis-card full-width">
+                    <h3><i class="fas fa-tags"></i> Image Metadata (EXIF)</h3>
+                    <div class="metadata-grid" id="metadataGrid">
+                        <p class="loading">Extracting metadata...</p>
+                    </div>
+                </div>
+
+                <!-- Hash Values -->
+                <div class="analysis-card full-width">
+                    <h3><i class="fas fa-fingerprint"></i> Image Hash Values</h3>
+                    <div class="hash-results" id="hashResults">
+                        <p class="loading">Calculating hashes...</p>
+                    </div>
+                </div>
+
+                <!-- Forensic Notes -->
+                <div class="analysis-card full-width">
+                    <h3><i class="fas fa-clipboard-list"></i> Forensic Analysis Notes</h3>
+                    <div class="forensic-notes" id="forensicNotes"></div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn" id="downloadReportBtn" onclick="downloadReport()" disabled>
+                    <i class="fas fa-file-pdf"></i> Download Report
+                </button>
+                <button class="action-btn" onclick="resetAnalysis()">
+                    <i class="fas fa-redo"></i> Analyze Another Image
+                </button>
+            </div>
+        </section>
+
+        <section class="info-section">
+            <h3><i class="fas fa-info-circle"></i> About Image Forensics</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-icon"><i class="fas fa-wave-square"></i></div>
+                    <h4>Error Level Analysis</h4>
+                    <p>ELA reveals differences in compression levels. Modified areas often show different error levels than original content, appearing brighter in the analysis.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon"><i class="fas fa-tags"></i></div>
+                    <h4>EXIF Metadata</h4>
+                    <p>Images contain hidden data including camera model, date taken, GPS coordinates, and software used - crucial for establishing evidence authenticity.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon"><i class="fas fa-triangle-exclamation"></i></div>
+                    <h4>Limitations</h4>
+                    <p>ELA is a screening tool, not definitive proof. Multiple saves, format conversions, or sophisticated edits may affect results. Always use multiple analysis methods.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p><i class="fas fa-shield-check"></i> All processing happens locally in your browser. No images are uploaded to any server.</p>
+            <p>© 2024-<span id="currentYear"></span> Punjab Investigation Tools</p>
+        </div>
+    </footer>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Action completed</span>
+    </div>
+
+    <script src="image-forensics.js"></script>
+    <!-- Hit Counter -->
+    <div style="text-align: center; padding: 20px 0;">
+        <img src="https://hits.sh/punjab.pages.dev.svg?view=today-total&style=for-the-badge&label=Punjab&extraCount=0&color=080e08&labelColor=9c3232" alt="Hit Counter" />
+    </div>
+</body>
+</html>

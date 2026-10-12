@@ -1,0 +1,2153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Number Lookup | Punjab Investigation Tools</title>
+    <meta name="description" content="Identify country, region, and telecom operator from phone numbers. Comprehensive Indian mobile operator database with 1700+ prefix records.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/tool-common.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Favicon -->
+    <link rel="icon" href="/tools/favicon.svg" type="image/svg+xml">
+    <!-- Canonical & SEO -->
+    <link rel="canonical" href="https://punjab.pages.dev/phone/">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://punjab.pages.dev/phone/">
+    <meta property="og:title" content="Phone Number Lookup | Punjab Investigation Tools">
+    <meta property="og:description" content="Identify country, region, and telecom operator from any phone number. Indian mobile operator database with 1700+ prefix records.">
+    <meta property="og:image" content="https://punjab.pages.dev/og-image.svg">
+    <meta property="og:site_name" content="Punjab Investigation Tools">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Phone Number Lookup | Punjab Investigation Tools">
+    <meta name="twitter:description" content="Identify country, region, and telecom operator from any phone number. Indian mobile operator database with 1700+ prefix records.">
+    <meta name="twitter:image" content="https://punjab.pages.dev/og-image.svg">
+    <meta name="theme-color" content="#e94560">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3>Loading Operator Database</h3>
+            <p>Please wait while we load 1700+ Indian mobile operator records...</p>
+        </div>
+    </div>
+
+    <!-- Lookup Spinner Overlay -->
+    <div class="loading-overlay hidden" id="lookupSpinner">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3 id="lookupSpinnerTitle">Looking up phone number...</h3>
+            <p id="lookupSpinnerStatus">Checking carrier databases...</p>
+        </div>
+    </div>
+
+    <header class="header">
+        <div class="header-container">
+            <a href="/tools/" class="logo" style="text-decoration: none; color: inherit;">
+                <div class="logo-icon">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-title">Punjab Investigation Tools</span>
+                    <span class="logo-subtitle">Phone Number Lookup</span>
+                </div>
+            </a>
+            <div class="header-actions">
+                <a href="/tools/" class="back-home-btn">
+                    <i class="fas fa-home"></i> All Tools
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1><i class="fas fa-phone"></i> Phone Number Lookup</h1>
+                <p>Identify country, region, and telecom operator from phone numbers</p>
+            </div>
+        </section>
+
+        <section class="input-section">
+            <div class="input-group">
+                <h3><i class="fas fa-keyboard"></i> Enter Phone Number</h3>
+                <div class="input-row">
+                    <input type="text" id="phoneInput" class="input-field" placeholder="+91 98765 43210 or 9876543210" maxlength="20" disabled>
+                    <button class="verify-btn" onclick="lookupPhone()" id="lookupBtn" disabled>
+                        <i class="fas fa-search"></i> Lookup
+                    </button>
+                </div>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 10px;">
+                    <i class="fas fa-info-circle"></i> Enter with or without country code. Indian numbers are assumed if no country code provided.
+                </p>
+                <p style="color: var(--accent-color); font-size: 0.85rem; margin-top: 5px;" id="dbStatus">
+                    <i class="fas fa-database"></i> Loading operator database...
+                </p>
+            </div>
+        </section>
+
+        <!-- Bulk Lookup Section -->
+        <section class="input-section" id="bulkSection">
+            <div class="input-group">
+                <h3><i class="fas fa-list-ol"></i> Bulk Number Lookup (Indian Numbers Only)</h3>
+                <div style="padding:10px 15px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;margin-bottom:12px;font-size:0.82rem;color:#f59e0b;">
+                    <i class="fas fa-triangle-exclamation"></i> <strong>Note:</strong> If APIs fail continuously or show many "Vi Check Failed" errors, try changing your IP address (switch network, use VPN, or restart router). Operator APIs may temporarily block repeated requests from the same IP.
+                </div>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 10px;">
+                    <i class="fas fa-info-circle"></i> Paste up to 1000 Indian mobile numbers (one per line) or upload a .txt file. Numbers are checked against all 4 operators in parallel (10 at a time).
+                </p>
+                <textarea id="bulkInput" class="input-field" placeholder="Paste numbers here, one per line. Supports:&#10;9876543210&#10;+91 98765 43210&#10;+919876543210&#10;91-9876543210&#10;098765 43210" rows="6" style="width:100%;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:0.85rem;"></textarea>
+                <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;align-items:center;">
+                    <label class="action-btn" style="cursor:pointer;margin:0;display:inline-flex;align-items:center;gap:6px;">
+                        <i class="fas fa-file-upload"></i> Upload .txt
+                        <input type="file" id="bulkFileInput" accept=".txt,.csv" style="display:none;" onchange="handleBulkFile(event)">
+                    </label>
+                    <button class="verify-btn" onclick="startBulkLookup()" id="bulkLookupBtn">
+                        <i class="fas fa-rocket"></i> Start Bulk Lookup
+                    </button>
+                    <span id="bulkCountLabel" style="color:var(--text-secondary);font-size:0.85rem;"></span>
+                </div>
+                <!-- Progress -->
+                <div id="bulkProgress" style="display:none;margin-top:15px;">
+                    <div style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--text-secondary);margin-bottom:5px;">
+                        <span id="bulkProgressText">Processing...</span>
+                        <span id="bulkProgressPercent">0%</span>
+                    </div>
+                    <div style="width:100%;height:8px;background:rgba(99,102,241,0.2);border-radius:4px;overflow:hidden;">
+                        <div id="bulkProgressBar" style="width:0%;height:100%;background:var(--accent-color);border-radius:4px;transition:width 0.3s;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bulk Results Section -->
+        <section class="results-section" id="bulkResultsSection" style="display:none;">
+            <div class="result-card">
+                <div class="result-header">
+                    <div class="result-icon valid"><i class="fas fa-table"></i></div>
+                    <div class="result-title">
+                        <h3>Bulk Lookup Results</h3>
+                        <p id="bulkResultSummary">0 numbers processed</p>
+                    </div>
+                </div>
+                <div style="overflow-x:auto;margin-top:15px;">
+                    <table id="bulkResultTable" style="width:100%;border-collapse:collapse;font-size:0.85rem;font-family:'JetBrains Mono',monospace;">
+                        <thead>
+                            <tr style="background:rgba(99,102,241,0.15);text-align:left;">
+                                <th style="padding:10px 12px;border-bottom:2px solid rgba(99,102,241,0.3);">#</th>
+                                <th style="padding:10px 12px;border-bottom:2px solid rgba(99,102,241,0.3);">Number</th>
+                                <th style="padding:10px 12px;border-bottom:2px solid rgba(99,102,241,0.3);">Original Operator</th>
+                                <th style="padding:10px 12px;border-bottom:2px solid rgba(99,102,241,0.3);">Circle</th>
+                                <th style="padding:10px 12px;border-bottom:2px solid rgba(99,102,241,0.3);">Current Operator</th>
+                                <th style="padding:10px 12px;border-bottom:2px solid rgba(99,102,241,0.3);">Type</th>
+                                <th style="padding:10px 12px;border-bottom:2px solid rgba(99,102,241,0.3);">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bulkResultBody"></tbody>
+                    </table>
+                </div>
+                <div class="action-buttons" id="bulkActionButtons" style="margin-top:20px;display:none;">
+                    <button class="action-btn" onclick="copyBulkTSV()"><i class="fas fa-copy"></i> Copy for Excel (TSV)</button>
+                    <button class="action-btn" onclick="copyBulkMain()"><i class="fas fa-columns"></i> Copy Main Columns</button>
+                    <button class="action-btn" onclick="downloadBulkCSV()"><i class="fas fa-file-csv"></i> Download CSV</button>
+                    <button class="action-btn" onclick="downloadBulkPDF()"><i class="fas fa-file-pdf"></i> Download PDF</button>
+                    <button class="action-btn" id="bulkRetryBtn" style="display:none;background:rgba(245,158,11,0.2);border-color:rgba(245,158,11,0.5);" onclick="retryFailedNumbers()"><i class="fas fa-redo"></i> Retry Failed (<span id="bulkFailedCount">0</span>)</button>
+                    <button class="action-btn" onclick="document.getElementById('bulkResultsSection').style.display='none';"><i class="fas fa-times"></i> Close</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="results-section" id="resultsSection" style="display: none;">
+            <div class="result-card" id="resultCard">
+                <div class="result-header">
+                    <div class="result-icon valid" id="resultIcon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="result-title">
+                        <h3 id="resultTitle">Phone Number Analysis</h3>
+                        <p id="resultSubtitle">Information retrieved</p>
+                    </div>
+                </div>
+
+                <div class="result-details" id="resultDetails">
+                    <!-- Results will be populated here -->
+                </div>
+                
+                <div id="operatorBreakdown" style="margin-top: 20px; padding: 20px; background: rgba(99, 102, 241, 0.1); border-radius: 12px;"></div>
+                
+                <!-- Jio Live Check Section -->
+                <div id="jioLiveCheck" style="margin-top: 20px; display: none;">
+                    <div style="padding: 20px; background: linear-gradient(135deg, rgba(10, 40, 133, 0.2) 0%, rgba(26, 71, 192, 0.2) 100%); border: 1px solid rgba(10, 40, 133, 0.4); border-radius: 12px;">
+                        <h4 style="margin-bottom: 15px; color: var(--text-primary);">
+                            <i class="fas fa-satellite-dish"></i> Jio Live Status Check
+                        </h4>
+                        <div id="jioCheckContent">
+                            <div style="text-align: center; padding: 20px;">
+                                <div class="loading-spinner" style="width: 30px; height: 30px; margin: 0 auto 10px;"></div>
+                                <p style="color: var(--text-secondary);">Checking Jio network status...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- BSNL Live Check Section -->
+                <div id="bsnlLiveCheck" style="margin-top: 20px; display: none;">
+                    <div style="padding: 20px; background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 152, 0, 0.15) 100%); border: 1px solid rgba(255, 193, 7, 0.4); border-radius: 12px;">
+                        <h4 style="margin-bottom: 15px; color: var(--text-primary);">
+                            <i class="fas fa-broadcast-tower"></i> BSNL Live Status Check
+                        </h4>
+                        <div id="bsnlCheckContent">
+                            <div style="text-align: center; padding: 20px;">
+                                <div class="loading-spinner" style="width: 30px; height: 30px; margin: 0 auto 10px;"></div>
+                                <p style="color: var(--text-secondary);">Checking BSNL network status...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Airtel Live Check Section -->
+                <div id="airtelLiveCheck" style="margin-top: 20px; display: none;">
+                    <div style="padding: 20px; background: linear-gradient(135deg, rgba(237, 28, 36, 0.15) 0%, rgba(180, 0, 0, 0.15) 100%); border: 1px solid rgba(237, 28, 36, 0.4); border-radius: 12px;">
+                        <h4 style="margin-bottom: 15px; color: var(--text-primary);">
+                            <i class="fas fa-signal"></i> Airtel Live Status Check
+                        </h4>
+                        <div id="airtelCheckContent">
+                            <div style="text-align: center; padding: 20px;">
+                                <div class="loading-spinner" style="width: 30px; height: 30px; margin: 0 auto 10px;"></div>
+                                <p style="color: var(--text-secondary);">Checking Airtel network status...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Vi Live Check Section -->
+                <div id="viLiveCheck" style="margin-top: 20px; display: none;">
+                    <div style="padding: 20px; background: linear-gradient(135deg, rgba(255, 0, 102, 0.15) 0%, rgba(153, 0, 204, 0.15) 100%); border: 1px solid rgba(255, 0, 102, 0.4); border-radius: 12px;">
+                        <h4 style="margin-bottom: 15px; color: var(--text-primary);">
+                            <i class="fas fa-wifi"></i> Vi Live Status Check
+                        </h4>
+                        <div id="viCheckContent">
+                            <div style="text-align: center; padding: 20px;">
+                                <div class="loading-spinner" style="width: 30px; height: 30px; margin: 0 auto 10px;"></div>
+                                <p style="color: var(--text-secondary);">Checking Vi network status...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="mnpWarningBox" class="warning-box">
+                <h4><i class="fas fa-triangle-exclamation"></i> Important: Mobile Number Portability (MNP)</h4>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Numbers can be ported</strong> - The operator shown is based on original allocation and may not reflect current operator</li>
+                    <li>In India, MNP allows users to switch operators while keeping their number</li>
+                    <li>For accurate current operator information, official carrier verification is required</li>
+                    <li>Circle/region information is based on original number allocation</li>
+                    <li>Virtual numbers and VoIP services may show different information</li>
+                </ul>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn" onclick="copyResult()">
+                    <i class="fas fa-copy"></i> Copy Result
+                </button>
+                <button class="action-btn" onclick="downloadPDF()">
+                    <i class="fas fa-file-pdf"></i> Download PDF
+                </button>
+                <button class="action-btn" onclick="resetForm()">
+                    <i class="fas fa-redo"></i> Check Another
+                </button>
+            </div>
+        </section>
+
+        <section class="info-section">
+            <h3><i class="fas fa-info-circle"></i> About Phone Numbers</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-icon"><i class="fas fa-globe"></i></div>
+                    <h4>Country Codes</h4>
+                    <p>International phone numbers start with a country code (e.g., +91 for India, +1 for USA). This helps identify the country of origin.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <h4>Number Series</h4>
+                    <p>In India, mobile numbers are allocated in series to different operators and circles. The first 4 digits indicate the original operator and region.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon"><i class="fas fa-exchange-alt"></i></div>
+                    <h4>Number Portability</h4>
+                    <p>MNP allows users to change operators while keeping their number. The prefix may not reflect the current operator after porting.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p><i class="fas fa-database"></i> Database lookup is local. <i class="fas fa-cloud"></i> Phone numbers are sent to Operator Servers for live verification.</p>
+            <p>© 2024-<span id="currentYear"></span> Punjab Investigation Tools | Data source: hstsethi/in-mob-prefix (CC BY 4.0)</p>
+        </div>
+    </footer>
+
+    <!-- Floating Bulk Progress (visible when scrolled away from main progress) -->
+    <div id="floatingBulkProgress" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(10,10,30,0.95);border-top:2px solid var(--accent-color);padding:10px 20px;backdrop-filter:blur(10px);">
+        <div style="max-width:900px;margin:0 auto;display:flex;align-items:center;gap:15px;">
+            <div class="loading-spinner" style="width:24px;height:24px;min-width:24px;margin:0;border-width:3px;"></div>
+            <div style="flex:1;">
+                <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-secondary);margin-bottom:4px;">
+                    <span id="floatingProgressText">Processing...</span>
+                    <span id="floatingProgressPercent">0%</span>
+                </div>
+                <div style="width:100%;height:6px;background:rgba(99,102,241,0.2);border-radius:3px;overflow:hidden;">
+                    <div id="floatingProgressBar" style="width:0%;height:100%;background:var(--accent-color);border-radius:3px;transition:width 0.3s;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Action completed</span>
+    </div>
+
+    <style>
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 10, 20, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loading-content {
+            text-align: center;
+            color: var(--text-primary);
+        }
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(99, 102, 241, 0.3);
+            border-top-color: var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .loading-content h3 {
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+        .loading-content p {
+            color: var(--text-secondary);
+        }
+        .operator-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .operator-logo.airtel { background: linear-gradient(135deg, #ed1c24 0%, #ff5c5c 100%); color: white; }
+        .operator-logo.jio { background: linear-gradient(135deg, #0a2885 0%, #1a47c0 100%); color: white; }
+        .operator-logo.vi { background: linear-gradient(135deg, #e60000 0%, #ffcb05 100%); color: white; }
+        .operator-logo.bsnl { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: #333; }
+        .operator-logo.mtnl { background: linear-gradient(135deg, #00a0e3 0%, #005baa 100%); color: white; }
+        .operator-logo.other { background: linear-gradient(135deg, #6b7280 0%, #374151 100%); color: white; }
+    </style>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // Global variables
+        let indianMobileDB = {};
+        let dbEntryCount = 0;
+
+        // Country codes database (comprehensive)
+        const countryCodes = {
+            '1': { country: 'United States/Canada', flag: '🇺🇸', code: '+1' },
+            '7': { country: 'Russia/Kazakhstan', flag: '🇷🇺', code: '+7' },
+            '20': { country: 'Egypt', flag: '🇪🇬', code: '+20' },
+            '27': { country: 'South Africa', flag: '🇿🇦', code: '+27' },
+            '30': { country: 'Greece', flag: '🇬🇷', code: '+30' },
+            '31': { country: 'Netherlands', flag: '🇳🇱', code: '+31' },
+            '32': { country: 'Belgium', flag: '🇧🇪', code: '+32' },
+            '33': { country: 'France', flag: '🇫🇷', code: '+33' },
+            '34': { country: 'Spain', flag: '🇪🇸', code: '+34' },
+            '36': { country: 'Hungary', flag: '🇭🇺', code: '+36' },
+            '39': { country: 'Italy', flag: '🇮🇹', code: '+39' },
+            '40': { country: 'Romania', flag: '🇷🇴', code: '+40' },
+            '41': { country: 'Switzerland', flag: '🇨🇭', code: '+41' },
+            '43': { country: 'Austria', flag: '🇦🇹', code: '+43' },
+            '44': { country: 'United Kingdom', flag: '🇬🇧', code: '+44' },
+            '45': { country: 'Denmark', flag: '🇩🇰', code: '+45' },
+            '46': { country: 'Sweden', flag: '🇸🇪', code: '+46' },
+            '47': { country: 'Norway', flag: '🇳🇴', code: '+47' },
+            '48': { country: 'Poland', flag: '🇵🇱', code: '+48' },
+            '49': { country: 'Germany', flag: '🇩🇪', code: '+49' },
+            '51': { country: 'Peru', flag: '🇵🇪', code: '+51' },
+            '52': { country: 'Mexico', flag: '🇲🇽', code: '+52' },
+            '53': { country: 'Cuba', flag: '🇨🇺', code: '+53' },
+            '54': { country: 'Argentina', flag: '🇦🇷', code: '+54' },
+            '55': { country: 'Brazil', flag: '🇧🇷', code: '+55' },
+            '56': { country: 'Chile', flag: '🇨🇱', code: '+56' },
+            '57': { country: 'Colombia', flag: '🇨🇴', code: '+57' },
+            '58': { country: 'Venezuela', flag: '🇻🇪', code: '+58' },
+            '60': { country: 'Malaysia', flag: '🇲🇾', code: '+60' },
+            '61': { country: 'Australia', flag: '🇦🇺', code: '+61' },
+            '62': { country: 'Indonesia', flag: '🇮🇩', code: '+62' },
+            '63': { country: 'Philippines', flag: '🇵🇭', code: '+63' },
+            '64': { country: 'New Zealand', flag: '🇳🇿', code: '+64' },
+            '65': { country: 'Singapore', flag: '🇸🇬', code: '+65' },
+            '66': { country: 'Thailand', flag: '🇹🇭', code: '+66' },
+            '81': { country: 'Japan', flag: '🇯🇵', code: '+81' },
+            '82': { country: 'South Korea', flag: '🇰🇷', code: '+82' },
+            '84': { country: 'Vietnam', flag: '🇻🇳', code: '+84' },
+            '86': { country: 'China', flag: '🇨🇳', code: '+86' },
+            '90': { country: 'Turkey', flag: '🇹🇷', code: '+90' },
+            '91': { country: 'India', flag: '🇮🇳', code: '+91' },
+            '92': { country: 'Pakistan', flag: '🇵🇰', code: '+92' },
+            '93': { country: 'Afghanistan', flag: '🇦🇫', code: '+93' },
+            '94': { country: 'Sri Lanka', flag: '🇱🇰', code: '+94' },
+            '95': { country: 'Myanmar', flag: '🇲🇲', code: '+95' },
+            '98': { country: 'Iran', flag: '🇮🇷', code: '+98' },
+            '212': { country: 'Morocco', flag: '🇲🇦', code: '+212' },
+            '213': { country: 'Algeria', flag: '🇩🇿', code: '+213' },
+            '216': { country: 'Tunisia', flag: '🇹🇳', code: '+216' },
+            '218': { country: 'Libya', flag: '🇱🇾', code: '+218' },
+            '220': { country: 'Gambia', flag: '🇬🇲', code: '+220' },
+            '221': { country: 'Senegal', flag: '🇸🇳', code: '+221' },
+            '234': { country: 'Nigeria', flag: '🇳🇬', code: '+234' },
+            '254': { country: 'Kenya', flag: '🇰🇪', code: '+254' },
+            '255': { country: 'Tanzania', flag: '🇹🇿', code: '+255' },
+            '256': { country: 'Uganda', flag: '🇺🇬', code: '+256' },
+            '260': { country: 'Zambia', flag: '🇿🇲', code: '+260' },
+            '263': { country: 'Zimbabwe', flag: '🇿🇼', code: '+263' },
+            '351': { country: 'Portugal', flag: '🇵🇹', code: '+351' },
+            '352': { country: 'Luxembourg', flag: '🇱🇺', code: '+352' },
+            '353': { country: 'Ireland', flag: '🇮🇪', code: '+353' },
+            '354': { country: 'Iceland', flag: '🇮🇸', code: '+354' },
+            '358': { country: 'Finland', flag: '🇫🇮', code: '+358' },
+            '370': { country: 'Lithuania', flag: '🇱🇹', code: '+370' },
+            '371': { country: 'Latvia', flag: '🇱🇻', code: '+371' },
+            '372': { country: 'Estonia', flag: '🇪🇪', code: '+372' },
+            '373': { country: 'Moldova', flag: '🇲🇩', code: '+373' },
+            '374': { country: 'Armenia', flag: '🇦🇲', code: '+374' },
+            '375': { country: 'Belarus', flag: '🇧🇾', code: '+375' },
+            '376': { country: 'Andorra', flag: '🇦🇩', code: '+376' },
+            '377': { country: 'Monaco', flag: '🇲🇨', code: '+377' },
+            '380': { country: 'Ukraine', flag: '🇺🇦', code: '+380' },
+            '381': { country: 'Serbia', flag: '🇷🇸', code: '+381' },
+            '385': { country: 'Croatia', flag: '🇭🇷', code: '+385' },
+            '386': { country: 'Slovenia', flag: '🇸🇮', code: '+386' },
+            '387': { country: 'Bosnia', flag: '🇧🇦', code: '+387' },
+            '389': { country: 'North Macedonia', flag: '🇲🇰', code: '+389' },
+            '420': { country: 'Czech Republic', flag: '🇨🇿', code: '+420' },
+            '421': { country: 'Slovakia', flag: '🇸🇰', code: '+421' },
+            '880': { country: 'Bangladesh', flag: '🇧🇩', code: '+880' },
+            '886': { country: 'Taiwan', flag: '🇹🇼', code: '+886' },
+            '960': { country: 'Maldives', flag: '🇲🇻', code: '+960' },
+            '961': { country: 'Lebanon', flag: '🇱🇧', code: '+961' },
+            '962': { country: 'Jordan', flag: '🇯🇴', code: '+962' },
+            '963': { country: 'Syria', flag: '🇸🇾', code: '+963' },
+            '964': { country: 'Iraq', flag: '🇮🇶', code: '+964' },
+            '965': { country: 'Kuwait', flag: '🇰🇼', code: '+965' },
+            '966': { country: 'Saudi Arabia', flag: '🇸🇦', code: '+966' },
+            '967': { country: 'Yemen', flag: '🇾🇪', code: '+967' },
+            '968': { country: 'Oman', flag: '🇴🇲', code: '+968' },
+            '970': { country: 'Palestine', flag: '🇵🇸', code: '+970' },
+            '971': { country: 'UAE', flag: '🇦🇪', code: '+971' },
+            '972': { country: 'Israel', flag: '🇮🇱', code: '+972' },
+            '973': { country: 'Bahrain', flag: '🇧🇭', code: '+973' },
+            '974': { country: 'Qatar', flag: '🇶🇦', code: '+974' },
+            '975': { country: 'Bhutan', flag: '🇧🇹', code: '+975' },
+            '976': { country: 'Mongolia', flag: '🇲🇳', code: '+976' },
+            '977': { country: 'Nepal', flag: '🇳🇵', code: '+977' },
+        };
+
+        // Operator display names and colors
+        const operatorInfo = {
+            'Airtel': { logo: 'airtel', color: '#ed1c24', fullName: 'Bharti Airtel Limited' },
+            'Vi (Vodafone Idea)': { logo: 'vi', color: '#e60000', fullName: 'Vodafone Idea Limited' },
+            'Reliance Jio': { logo: 'jio', color: '#0a2885', fullName: 'Reliance Jio Infocomm Limited' },
+            'Reliance Globalcom': { logo: 'jio', color: '#0a2885', fullName: 'Reliance Communications (Now Jio)' },
+            'Reliance Communications': { logo: 'jio', color: '#0a2885', fullName: 'Reliance Communications Limited' },
+            'BSNL': { logo: 'bsnl', color: '#ffc107', fullName: 'Bharat Sanchar Nigam Limited' },
+            'MTNL': { logo: 'mtnl', color: '#00a0e3', fullName: 'Mahanagar Telephone Nigam Limited' },
+            'Aircel': { logo: 'other', color: '#6b7280', fullName: 'Aircel Limited (Defunct)' },
+        };
+
+        // Load the Indian mobile database
+        async function loadDatabase() {
+            try {
+                const response = await fetch('indianMobileDB.json');
+                if (!response.ok) throw new Error('Failed to load database');
+                indianMobileDB = await response.json();
+                dbEntryCount = Object.keys(indianMobileDB).length;
+                
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                document.getElementById('phoneInput').disabled = false;
+                document.getElementById('lookupBtn').disabled = false;
+                document.getElementById('dbStatus').innerHTML = `<i class="fas fa-check-circle"></i> Database loaded: ${dbEntryCount.toLocaleString()} Indian mobile prefix records`;
+                document.getElementById('dbStatus').style.color = 'var(--success-color)';
+                
+                // Check for URL parameter ?phone=
+                checkUrlParams();
+            } catch (error) {
+                console.error('Error loading database:', error);
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                document.getElementById('phoneInput').disabled = false;
+                document.getElementById('lookupBtn').disabled = false;
+                document.getElementById('dbStatus').innerHTML = `<i class="fas fa-exclamation-triangle"></i> Database load failed. Using basic lookup.`;
+                document.getElementById('dbStatus').style.color = 'var(--warning-color)';
+                checkUrlParams();
+            }
+        }
+
+        // Check URL parameters for pre-filled phone number
+        function checkUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const phoneParam = urlParams.get('phone');
+            if (phoneParam) {
+                document.getElementById('phoneInput').value = phoneParam;
+                lookupPhone();
+            } else {
+                document.getElementById('phoneInput').focus();
+            }
+        }
+
+        // Load database on page load
+        loadDatabase();
+
+        function parsePhoneNumber(input) {
+            // Remove all non-digit characters except +
+            let cleaned = input.replace(/[^\d+]/g, '');
+            
+            // Handle different formats
+            if (cleaned.startsWith('+')) {
+                cleaned = cleaned.substring(1);
+            } else if (cleaned.startsWith('00')) {
+                cleaned = cleaned.substring(2);
+            }
+            
+            // If 10 digits starting with 6-9, assume Indian number
+            if (cleaned.length === 10 && cleaned.match(/^[6-9]/)) {
+                return { countryCode: '91', nationalNumber: cleaned };
+            }
+            
+            // Try to match country code (check longer codes first)
+            for (let len = 3; len >= 1; len--) {
+                const prefix = cleaned.substring(0, len);
+                if (countryCodes[prefix]) {
+                    return { countryCode: prefix, nationalNumber: cleaned.substring(len) };
+                }
+            }
+            
+            return { countryCode: null, nationalNumber: cleaned };
+        }
+
+        function lookupIndianOperator(nationalNumber) {
+            if (nationalNumber.length < 4) return null;
+            
+            const prefix = nationalNumber.substring(0, 4);
+            const dbEntry = indianMobileDB[prefix];
+            
+            if (dbEntry) {
+                return {
+                    operator: dbEntry.o,
+                    circle: dbEntry.c,
+                    prefix: prefix
+                };
+            }
+            
+            return null;
+        }
+
+        function getOperatorClass(operator) {
+            if (!operator) return 'other';
+            const op = operator.toLowerCase();
+            if (op.includes('airtel')) return 'airtel';
+            if (op.includes('jio') || op.includes('reliance')) return 'jio';
+            if (op.includes('vi') || op.includes('vodafone') || op.includes('idea')) return 'vi';
+            if (op.includes('bsnl')) return 'bsnl';
+            if (op.includes('mtnl')) return 'mtnl';
+            return 'other';
+        }
+
+        // Global variables to store API results for PDF/copy
+        let lastJioResult = null;
+        let lastBsnlResult = null;
+        let lastAirtelResult = null;
+        let lastViResult = null;
+
+        // Helper functions for lookup spinner
+        function showLookupSpinner(title, status) {
+            document.getElementById('lookupSpinnerTitle').textContent = title || 'Looking up phone number...';
+            document.getElementById('lookupSpinnerStatus').textContent = status || 'Checking carrier databases...';
+            document.getElementById('lookupSpinner').classList.remove('hidden');
+        }
+        
+        function updateLookupSpinner(title, status) {
+            if (title) document.getElementById('lookupSpinnerTitle').textContent = title;
+            if (status) document.getElementById('lookupSpinnerStatus').textContent = status;
+        }
+        
+        function hideLookupSpinner() {
+            document.getElementById('lookupSpinner').classList.add('hidden');
+        }
+
+        async function lookupPhone() {
+            const input = document.getElementById('phoneInput').value.trim();
+            
+            if (!input) {
+                showToast('Please enter a phone number');
+                return;
+            }
+
+            const parsed = parsePhoneNumber(input);
+            
+            if (!parsed.nationalNumber || parsed.nationalNumber.length < 7) {
+                showToast('Please enter a valid phone number');
+                return;
+            }
+
+            // Show full-screen spinner
+            showLookupSpinner('Looking up phone number...', 'Analyzing number format...');
+
+            // Update URL with phone parameter
+            const url = new URL(window.location);
+            url.searchParams.set('phone', input);
+            window.history.replaceState({}, '', url);
+
+            // Reset API results
+            lastJioResult = null;
+            lastBsnlResult = null;
+            document.getElementById('resultsSection').style.display = 'block';
+            
+            // Reset warning box to default
+            document.getElementById('mnpWarningBox').innerHTML = `
+                <h4><i class="fas fa-triangle-exclamation"></i> Important: Mobile Number Portability (MNP)</h4>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Numbers can be ported</strong> - The operator shown is based on original allocation and may not reflect current operator</li>
+                    <li>In India, MNP allows users to switch operators while keeping their number</li>
+                    <li>For accurate current operator information, official carrier verification is required</li>
+                    <li>Circle/region information is based on original number allocation</li>
+                    <li>Virtual numbers and VoIP services may show different information</li>
+                </ul>
+            `;
+            document.getElementById('mnpWarningBox').style.borderColor = '';
+            document.getElementById('mnpWarningBox').style.background = '';
+            
+            const resultIcon = document.getElementById('resultIcon');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultSubtitle = document.getElementById('resultSubtitle');
+
+            let countryInfo = parsed.countryCode ? countryCodes[parsed.countryCode] : null;
+            let operatorData = null;
+
+            // If Indian number, try to find operator from database
+            if (parsed.countryCode === '91' && parsed.nationalNumber.length === 10) {
+                operatorData = lookupIndianOperator(parsed.nationalNumber);
+            }
+
+            if (countryInfo) {
+                resultIcon.className = 'result-icon valid';
+                resultIcon.innerHTML = '<span style="font-size: 32px;">' + countryInfo.flag + '</span>';
+                resultTitle.textContent = countryInfo.country;
+                resultSubtitle.textContent = operatorData ? `${operatorData.operator} - ${operatorData.circle}` : 'Country identified';
+            } else {
+                resultIcon.className = 'result-icon warning';
+                resultIcon.innerHTML = '<i class="fas fa-question"></i>';
+                resultTitle.textContent = 'Unknown Country';
+                resultSubtitle.textContent = 'Could not determine country from number';
+            }
+
+            let formattedNumber = parsed.countryCode ? `+${parsed.countryCode} ${parsed.nationalNumber}` : parsed.nationalNumber;
+
+            let detailsHTML = `
+                <div class="detail-item">
+                    <div class="detail-label">Phone Number</div>
+                    <div class="detail-value" style="font-family: 'JetBrains Mono', monospace; font-size: 1.2rem;">${formattedNumber}</div>
+                </div>
+            `;
+
+            if (parsed.countryCode) {
+                detailsHTML += `
+                    <div class="detail-item">
+                        <div class="detail-label">Country Code</div>
+                        <div class="detail-value">+${parsed.countryCode}</div>
+                    </div>
+                `;
+            }
+
+            if (countryInfo) {
+                detailsHTML += `
+                    <div class="detail-item">
+                        <div class="detail-label">Country</div>
+                        <div class="detail-value">${countryInfo.flag} ${countryInfo.country}</div>
+                    </div>
+                `;
+            }
+
+            if (operatorData) {
+                const opClass = getOperatorClass(operatorData.operator);
+                detailsHTML += `
+                    <div class="detail-item">
+                        <div class="detail-label">Original Operator</div>
+                        <div class="detail-value">
+                            <span class="operator-logo ${opClass}">
+                                <i class="fas fa-broadcast-tower"></i> ${operatorData.operator}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="detail-item" id="currentOperatorRow" style="display: none;">
+                        <div class="detail-label">Current Operator</div>
+                        <div class="detail-value" id="currentOperatorValue"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Telecom Circle</div>
+                        <div class="detail-value">${operatorData.circle || 'Unknown'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Number Prefix</div>
+                        <div class="detail-value" style="font-family: 'JetBrains Mono', monospace;">${operatorData.prefix}</div>
+                    </div>
+                `;
+            } else if (parsed.countryCode === '91' && parsed.nationalNumber.length === 10) {
+                // Indian number not in database - show current operator placeholder
+                detailsHTML += `
+                    <div class="detail-item">
+                        <div class="detail-label">Original Operator</div>
+                        <div class="detail-value" style="color: var(--text-secondary);">
+                            <i class="fas fa-question-circle"></i> Not in database
+                        </div>
+                    </div>
+                    <div class="detail-item" id="currentOperatorRow" style="display: none;">
+                        <div class="detail-label">Current Operator</div>
+                        <div class="detail-value" id="currentOperatorValue"></div>
+                    </div>
+                `;
+            }
+
+            detailsHTML += `
+                <div class="detail-item">
+                    <div class="detail-label">Number Length</div>
+                    <div class="detail-value">${parsed.nationalNumber.length} digits (national)</div>
+                </div>
+            `;
+
+            // Number type detection
+            let numberType = 'Unknown';
+            if (parsed.countryCode === '91') {
+                if (parsed.nationalNumber.match(/^[6-9]/)) {
+                    numberType = 'Mobile';
+                } else if (parsed.nationalNumber.match(/^[1-5]/)) {
+                    numberType = 'Landline';
+                }
+            }
+
+            detailsHTML += `
+                <div class="detail-item">
+                    <div class="detail-label">Number Type</div>
+                    <div class="detail-value">${numberType}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Lookup Time</div>
+                    <div class="detail-value">${new Date().toLocaleString()}</div>
+                </div>
+            `;
+
+            document.getElementById('resultDetails').innerHTML = detailsHTML;
+
+            // Operator breakdown visualization
+            let breakdownHTML = '';
+            if (operatorData) {
+                const parts = parsed.nationalNumber.match(/.{1,2}/g) || [];
+                breakdownHTML = `
+                    <h4 style="margin-bottom: 15px; color: var(--text-primary);"><i class="fas fa-puzzle-piece"></i> Number Structure</h4>
+                    <div style="display: flex; gap: 5px; font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; flex-wrap: wrap; justify-content: center;">
+                        <div style="background: rgba(34, 211, 238, 0.3); padding: 15px; border-radius: 8px; border: 2px solid rgba(34, 211, 238, 0.5); text-align: center;">
+                            <div style="font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 5px;">Operator/Circle Code</div>
+                            ${parsed.nationalNumber.substring(0, 4)}
+                        </div>
+                        <div style="background: rgba(16, 185, 129, 0.3); padding: 15px; border-radius: 8px; border: 2px solid rgba(16, 185, 129, 0.5); text-align: center;">
+                            <div style="font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 5px;">Subscriber Number</div>
+                            ${parsed.nationalNumber.substring(4)}
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; padding: 12px; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 8px; text-align: center; font-size: 0.85rem; color: var(--text-secondary);">
+                        <i class="fas fa-database"></i> Database contains <strong>${dbEntryCount.toLocaleString()}</strong> Indian mobile prefix records from DoT/TRAI data
+                    </div>
+                `;
+            } else if (parsed.countryCode === '91') {
+                breakdownHTML = `
+                    <div style="padding: 15px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; text-align: center;">
+                        <i class="fas fa-info-circle" style="color: var(--warning-color);"></i>
+                        <span style="color: var(--warning-color); margin-left: 10px;">Operator information not found in database. This prefix may be newly allocated or the number may be invalid.</span>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('operatorBreakdown').innerHTML = breakdownHTML;
+            
+            // Jio Live Check for Indian mobile numbers
+            const jioLiveSection = document.getElementById('jioLiveCheck');
+            const jioCheckContent = document.getElementById('jioCheckContent');
+            
+            if (parsed.countryCode === '91' && parsed.nationalNumber.length === 10 && parsed.nationalNumber.match(/^[6-9]/)) {
+                updateLookupSpinner('Verifying carrier...', 'Checking Jio network status...');
+                jioLiveSection.style.display = 'block';
+                jioCheckContent.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="loading-spinner" style="width: 30px; height: 30px; margin: 0 auto 10px;"></div>
+                        <p style="color: var(--text-secondary);">Checking Jio network status...</p>
+                    </div>
+                `;
+                
+                // Call Jio API
+                try {
+                    const response = await fetch(`/reliancejioapi/${parsed.nationalNumber}`);
+                    const jioData = await response.json();
+                    lastJioResult = jioData;
+                    
+                    if (jioData.isJio) {
+                        const billingTypeColor = jioData.isPrepaid ? '#10b981' : '#f59e0b';
+                        const billingTypeIcon = jioData.isPrepaid ? 'fa-mobile-alt' : 'fa-file-invoice-dollar';
+                        
+                        jioCheckContent.innerHTML = `
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px;">
+                                <div style="text-align: center; padding: 15px; background: rgba(10, 185, 129, 0.2); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.4);">
+                                    <i class="fas fa-check-circle" style="font-size: 1.5rem; color: #10b981; margin-bottom: 8px;"></i>
+                                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Network Status</div>
+                                    <div style="font-weight: 600; color: #10b981;">Active Jio User</div>
+                                </div>
+                                <div style="text-align: center; padding: 15px; background: rgba(99, 102, 241, 0.2); border-radius: 8px; border: 1px solid rgba(99, 102, 241, 0.4);">
+                                    <i class="fas ${billingTypeIcon}" style="font-size: 1.5rem; color: ${billingTypeColor}; margin-bottom: 8px;"></i>
+                                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Billing Type</div>
+                                    <div style="font-weight: 600; color: ${billingTypeColor};">${jioData.billingType || 'Unknown'}</div>
+                                </div>
+                                ${jioData.isPrimeMember !== undefined ? `
+                                <div style="text-align: center; padding: 15px; background: rgba(245, 158, 11, 0.2); border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.4);">
+                                    <i class="fas ${jioData.isPrimeMember ? 'fa-crown' : 'fa-user'}" style="font-size: 1.5rem; color: ${jioData.isPrimeMember ? '#f59e0b' : '#6b7280'}; margin-bottom: 8px;"></i>
+                                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Prime Status</div>
+                                    <div style="font-weight: 600; color: ${jioData.isPrimeMember ? '#f59e0b' : '#6b7280'};">${jioData.isPrimeMember ? 'Prime Member' : 'Non-Prime'}</div>
+                                </div>
+                                ` : ''}
+                            </div>
+                            <div style="margin-top: 15px; padding: 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; text-align: center; font-size: 0.8rem; color: var(--text-secondary);">
+                                <i class="fas fa-info-circle"></i> This is live data from Jio network. The number is <strong>currently active</strong> on Jio.
+                            </div>
+                        `;
+                        
+                        // Show current operator as Jio
+                        const currentOpRow = document.getElementById('currentOperatorRow');
+                        if (currentOpRow) {
+                            currentOpRow.style.display = 'grid';
+                            document.getElementById('currentOperatorValue').innerHTML = `
+                                <span class="operator-logo jio" style="background: linear-gradient(135deg, #0a2885, #1a47c0);">
+                                    <i class="fas fa-check-circle"></i> Reliance Jio (Verified)
+                                </span>
+                            `;
+                        }
+                        
+                        // Hide BSNL section since Jio is confirmed
+                        document.getElementById('bsnlLiveCheck').style.display = 'none';
+                        
+                        // Update warning box to show confirmed Jio
+                        document.getElementById('mnpWarningBox').innerHTML = `
+                            <h4 style="color: #10b981;"><i class="fas fa-check-circle"></i> Verified: Jio Network Confirmed</h4>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li><strong>Live verification successful</strong> - This number is CONFIRMED to be currently active on Reliance Jio network</li>
+                                <li>Billing Type: <strong>${jioData.billingType || 'Unknown'}</strong></li>
+                                ${jioData.isPrimeMember !== undefined ? `<li>Prime Member: <strong>${jioData.isPrimeMember ? 'Yes' : 'No'}</strong></li>` : ''}
+                                <li>The original operator from database may differ due to MNP (porting to Jio)</li>
+                                <li>Circle/region information is still based on original allocation</li>
+                            </ul>
+                        `;
+                        document.getElementById('mnpWarningBox').style.borderColor = '#10b981';
+                        document.getElementById('mnpWarningBox').style.background = 'rgba(16, 185, 129, 0.1)';
+                    } else {
+                        jioCheckContent.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(107, 114, 128, 0.2); border-radius: 8px; border: 1px solid rgba(107, 114, 128, 0.4);">
+                                <i class="fas fa-times-circle" style="font-size: 2rem; color: #6b7280;"></i>
+                                <div>
+                                    <div style="font-weight: 600; color: var(--text-primary);">Not a Jio Number</div>
+                                    <div style="font-size: 0.85rem; color: var(--text-secondary);">This number is not currently active on Jio network</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('Jio API error:', error);
+                    jioCheckContent.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem; color: #ef4444;"></i>
+                            <div>
+                                <div style="font-weight: 600; color: var(--text-primary);">Could not check Jio status</div>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary);">API unavailable or network error. Try again later.</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                jioLiveSection.style.display = 'none';
+            }
+            
+            // Skip BSNL check if Jio is already confirmed
+            if (lastJioResult && lastJioResult.isJio) {
+                hideLookupSpinner();
+                document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            
+            // BSNL Live Check for Indian mobile numbers
+            const bsnlLiveSection = document.getElementById('bsnlLiveCheck');
+            const bsnlCheckContent = document.getElementById('bsnlCheckContent');
+            
+            if (parsed.countryCode === '91' && parsed.nationalNumber.length === 10 && parsed.nationalNumber.match(/^[6-9]/)) {
+                updateLookupSpinner('Verifying carrier...', 'Checking BSNL network status...');
+                bsnlLiveSection.style.display = 'block';
+                bsnlCheckContent.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="loading-spinner" style="width: 30px; height: 30px; margin: 0 auto 10px;"></div>
+                        <p style="color: var(--text-secondary);">Checking BSNL network status...</p>
+                    </div>
+                `;
+                
+                // Call BSNL API
+                try {
+                    const bsnlResponse = await fetch(`/bsnlapi/${parsed.nationalNumber}`);
+                    const bsnlData = await bsnlResponse.json();
+                    lastBsnlResult = bsnlData;
+                    
+                    if (bsnlData.isBsnl) {
+                        let plansHTML = '';
+                        if (bsnlData.topPlans && bsnlData.topPlans.length > 0) {
+                            plansHTML = `
+                                <div style="margin-top: 15px;">
+                                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;"><i class="fas fa-tag"></i> Top Recharge Plans:</div>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                        ${bsnlData.topPlans.slice(0, 4).map(plan => `
+                                            <div style="padding: 8px 12px; background: rgba(255, 193, 7, 0.2); border-radius: 6px; font-size: 0.8rem;">
+                                                <strong>₹${plan.amount}</strong> - ${plan.validity}
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        bsnlCheckContent.innerHTML = `
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px;">
+                                <div style="text-align: center; padding: 15px; background: rgba(16, 185, 129, 0.2); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.4);">
+                                    <i class="fas fa-check-circle" style="font-size: 1.5rem; color: #10b981; margin-bottom: 8px;"></i>
+                                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Network Status</div>
+                                    <div style="font-weight: 600; color: #10b981;">Active BSNL User</div>
+                                </div>
+                                <div style="text-align: center; padding: 15px; background: rgba(255, 193, 7, 0.2); border-radius: 8px; border: 1px solid rgba(255, 193, 7, 0.4);">
+                                    <i class="fas fa-map-marker-alt" style="font-size: 1.5rem; color: #f59e0b; margin-bottom: 8px;"></i>
+                                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Circle</div>
+                                    <div style="font-weight: 600; color: #f59e0b;">${bsnlData.circle || 'Unknown'}</div>
+                                </div>
+                                <div style="text-align: center; padding: 15px; background: rgba(99, 102, 241, 0.2); border-radius: 8px; border: 1px solid rgba(99, 102, 241, 0.4);">
+                                    <i class="fas fa-mobile-alt" style="font-size: 1.5rem; color: #6366f1; margin-bottom: 8px;"></i>
+                                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Type</div>
+                                    <div style="font-weight: 600; color: #6366f1;">Prepaid</div>
+                                </div>
+                            </div>
+                            ${plansHTML}
+                            <div style="margin-top: 15px; padding: 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; text-align: center; font-size: 0.8rem; color: var(--text-secondary);">
+                                <i class="fas fa-info-circle"></i> This is live data from BSNL network. The number is <strong>currently active</strong> on BSNL.
+                            </div>
+                        `;
+                        
+                        // Show current operator as BSNL
+                        const currentOpRow = document.getElementById('currentOperatorRow');
+                        if (currentOpRow) {
+                            currentOpRow.style.display = 'grid';
+                            document.getElementById('currentOperatorValue').innerHTML = `
+                                <span class="operator-logo bsnl" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                                    <i class="fas fa-check-circle"></i> BSNL (Verified)
+                                </span>
+                            `;
+                        }
+                        
+                        // Hide Jio section since BSNL is confirmed
+                        document.getElementById('jioLiveCheck').style.display = 'none';
+                        
+                        // Update warning box to show confirmed BSNL
+                        document.getElementById('mnpWarningBox').innerHTML = `
+                            <h4 style="color: #f59e0b;"><i class="fas fa-check-circle"></i> Verified: BSNL Network Confirmed</h4>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li><strong>Live verification successful</strong> - This number is CONFIRMED to be currently active on BSNL network</li>
+                                <li>Circle: <strong>${bsnlData.circle || 'Unknown'}</strong></li>
+                                <li>The original operator from database may differ due to MNP (porting to BSNL)</li>
+                                <li>Circle/region information is from BSNL live data</li>
+                            </ul>
+                        `;
+                        document.getElementById('mnpWarningBox').style.borderColor = '#f59e0b';
+                        document.getElementById('mnpWarningBox').style.background = 'rgba(245, 158, 11, 0.1)';
+                    } else {
+                        bsnlCheckContent.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(107, 114, 128, 0.2); border-radius: 8px; border: 1px solid rgba(107, 114, 128, 0.4);">
+                                <i class="fas fa-times-circle" style="font-size: 2rem; color: #6b7280;"></i>
+                                <div>
+                                    <div style="font-weight: 600; color: var(--text-primary);">Not a BSNL Number</div>
+                                    <div style="font-size: 0.85rem; color: var(--text-secondary);">This number is not currently active on BSNL network</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('BSNL API error:', error);
+                    bsnlCheckContent.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem; color: #ef4444;"></i>
+                            <div>
+                                <div style="font-weight: 600; color: var(--text-primary);">Could not check BSNL status</div>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary);">API unavailable or network error. Try again later.</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                bsnlLiveSection.style.display = 'none';
+            }
+            
+            // Skip Airtel check if Jio or BSNL is already confirmed
+            if ((lastJioResult && lastJioResult.isJio) || (lastBsnlResult && lastBsnlResult.isBsnl)) {
+                hideLookupSpinner();
+                document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            
+            // Airtel Live Check for Indian mobile numbers
+            const airtelLiveSection = document.getElementById('airtelLiveCheck');
+            const airtelCheckContent = document.getElementById('airtelCheckContent');
+            
+            if (parsed.countryCode === '91' && parsed.nationalNumber.length === 10 && parsed.nationalNumber.match(/^[6-9]/)) {
+                updateLookupSpinner('Verifying carrier...', 'Checking Airtel network status...');
+                airtelLiveSection.style.display = 'block';
+                airtelCheckContent.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="loading-spinner" style="width: 30px; height: 30px; margin: 0 auto 10px;"></div>
+                        <p style="color: var(--text-secondary);">Checking Airtel network status...</p>
+                    </div>
+                `;
+                
+                // Call Airtel API
+                try {
+                    const airtelResponse = await fetch(`/airtelapi/${parsed.nationalNumber}?t=${Date.now()}`);
+                    const airtelData = await airtelResponse.json();
+                    lastAirtelResult = airtelData;
+                    
+                    if (airtelData.isAirtel) {
+                        const statusColor = airtelData.status === 'ACTIV' ? '#10b981' : '#f59e0b';
+                        const statusIcon = airtelData.status === 'ACTIV' ? 'fa-check-circle' : 'fa-clock';
+                        const statusText = airtelData.status === 'ACTIV' ? 'Active' : (airtelData.status || 'Unknown');
+                        
+                        airtelCheckContent.innerHTML = `
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px;">
+                                <div style="text-align: center; padding: 15px; background: rgba(16, 185, 129, 0.2); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.4);">
+                                    <i class="fas fa-check-circle" style="font-size: 1.5rem; color: #10b981; margin-bottom: 8px;"></i>
+                                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Network Status</div>
+                                    <div style="font-weight: 600; color: #10b981;">Active Airtel User</div>
+                                </div>
+                                <div style="text-align: center; padding: 15px; background: rgba(237, 28, 36, 0.2); border-radius: 8px; border: 1px solid rgba(237, 28, 36, 0.4);">
+                                    <i class="fas fa-map-marker-alt" style="font-size: 1.5rem; color: #ed1c24; margin-bottom: 8px;"></i>
+                                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Circle</div>
+                                    <div style="font-weight: 600; color: #ed1c24;">${airtelData.circleName || 'Circle ' + airtelData.circleId || 'Unknown'}</div>
+                                </div>
+                                <div style="text-align: center; padding: 15px; background: rgba(99, 102, 241, 0.2); border-radius: 8px; border: 1px solid rgba(99, 102, 241, 0.4);">
+                                    <i class="fas ${statusIcon}" style="font-size: 1.5rem; color: ${statusColor}; margin-bottom: 8px;"></i>
+                                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Status</div>
+                                    <div style="font-weight: 600; color: ${statusColor};">${statusText}</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 15px; padding: 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; text-align: center; font-size: 0.8rem; color: var(--text-secondary);">
+                                <i class="fas fa-info-circle"></i> This is live data from Airtel network. The number is <strong>currently active</strong> on Airtel.
+                            </div>
+                        `;
+                        
+                        // Show current operator as Airtel
+                        const currentOpRow = document.getElementById('currentOperatorRow');
+                        if (currentOpRow) {
+                            currentOpRow.style.display = 'grid';
+                            document.getElementById('currentOperatorValue').innerHTML = `
+                                <span class="operator-logo airtel" style="background: linear-gradient(135deg, #ed1c24, #b40000);">
+                                    <i class="fas fa-check-circle"></i> Airtel (Verified)
+                                </span>
+                            `;
+                        }
+                        
+                        // Hide Jio and BSNL sections since Airtel is confirmed
+                        document.getElementById('jioLiveCheck').style.display = 'none';
+                        document.getElementById('bsnlLiveCheck').style.display = 'none';
+                        
+                        // Update warning box to show confirmed Airtel
+                        document.getElementById('mnpWarningBox').innerHTML = `
+                            <h4 style="color: #ed1c24;"><i class="fas fa-check-circle"></i> Verified: Airtel Network Confirmed</h4>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li><strong>Live verification successful</strong> - This number is CONFIRMED to be currently active on Airtel network</li>
+                                <li>Circle: <strong>${airtelData.circleName || 'Unknown'}</strong></li>
+                                <li>Status: <strong>${statusText}</strong></li>
+                                <li>The original operator from database may differ due to MNP (porting to Airtel)</li>
+                                <li>Circle/region information is from Airtel live data</li>
+                            </ul>
+                        `;
+                        document.getElementById('mnpWarningBox').style.borderColor = '#ed1c24';
+                        document.getElementById('mnpWarningBox').style.background = 'rgba(237, 28, 36, 0.1)';
+                    } else {
+                        airtelCheckContent.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(107, 114, 128, 0.2); border-radius: 8px; border: 1px solid rgba(107, 114, 128, 0.4);">
+                                <i class="fas fa-times-circle" style="font-size: 2rem; color: #6b7280;"></i>
+                                <div>
+                                    <div style="font-weight: 600; color: var(--text-primary);">Not an Airtel Number</div>
+                                    <div style="font-size: 0.85rem; color: var(--text-secondary);">This number is not currently active on Airtel network</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('Airtel API error:', error);
+                    airtelCheckContent.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem; color: #ef4444;"></i>
+                            <div>
+                                <div style="font-weight: 600; color: var(--text-primary);">Could not check Airtel status</div>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary);">API unavailable or network error. Try again later.</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                airtelLiveSection.style.display = 'none';
+            }
+            
+            // Skip Vi check if Jio, BSNL or Airtel is already confirmed
+            if ((lastJioResult && lastJioResult.isJio) || (lastBsnlResult && lastBsnlResult.isBsnl) || (lastAirtelResult && lastAirtelResult.isAirtel)) {
+                hideLookupSpinner();
+                document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            
+            // Vi Live Check for Indian mobile numbers
+            const viLiveSection = document.getElementById('viLiveCheck');
+            const viCheckContent = document.getElementById('viCheckContent');
+            
+            if (parsed.countryCode === '91' && parsed.nationalNumber.length === 10 && parsed.nationalNumber.match(/^[6-9]/)) {
+                updateLookupSpinner('Verifying carrier...', 'Checking Vi network status...');
+                viLiveSection.style.display = 'block';
+                viCheckContent.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="loading-spinner" style="width: 30px; height: 30px; margin: 0 auto 10px;"></div>
+                        <p style="color: var(--text-secondary);">Checking Vi network status...</p>
+                    </div>
+                `;
+                
+                // Call Vi API (server handles retries internally for FAILURE responses)
+                let viData = null;
+                let lastError = null;
+                
+                try {
+                    const viResponse = await fetch(`/viapi/${parsed.nationalNumber}?t=${Date.now()}`);
+                    const responseData = await viResponse.json();
+                    
+                    if (viResponse.ok && responseData && !responseData.error) {
+                        viData = responseData;
+                        lastViResult = viData;
+                    } else {
+                        lastError = new Error(responseData.error || responseData.message || 'API returned error');
+                    }
+                } catch (error) {
+                    console.warn('Vi API call failed:', error);
+                    lastError = error;
+                }
+                
+                // Process the result
+                if (viData) {
+                    if (viData.isVi) {
+                        const statusColor = (viData.custStatus === 'ACTIVE' || viData.custStatus === 'NOTSUSPENDED') ? '#10b981' : '#f59e0b';
+                        const statusText = (viData.custStatus === 'ACTIVE' || viData.custStatus === 'NOTSUSPENDED') ? 'Active' : (viData.custStatus || 'Unknown');
+                        const typeColor = viData.subscriberType === 'PREPAID' ? '#10b981' : '#6366f1';
+                        
+                        viCheckContent.innerHTML = `
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px;">
+                                <div style="text-align: center; padding: 15px; background: rgba(16, 185, 129, 0.2); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.4);">
+                                    <i class="fas fa-check-circle" style="font-size: 1.5rem; color: #10b981; margin-bottom: 8px;"></i>
+                                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Network Status</div>
+                                    <div style="font-weight: 600; color: #10b981;">Active Vi User</div>
+                                </div>
+                                <div style="text-align: center; padding: 15px; background: rgba(255, 0, 102, 0.2); border-radius: 8px; border: 1px solid rgba(255, 0, 102, 0.4);">
+                                    <i class="fas fa-map-marker-alt" style="font-size: 1.5rem; color: #ff0066; margin-bottom: 8px;"></i>
+                                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Circle</div>
+                                    <div style="font-weight: 600; color: #ff0066;">${viData.circleName || viData.circle || 'Unknown'}</div>
+                                </div>
+                                <div style="text-align: center; padding: 15px; background: rgba(99, 102, 241, 0.2); border-radius: 8px; border: 1px solid rgba(99, 102, 241, 0.4);">
+                                    <i class="fas fa-mobile-alt" style="font-size: 1.5rem; color: ${typeColor}; margin-bottom: 8px;"></i>
+                                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Type</div>
+                                    <div style="font-weight: 600; color: ${typeColor};">${viData.subscriberType || 'Unknown'}</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 15px; padding: 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; text-align: center; font-size: 0.8rem; color: var(--text-secondary);">
+                                <i class="fas fa-info-circle"></i> This is live data from Vi network. The number is <strong>currently active</strong> on Vi (${viData.brand || 'Vodafone Idea'}).
+                            </div>
+                        `;
+                        
+                        // Show current operator as Vi
+                        const currentOpRow = document.getElementById('currentOperatorRow');
+                        if (currentOpRow) {
+                            currentOpRow.style.display = 'grid';
+                            document.getElementById('currentOperatorValue').innerHTML = `
+                                <span class="operator-logo vi" style="background: linear-gradient(135deg, #ff0066, #9900cc);">
+                                    <i class="fas fa-check-circle"></i> Vi (Verified)
+                                </span>
+                            `;
+                        }
+                        
+                        // Hide other sections since Vi is confirmed
+                        document.getElementById('jioLiveCheck').style.display = 'none';
+                        document.getElementById('bsnlLiveCheck').style.display = 'none';
+                        document.getElementById('airtelLiveCheck').style.display = 'none';
+                        
+                        // Update warning box to show confirmed Vi
+                        document.getElementById('mnpWarningBox').innerHTML = `
+                            <h4 style="color: #ff0066;"><i class="fas fa-check-circle"></i> Verified: Vi Network Confirmed</h4>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li><strong>Live verification successful</strong> - This number is CONFIRMED to be currently active on Vi (${viData.brand || 'Vodafone Idea'}) network</li>
+                                <li>Circle: <strong>${viData.circleName || viData.circle || 'Unknown'}</strong></li>
+                                <li>Type: <strong>${viData.subscriberType || 'Unknown'}</strong></li>
+                                <li>The original operator from database may differ due to MNP (porting to Vi)</li>
+                                <li>Circle/region information is from Vi live data</li>
+                            </ul>
+                        `;
+                        document.getElementById('mnpWarningBox').style.borderColor = '#ff0066';
+                        document.getElementById('mnpWarningBox').style.background = 'rgba(255, 0, 102, 0.1)';
+                    } else {
+                        viCheckContent.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(107, 114, 128, 0.2); border-radius: 8px; border: 1px solid rgba(107, 114, 128, 0.4);">
+                                <i class="fas fa-times-circle" style="font-size: 2rem; color: #6b7280;"></i>
+                                <div>
+                                    <div style="font-weight: 600; color: var(--text-primary);">Not a Vi Number</div>
+                                    <div style="font-size: 0.85rem; color: var(--text-secondary);">This number is not currently active on Vi network</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    // All retries failed - but since Jio, BSNL, Airtel all said NO, 
+                    // and Vi API failed, it's probably Vi (only major operator left)
+                    console.error('Vi API error after all retries:', lastError);
+                    
+                    // Check if all other operators explicitly said NOT their number
+                    const jioSaidNo = lastJioResult && !lastJioResult.isJio;
+                    const bsnlSaidNo = lastBsnlResult && !lastBsnlResult.isBsnl;
+                    const airtelSaidNo = lastAirtelResult && !lastAirtelResult.isAirtel;
+                    
+                    if (jioSaidNo && bsnlSaidNo && airtelSaidNo) {
+                        // All other operators said NO, Vi API failed - Probable Vi
+                        viCheckContent.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(255, 0, 102, 0.15); border-radius: 8px; border: 1px solid rgba(255, 0, 102, 0.4);">
+                                <i class="fas fa-question-circle" style="font-size: 2rem; color: #ff0066;"></i>
+                                <div>
+                                    <div style="font-weight: 600; color: #ff0066;">Probable Vi Number</div>
+                                    <div style="font-size: 0.85rem; color: var(--text-secondary);">Vi API unavailable, but number is NOT on Jio, BSNL, or Airtel. This is likely a Vi number.</div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Mark as probable Vi
+                        lastViResult = { isVi: false, isProbableVi: true, apiError: true };
+                        
+                        // Show current operator as Probable Vi
+                        const currentOpRow = document.getElementById('currentOperatorRow');
+                        if (currentOpRow) {
+                            currentOpRow.style.display = 'grid';
+                            document.getElementById('currentOperatorValue').innerHTML = `
+                                <span class="operator-logo vi" style="background: linear-gradient(135deg, rgba(255, 0, 102, 0.7), rgba(153, 0, 204, 0.7));">
+                                    <i class="fas fa-question-circle"></i> Probable Vi
+                                </span>
+                            `;
+                        }
+                        
+                        // Hide other sections
+                        document.getElementById('jioLiveCheck').style.display = 'none';
+                        document.getElementById('bsnlLiveCheck').style.display = 'none';
+                        document.getElementById('airtelLiveCheck').style.display = 'none';
+                        
+                        // Update warning box
+                        document.getElementById('mnpWarningBox').innerHTML = `
+                            <h4 style="color: #ff0066;"><i class="fas fa-question-circle"></i> Probable Vi Number</h4>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li><strong>Deduction-based identification</strong> - This number is NOT active on Jio, BSNL, or Airtel</li>
+                                <li>Vi API verification failed, but by process of elimination, this is likely a <strong>Vi (Vodafone Idea)</strong> number</li>
+                                <li>India has 4 major private operators: Jio, Airtel, Vi, and BSNL</li>
+                                <li>Since the other 3 operators confirmed this is NOT their number, Vi is the most probable carrier</li>
+                                <li><strong>Note:</strong> This is not 100% confirmed - could be MVNO, virtual number, or inactive</li>
+                            </ul>
+                        `;
+                        document.getElementById('mnpWarningBox').style.borderColor = '#ff0066';
+                        document.getElementById('mnpWarningBox').style.background = 'rgba(255, 0, 102, 0.1)';
+                    } else {
+                        // Not all operators checked or some API calls failed
+                        viCheckContent.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem; color: #ef4444;"></i>
+                                <div>
+                                    <div style="font-weight: 600; color: var(--text-primary);">Could not check Vi status</div>
+                                    <div style="font-size: 0.85rem; color: var(--text-secondary);">API unavailable. Try again later.</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            } else {
+                viLiveSection.style.display = 'none';
+            }
+            
+            // If none of the operators are confirmed (and not probable Vi), show as Other/MVNO
+            if (parsed.countryCode === '91' && parsed.nationalNumber.length === 10 && 
+                (!lastJioResult || !lastJioResult.isJio) && (!lastBsnlResult || !lastBsnlResult.isBsnl) && 
+                (!lastAirtelResult || !lastAirtelResult.isAirtel) && (!lastViResult || (!lastViResult.isVi && !lastViResult.isProbableVi))) {
+                
+                const currentOpRow = document.getElementById('currentOperatorRow');
+                if (currentOpRow) {
+                    currentOpRow.style.display = 'grid';
+                    document.getElementById('currentOperatorValue').innerHTML = `
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                            <span style="padding: 4px 12px; background: rgba(107, 114, 128, 0.2); border-radius: 20px; font-size: 0.85rem; color: var(--text-secondary);">
+                                <i class="fas fa-question-circle"></i> Other/MVNO/Invalid
+                            </span>
+                            <span style="font-size: 0.75rem; color: var(--text-secondary);">(Not Jio/BSNL/Airtel/Vi)</span>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Hide the lookup spinner when all checks are complete
+            hideLookupSpinner();
+            
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyResult() {
+            const input = document.getElementById('phoneInput').value.trim();
+            const parsed = parsePhoneNumber(input);
+            const countryInfo = parsed.countryCode ? countryCodes[parsed.countryCode] : null;
+            let operatorData = null;
+            
+            if (parsed.countryCode === '91' && parsed.nationalNumber.length === 10) {
+                operatorData = lookupIndianOperator(parsed.nationalNumber);
+            }
+            
+            let text = `Phone Number Lookup Report\n`;
+            text += `==========================\n`;
+            text += `Generated: ${new Date().toLocaleString()}\n\n`;
+            text += `Number: +${parsed.countryCode || ''} ${parsed.nationalNumber}\n`;
+            text += `Country: ${countryInfo ? countryInfo.country : 'Unknown'}\n`;
+            if (operatorData) {
+                text += `Original Operator: ${operatorData.operator}\n`;
+                text += `Circle: ${operatorData.circle || 'Unknown'}\n`;
+                text += `Prefix: ${operatorData.prefix}\n`;
+            }
+            
+            // Current operator determination
+            if (lastJioResult && lastJioResult.isJio) {
+                text += `Current Operator: Reliance Jio (Verified)\n`;
+                text += `\n--- Jio Live Status ---\n`;
+                text += `Billing Type: ${lastJioResult.billingType || 'Unknown'}\n`;
+                if (lastJioResult.isPrimeMember !== undefined) {
+                    text += `Prime Member: ${lastJioResult.isPrimeMember ? 'Yes' : 'No'}\n`;
+                }
+            } else if (lastBsnlResult && lastBsnlResult.isBsnl) {
+                text += `Current Operator: BSNL (Verified)\n`;
+                text += `\n--- BSNL Live Status ---\n`;
+                text += `Circle: ${lastBsnlResult.circle || 'Unknown'}\n`;
+                text += `Type: Prepaid\n`;
+            } else if (lastAirtelResult && lastAirtelResult.isAirtel) {
+                text += `Current Operator: Airtel (Verified)\n`;
+                text += `\n--- Airtel Live Status ---\n`;
+                text += `Circle: ${lastAirtelResult.circleName || 'Unknown'}\n`;
+                text += `Status: ${lastAirtelResult.status || 'Unknown'}\n`;
+            } else if (lastViResult && lastViResult.isVi) {
+                text += `Current Operator: Vi (Verified)\n`;
+                text += `\n--- Vi Live Status ---\n`;
+                text += `Circle: ${lastViResult.circleName || lastViResult.circle || 'Unknown'}\n`;
+                text += `Type: ${lastViResult.subscriberType || 'Unknown'}\n`;
+                text += `Brand: ${lastViResult.brand || 'Vodafone Idea'}\n`;
+            } else if (lastViResult && lastViResult.isProbableVi) {
+                text += `Current Operator: Vi (Probable - Not Verified)\n`;
+                text += `\n--- Probable Vi ---\n`;
+                text += `Note: Vi API unavailable, but NOT found on Jio, BSNL, or Airtel.\n`;
+                text += `By process of elimination, this is likely a Vi number.\n`;
+            } else if (parsed.countryCode === '91' && parsed.nationalNumber.length === 10) {
+                text += `Current Operator: Other/MVNO/Invalid (Not Jio/BSNL/Airtel/Vi)\n`;
+            }
+            
+            text += `\nNote: Original operator info is based on allocation. Current operator verified via live APIs where possible.\n`;
+            text += `\n--------------------------\n`;
+            text += `Generated by Punjab Investigation Tools\n`;
+            text += `https://punjab.pages.dev\n`;
+            text += `Database: ${dbEntryCount.toLocaleString()} Indian mobile prefix records`;
+            
+            navigator.clipboard.writeText(text);
+            showToast('Result copied to clipboard');
+        }
+
+        async function downloadPDF() {
+            showToast('Generating PDF...');
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const input = document.getElementById('phoneInput').value.trim();
+            const parsed = parsePhoneNumber(input);
+            const countryInfo = parsed.countryCode ? countryCodes[parsed.countryCode] : null;
+            let operatorData = null;
+            
+            if (parsed.countryCode === '91' && parsed.nationalNumber.length === 10) {
+                operatorData = lookupIndianOperator(parsed.nationalNumber);
+            }
+            
+            // Header
+            doc.setFillColor(26, 26, 46);
+            doc.rect(0, 0, 210, 40, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(20);
+            doc.text('Phone Number Lookup Report', 20, 25);
+            
+            doc.setFontSize(10);
+            doc.text('Punjab Investigation Tools', 150, 15);
+            doc.text(new Date().toLocaleString(), 150, 22);
+            
+            // Content
+            doc.setTextColor(0, 0, 0);
+            let y = 55;
+            
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Phone Number Details', 20, y);
+            y += 15;
+            
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'normal');
+            
+            const addLine = (label, value) => {
+                doc.setFont(undefined, 'bold');
+                doc.text(`${label}:`, 20, y);
+                doc.setFont(undefined, 'normal');
+                doc.text(String(value), 80, y);
+                y += 8;
+            };
+            
+            addLine('Phone Number', `+${parsed.countryCode || ''} ${parsed.nationalNumber}`);
+            addLine('Country Code', `+${parsed.countryCode || 'Unknown'}`);
+            addLine('Country', countryInfo ? countryInfo.country : 'Unknown');
+            
+            if (operatorData) {
+                y += 5;
+                doc.setFont(undefined, 'bold');
+                doc.text('Indian Operator Details', 20, y);
+                y += 10;
+                doc.setFont(undefined, 'normal');
+                
+                addLine('Original Operator', operatorData.operator);
+                addLine('Telecom Circle', operatorData.circle || 'Unknown');
+                addLine('Number Prefix', operatorData.prefix);
+            }
+            
+            // Current Operator
+            if (parsed.countryCode === '91' && parsed.nationalNumber.length === 10) {
+                y += 5;
+                doc.setFont(undefined, 'bold');
+                doc.text('Current Operator Status', 20, y);
+                y += 10;
+                doc.setFont(undefined, 'normal');
+                
+                if (lastJioResult && lastJioResult.isJio) {
+                    addLine('Current Operator', 'Reliance Jio (Verified)');
+                    addLine('Billing Type', lastJioResult.billingType || 'Unknown');
+                    if (lastJioResult.isPrimeMember !== undefined) {
+                        addLine('Prime Member', lastJioResult.isPrimeMember ? 'Yes' : 'No');
+                    }
+                } else if (lastBsnlResult && lastBsnlResult.isBsnl) {
+                    addLine('Current Operator', 'BSNL (Verified)');
+                    addLine('BSNL Circle', lastBsnlResult.circle || 'Unknown');
+                    addLine('Type', 'Prepaid');
+                } else if (lastAirtelResult && lastAirtelResult.isAirtel) {
+                    addLine('Current Operator', 'Airtel (Verified)');
+                    addLine('Airtel Circle', lastAirtelResult.circleName || 'Unknown');
+                    addLine('Status', lastAirtelResult.status || 'Unknown');
+                } else if (lastViResult && lastViResult.isVi) {
+                    addLine('Current Operator', 'Vi (Verified)');
+                    addLine('Vi Circle', lastViResult.circleName || lastViResult.circle || 'Unknown');
+                    addLine('Type', lastViResult.subscriberType || 'Unknown');
+                    addLine('Brand', lastViResult.brand || 'Vodafone Idea');
+                } else if (lastViResult && lastViResult.isProbableVi) {
+                    addLine('Current Operator', 'Vi (Probable - Not Verified)');
+                    addLine('Note', 'Vi API unavailable, but NOT on Jio/BSNL/Airtel');
+                    addLine('Deduction', 'Likely Vi by process of elimination');
+                } else {
+                    addLine('Current Operator', 'Other/MVNO/Invalid');
+                    addLine('Note', 'Not Jio/BSNL/Airtel/Vi');
+                }
+            }
+            
+            y += 10;
+            
+            // Warning/Info box
+            if (lastJioResult && lastJioResult.isJio) {
+                // Confirmed Jio - show green box
+                doc.setFillColor(209, 250, 229);
+                doc.rect(15, y, 180, 25, 'F');
+                doc.setTextColor(6, 95, 70);
+                doc.setFontSize(10);
+                doc.text('Verified Jio Number:', 20, y + 10);
+                doc.setFontSize(9);
+                doc.text('This number is CONFIRMED to be currently active on Jio network (Live API check).', 20, y + 18);
+            } else if (lastBsnlResult && lastBsnlResult.isBsnl) {
+                // Confirmed BSNL - show yellow-green box
+                doc.setFillColor(254, 249, 195);
+                doc.rect(15, y, 180, 25, 'F');
+                doc.setTextColor(133, 77, 14);
+                doc.setFontSize(10);
+                doc.text('Verified BSNL Number:', 20, y + 10);
+                doc.setFontSize(9);
+                doc.text('This number is CONFIRMED to be currently active on BSNL network (Live API check).', 20, y + 18);
+            } else if (lastAirtelResult && lastAirtelResult.isAirtel) {
+                // Confirmed Airtel - show red box
+                doc.setFillColor(254, 226, 226);
+                doc.rect(15, y, 180, 25, 'F');
+                doc.setTextColor(153, 27, 27);
+                doc.setFontSize(10);
+                doc.text('Verified Airtel Number:', 20, y + 10);
+                doc.setFontSize(9);
+                doc.text('This number is CONFIRMED to be currently active on Airtel network (Live API check).', 20, y + 18);
+            } else if (lastViResult && lastViResult.isVi) {
+                // Confirmed Vi - show pink/purple box
+                doc.setFillColor(252, 231, 243);
+                doc.rect(15, y, 180, 25, 'F');
+                doc.setTextColor(157, 23, 77);
+                doc.setFontSize(10);
+                doc.text('Verified Vi Number:', 20, y + 10);
+                doc.setFontSize(9);
+                doc.text('This number is CONFIRMED to be currently active on Vi network (Live API check).', 20, y + 18);
+            } else if (lastViResult && lastViResult.isProbableVi) {
+                // Probable Vi - show lighter pink box
+                doc.setFillColor(252, 231, 243);
+                doc.rect(15, y, 180, 30, 'F');
+                doc.setTextColor(157, 23, 77);
+                doc.setFontSize(10);
+                doc.text('Probable Vi Number:', 20, y + 10);
+                doc.setFontSize(9);
+                doc.text('Vi API unavailable, but NOT found on Jio, BSNL, or Airtel.', 20, y + 18);
+                doc.text('By process of elimination, this is likely a Vi (Vodafone Idea) number.', 20, y + 24);
+            } else if (parsed.countryCode === '91' && parsed.nationalNumber.length === 10) {
+                // Indian number not any operator
+                doc.setFillColor(229, 231, 235);
+                doc.rect(15, y, 180, 25, 'F');
+                doc.setTextColor(75, 85, 99);
+                doc.setFontSize(10);
+                doc.text('Other/MVNO/Invalid Number:', 20, y + 10);
+                doc.setFontSize(9);
+                doc.text('This number is NOT on Jio, BSNL, Airtel or Vi. May be MVNO or invalid.', 20, y + 18);
+            } else {
+                // Non-Indian or unknown
+                doc.setFillColor(255, 243, 205);
+                doc.rect(15, y, 180, 30, 'F');
+                doc.setTextColor(133, 77, 14);
+                doc.setFontSize(10);
+                doc.text('Important Notice:', 20, y + 10);
+                doc.setFontSize(9);
+                doc.text('The operator shown is based on original allocation. Due to Mobile Number', 20, y + 18);
+                doc.text('Portability (MNP), the current operator may be different.', 20, y + 24);
+            }
+            
+            // Footer
+            doc.setTextColor(128, 128, 128);
+            doc.setFontSize(9);
+            doc.text(`Database: ${dbEntryCount.toLocaleString()} Indian mobile prefix records | Generated by Punjab Investigation Tools`, 20, 275);
+            doc.setTextColor(59, 130, 246);
+            doc.textWithLink('https://punjab.pages.dev', 20, 282, { url: 'https://punjab.pages.dev' });
+            
+            doc.save(`Phone_Lookup_${parsed.nationalNumber}.pdf`);
+            showToast('PDF downloaded successfully');
+        }
+
+        function resetForm() {
+            document.getElementById('phoneInput').value = '';
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('phoneInput').focus();
+            // Reset API results
+            lastJioResult = null;
+            lastBsnlResult = null;
+            lastAirtelResult = null;
+            lastViResult = null;
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('active');
+            setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        document.getElementById('phoneInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') lookupPhone();
+        });
+
+        // ========== BULK LOOKUP FUNCTIONS ==========
+        let bulkResults = []; // Store results for export
+        let bulkNumbers = []; // Store numbers for retry
+        let bulkRunning = false;
+
+        // Clean and extract a 10-digit Indian number from any format
+        function cleanIndianNumber(raw) {
+            if (!raw) return null;
+            // Remove all non-digit characters
+            let digits = raw.replace(/\D/g, '');
+            // Handle various prefixes
+            if (digits.startsWith('0091')) digits = digits.substring(4);
+            else if (digits.startsWith('091')) digits = digits.substring(3);
+            else if (digits.startsWith('91') && digits.length >= 12) digits = digits.substring(2);
+            else if (digits.startsWith('0') && digits.length === 11) digits = digits.substring(1);
+            // Must be exactly 10 digits starting with 6-9
+            if (digits.length === 10 && /^[6-9]/.test(digits)) return digits;
+            return null;
+        }
+
+        // Handle file upload
+        function handleBulkFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('bulkInput').value = e.target.result;
+                updateBulkCount();
+                showToast(`File loaded: ${file.name}`);
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // reset so same file can be re-uploaded
+        }
+
+        // Update count label on textarea input
+        document.getElementById('bulkInput').addEventListener('input', updateBulkCount);
+        function updateBulkCount() {
+            const raw = document.getElementById('bulkInput').value;
+            const lines = raw.split(/[\n\r,;]+/).map(l => l.trim()).filter(Boolean);
+            const valid = lines.map(cleanIndianNumber).filter(Boolean);
+            const unique = [...new Set(valid)];
+            document.getElementById('bulkCountLabel').textContent = 
+                `${lines.length} lines → ${unique.length} valid unique numbers` + (unique.length > 1000 ? ' (max 1000)' : '');
+        }
+
+        // Safe fetch helper: returns parsed JSON or null on any error (5s timeout)
+        async function safeFetchJSON(url) {
+            try {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 5000);
+                const r = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeout);
+                if (!r.ok) return null;
+                return await r.json();
+            } catch(e) { return null; }
+        }
+
+        // Check a single number against all 4 operators sequentially (short-circuit on match)
+        async function checkSingleNumber(number) {
+            const dbInfo = lookupIndianOperator(number);
+            const result = {
+                number: number,
+                origOperator: dbInfo ? dbInfo.operator : 'Unknown',
+                origCircle: dbInfo ? dbInfo.circle : 'Unknown',
+                currentOperator: '',
+                type: '',
+                status: '',
+                live: false
+            };
+
+            // 1. Jio
+            const jio = await safeFetchJSON(`/reliancejioapi/${number}`);
+            if (jio && jio.isJio) {
+                result.currentOperator = 'Jio';
+                result.type = jio.billingType || 'Unknown';
+                result.status = 'Active';
+                result.live = true;
+                return result;
+            }
+
+            // 2. BSNL
+            const bsnl = await safeFetchJSON(`/bsnlapi/${number}`);
+            if (bsnl && bsnl.isBsnl) {
+                result.currentOperator = 'BSNL';
+                result.type = 'Prepaid';
+                result.status = 'Active';
+                result.live = true;
+                return result;
+            }
+
+            // 3. Airtel
+            const airtel = await safeFetchJSON(`/airtelapi/${number}?t=${Date.now()}`);
+            if (airtel && airtel.isAirtel) {
+                result.currentOperator = 'Airtel';
+                result.type = airtel.lineOfBusiness || 'Prepaid';
+                result.status = airtel.status === 'ACTIV' ? 'Active' : (airtel.status || 'Unknown');
+                result.live = true;
+                return result;
+            }
+
+            // 4. Vi (need to distinguish API failure from "not Vi")
+            let viResult = null;
+            try {
+                const viController = new AbortController();
+                const viTimeout = setTimeout(() => viController.abort(), 5000);
+                const vr = await fetch(`/viapi/${number}?t=${Date.now()}`, { signal: viController.signal });
+                clearTimeout(viTimeout);
+                if (vr.ok) {
+                    viResult = await vr.json();
+                } else {
+                    // Vi API returned 500 or other error
+                    result.currentOperator = 'Vi Check Failed';
+                    result.type = '-';
+                    result.status = 'Vi API error (500)';
+                    result.live = false;
+                    result.viFailed = true;
+                    return result;
+                }
+            } catch(e) {
+                result.currentOperator = 'Vi Check Failed';
+                result.type = '-';
+                result.status = 'Vi API unreachable';
+                result.live = false;
+                result.viFailed = true;
+                return result;
+            }
+            if (viResult && viResult.isVi) {
+                result.currentOperator = 'Vi';
+                result.type = viResult.subscriberType || 'Unknown';
+                result.status = (viResult.custStatus === 'ACTIVE' || viResult.custStatus === 'NOTSUSPENDED') ? 'Active' : (viResult.custStatus || 'Unknown');
+                result.live = true;
+                return result;
+            }
+
+            // None matched and no API errors
+            result.currentOperator = 'Other/Unknown';
+            result.type = '-';
+            result.status = 'Not found on Jio/BSNL/Airtel/Vi';
+            return result;
+        }
+
+        // Process numbers in strict batches of 10: finish batch → render rows → next batch
+        async function startBulkLookup() {
+            if (bulkRunning) { showToast('Bulk lookup already running'); return; }
+            const raw = document.getElementById('bulkInput').value;
+            const lines = raw.split(/[\n\r,;]+/).map(l => l.trim()).filter(Boolean);
+            const valid = lines.map(cleanIndianNumber).filter(Boolean);
+            let numbers = [...new Set(valid)]; // deduplicate
+            if (numbers.length === 0) { showToast('No valid Indian mobile numbers found'); return; }
+            if (numbers.length > 1000) {
+                numbers = numbers.slice(0, 1000);
+                showToast('Limited to first 1000 numbers');
+            }
+
+            bulkRunning = true;
+            bulkNumbers = numbers;
+            bulkResults = new Array(numbers.length);
+            const btn = document.getElementById('bulkLookupBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+            // Hide action buttons during processing, show floating bar
+            document.getElementById('bulkActionButtons').style.display = 'none';
+            document.getElementById('bulkRetryBtn').style.display = 'none';
+            document.getElementById('floatingBulkProgress').style.display = 'block';
+
+            // Show progress
+            const progressDiv = document.getElementById('bulkProgress');
+            progressDiv.style.display = 'block';
+            const progressBar = document.getElementById('bulkProgressBar');
+            const progressText = document.getElementById('bulkProgressText');
+            const progressPercent = document.getElementById('bulkProgressPercent');
+            progressBar.style.width = '0%';
+            progressText.textContent = 'Starting...';
+            progressPercent.textContent = '0%';
+
+            // Show results section with empty table
+            document.getElementById('bulkResultsSection').style.display = 'block';
+            const tbody = document.getElementById('bulkResultBody');
+            tbody.innerHTML = '';
+
+            const total = numbers.length;
+            let completed = 0;
+            const BATCH_SIZE = 10;
+
+            // Helper to render a result row
+            function renderRow(result) {
+                const row = document.createElement('tr');
+                row.id = 'bulkRow_' + result.index;
+                row.style.borderBottom = '1px solid rgba(99,102,241,0.15)';
+                const opColor = result.live ? '#10b981' : (result.viFailed ? '#ef4444' : '#6b7280');
+                const rowBg = result.viFailed ? 'background:rgba(239,68,68,0.08);' : '';
+                row.innerHTML = `
+                    <td style="padding:8px 12px;${result.viFailed?'color:#ef4444;':''}">${result.index}</td>
+                    <td style="padding:8px 12px;${result.viFailed?'color:#ef4444;':''}">${result.number}</td>
+                    <td style="padding:8px 12px;">${result.origOperator}</td>
+                    <td style="padding:8px 12px;">${result.origCircle}</td>
+                    <td style="padding:8px 12px;color:${opColor};font-weight:600;">${result.currentOperator}</td>
+                    <td style="padding:8px 12px;${result.viFailed?'color:#ef4444;':''}">${result.type}</td>
+                    <td style="padding:8px 12px;${result.viFailed?'color:#ef4444;':''}">${result.status}</td>
+                `;
+                if (rowBg) row.style.cssText += rowBg;
+                // Replace existing row or append
+                const existing = document.getElementById('bulkRow_' + result.index);
+                if (existing) existing.replaceWith(row);
+                else tbody.appendChild(row);
+            }
+
+            const delay = ms => new Promise(r => setTimeout(r, ms));
+
+            for (let i = 0; i < total; i += BATCH_SIZE) {
+                const batch = numbers.slice(i, i + BATCH_SIZE);
+                const batchNum = Math.floor(i / BATCH_SIZE) + 1;
+                const totalBatches = Math.ceil(total / BATCH_SIZE);
+                progressText.textContent = `Batch ${batchNum}/${totalBatches} — Processing ${completed + 1}-${Math.min(completed + batch.length, total)} of ${total}...`;
+
+                // Fire all 10 in parallel, collect results
+                const batchResults = await Promise.all(
+                    batch.map(num => checkSingleNumber(num))
+                );
+
+                // Render all rows in order
+                batchResults.forEach((result, batchIdx) => {
+                    const globalIdx = i + batchIdx;
+                    result.index = globalIdx + 1;
+                    bulkResults[globalIdx] = result;
+                    renderRow(result);
+                });
+
+                completed += batch.length;
+                const pct = Math.round((completed / total) * 100);
+                progressBar.style.width = pct + '%';
+                progressPercent.textContent = pct + '%';
+                // Update summary in real time
+                const liveNow = bulkResults.filter(r => r && r.live).length;
+                document.getElementById('bulkResultSummary').textContent = `${completed}/${total} processed | ${liveNow} verified`;
+                // Sync floating progress
+                document.getElementById('floatingProgressText').textContent = progressText.textContent;
+                document.getElementById('floatingProgressPercent').textContent = pct + '%';
+                document.getElementById('floatingProgressBar').style.width = pct + '%';
+
+                // 2-second delay between batches to avoid rate limiting
+                if (i + BATCH_SIZE < total) {
+                    progressText.textContent = `Batch ${batchNum}/${totalBatches} done. Waiting 2s before next batch...`;
+                    await delay(2000);
+                }
+            }
+
+            // Retry pass: re-check numbers that came back as Other/Unknown (may be API errors)
+            const failedIndices = bulkResults
+                .map((r, idx) => (r && (r.currentOperator === 'Other/Unknown' || r.viFailed)) ? idx : -1)
+                .filter(idx => idx !== -1);
+            
+            if (failedIndices.length > 0 && failedIndices.length <= 200) {
+                progressText.textContent = `Retrying ${failedIndices.length} unresolved numbers...`;
+                progressBar.style.width = '95%';
+                await delay(3000); // wait 3 seconds before retry
+
+                for (let ri = 0; ri < failedIndices.length; ri += BATCH_SIZE) {
+                    const retryBatch = failedIndices.slice(ri, ri + BATCH_SIZE);
+                    const retryResults = await Promise.all(
+                        retryBatch.map(idx => checkSingleNumber(numbers[idx]))
+                    );
+                    retryResults.forEach((result, j) => {
+                        const idx = retryBatch[j];
+                        if (result.live) {
+                            result.index = idx + 1;
+                            bulkResults[idx] = result;
+                            renderRow(result);
+                        }
+                    });
+                    if (ri + BATCH_SIZE < failedIndices.length) await delay(2000);
+                }
+            }
+
+            // Done
+            const liveCount = bulkResults.filter(r => r && r.live).length;
+            const failedCount = bulkResults.filter(r => r && (r.currentOperator === 'Other/Unknown' || r.viFailed)).length;
+            progressText.textContent = `Completed: ${total} numbers processed`;
+            progressPercent.textContent = '100%';
+            progressBar.style.width = '100%';
+            document.getElementById('bulkResultSummary').textContent = `${total} numbers processed | ${liveCount} verified | ${failedCount} unresolved`;
+            
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-rocket"></i> Start Bulk Lookup';
+            bulkRunning = false;
+
+            // Hide floating bar, show action buttons
+            document.getElementById('floatingBulkProgress').style.display = 'none';
+            document.getElementById('bulkActionButtons').style.display = 'flex';
+
+            // Show retry button if there are failed numbers
+            if (failedCount > 0) {
+                document.getElementById('bulkRetryBtn').style.display = 'inline-flex';
+                document.getElementById('bulkFailedCount').textContent = failedCount;
+            } else {
+                document.getElementById('bulkRetryBtn').style.display = 'none';
+            }
+
+            document.getElementById('bulkResultsSection').scrollIntoView({ behavior: 'smooth' });
+            showToast(`Bulk lookup complete: ${total} numbers`);
+        }
+
+        // Copy results as TSV (tab-separated) for Excel paste
+        function copyBulkTSV() {
+            if (!bulkResults.length) { showToast('No results to copy'); return; }
+            let tsv = '#\tNumber\tOriginal Operator\tCircle\tCurrent Operator\tType\tStatus\n';
+            bulkResults.forEach(r => {
+                if (r) tsv += `${r.index}\t${r.number}\t${r.origOperator}\t${r.origCircle}\t${r.currentOperator}\t${r.type}\t${r.status}\n`;
+            });
+            navigator.clipboard.writeText(tsv);
+            showToast('Results copied as TSV (paste into Excel)');
+        }
+
+        // Copy only Number and Current Operator columns (TSV for Excel)
+        function copyBulkMain() {
+            if (!bulkResults.length) { showToast('No results to copy'); return; }
+            let tsv = 'Number\tCurrent Operator\n';
+            bulkResults.forEach(r => {
+                if (r) tsv += `${r.number}\t${r.currentOperator}\n`;
+            });
+            navigator.clipboard.writeText(tsv);
+            showToast('Number + Operator copied (paste into Excel)');
+        }
+
+        // Download results as PDF
+        function downloadBulkPDF() {
+            if (!bulkResults.length) { showToast('No results to download'); return; }
+            showToast('Generating PDF...');
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('landscape');
+            
+            // Header
+            doc.setFillColor(26, 26, 46);
+            doc.rect(0, 0, 297, 30, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(16);
+            doc.text('Bulk Phone Number Lookup Report', 15, 15);
+            doc.setFontSize(9);
+            doc.text(`Generated: ${new Date().toLocaleString()} | ${bulkResults.length} numbers | Punjab Investigation Tools`, 15, 23);
+
+            // Table header
+            const headers = ['#', 'Number', 'Original Operator', 'Circle', 'Current Operator', 'Type', 'Status'];
+            const colX = [15, 28, 60, 110, 155, 210, 245];
+            const colW = [13, 32, 50, 45, 55, 35, 45];
+            let y = 38;
+
+            doc.setFillColor(99, 102, 241);
+            doc.rect(10, y - 5, 277, 8, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'bold');
+            headers.forEach((h, i) => doc.text(h, colX[i], y));
+
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(0, 0, 0);
+            y += 7;
+
+            const liveResults = bulkResults.filter(r => r && r.live).length;
+            
+            bulkResults.forEach((r, idx) => {
+                if (!r) return;
+                if (y > 190) {
+                    doc.addPage('landscape');
+                    y = 20;
+                    // Repeat header on new page
+                    doc.setFillColor(99, 102, 241);
+                    doc.rect(10, y - 5, 277, 8, 'F');
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(8);
+                    doc.setFont(undefined, 'bold');
+                    headers.forEach((h, i) => doc.text(h, colX[i], y));
+                    doc.setFont(undefined, 'normal');
+                    doc.setTextColor(0, 0, 0);
+                    y += 7;
+                }
+                // Alternate row bg
+                if (idx % 2 === 0) {
+                    doc.setFillColor(245, 245, 255);
+                    doc.rect(10, y - 4, 277, 7, 'F');
+                }
+                doc.setFontSize(7.5);
+                doc.setTextColor(0, 0, 0);
+                doc.text(String(r.index), colX[0], y);
+                doc.text(r.number, colX[1], y);
+                doc.text(r.origOperator, colX[2], y);
+                doc.text(r.origCircle, colX[3], y);
+                // Color current operator
+                if (r.live) {
+                    doc.setTextColor(16, 185, 129);
+                } else {
+                    doc.setTextColor(107, 114, 128);
+                }
+                doc.text(r.currentOperator, colX[4], y);
+                doc.setTextColor(0, 0, 0);
+                doc.text(r.type, colX[5], y);
+                doc.text(r.status, colX[6], y);
+                y += 7;
+            });
+
+            // Summary footer
+            y += 5;
+            if (y > 185) { doc.addPage('landscape'); y = 20; }
+            doc.setFillColor(240, 253, 244);
+            doc.rect(10, y - 4, 277, 12, 'F');
+            doc.setTextColor(6, 95, 70);
+            doc.setFontSize(9);
+            doc.text(`Summary: ${bulkResults.length} numbers processed | ${liveResults} verified with live operator | ${bulkResults.length - liveResults} unverified/other`, 15, y + 3);
+
+            // Footer
+            doc.setTextColor(128, 128, 128);
+            doc.setFontSize(8);
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let p = 1; p <= pageCount; p++) {
+                doc.setPage(p);
+                doc.text(`Page ${p} of ${pageCount} | Punjab Investigation Tools | punjab.pages.dev`, 15, 200);
+            }
+
+            doc.save(`Bulk_Phone_Lookup_${new Date().toISOString().slice(0,10)}.pdf`);
+            showToast('PDF downloaded');
+        }
+
+        // Retry failed numbers on-demand
+        async function retryFailedNumbers() {
+            if (bulkRunning) { showToast('Already processing'); return; }
+            const failedIndices = bulkResults
+                .map((r, idx) => (r && (r.currentOperator === 'Other/Unknown' || r.viFailed)) ? idx : -1)
+                .filter(idx => idx !== -1);
+            if (failedIndices.length === 0) { showToast('No failed numbers to retry'); return; }
+
+            bulkRunning = true;
+            const retryBtn = document.getElementById('bulkRetryBtn');
+            retryBtn.disabled = true;
+            retryBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Retrying...';
+            document.getElementById('bulkActionButtons').style.display = 'none';
+            document.getElementById('floatingBulkProgress').style.display = 'block';
+
+            const progressText = document.getElementById('bulkProgressText');
+            const progressBar = document.getElementById('bulkProgressBar');
+            const progressPercent = document.getElementById('bulkProgressPercent');
+            const delay = ms => new Promise(r => setTimeout(r, ms));
+            const BATCH_SIZE = 10;
+            const tbody = document.getElementById('bulkResultBody');
+
+            function renderRow(result) {
+                const row = document.createElement('tr');
+                row.id = 'bulkRow_' + result.index;
+                row.style.borderBottom = '1px solid rgba(99,102,241,0.15)';
+                const opColor = result.live ? '#10b981' : '#6b7280';
+                row.innerHTML = `
+                    <td style="padding:8px 12px;">${result.index}</td>
+                    <td style="padding:8px 12px;">${result.number}</td>
+                    <td style="padding:8px 12px;">${result.origOperator}</td>
+                    <td style="padding:8px 12px;">${result.origCircle}</td>
+                    <td style="padding:8px 12px;color:${opColor};font-weight:600;">${result.currentOperator}</td>
+                    <td style="padding:8px 12px;">${result.type}</td>
+                    <td style="padding:8px 12px;">${result.status}</td>
+                `;
+                const existing = document.getElementById('bulkRow_' + result.index);
+                if (existing) existing.replaceWith(row);
+                else tbody.appendChild(row);
+            }
+
+            let resolved = 0;
+            progressText.textContent = `Retrying ${failedIndices.length} failed numbers...`;
+            progressBar.style.width = '0%';
+            await delay(2000);
+
+            for (let ri = 0; ri < failedIndices.length; ri += BATCH_SIZE) {
+                const batch = failedIndices.slice(ri, ri + BATCH_SIZE);
+                const pct = Math.round(((ri) / failedIndices.length) * 100);
+                progressText.textContent = `Retry: ${ri + 1}-${Math.min(ri + batch.length, failedIndices.length)} of ${failedIndices.length}...`;
+                progressBar.style.width = pct + '%';
+                progressPercent.textContent = pct + '%';
+                document.getElementById('floatingProgressText').textContent = progressText.textContent;
+                document.getElementById('floatingProgressBar').style.width = pct + '%';
+                document.getElementById('floatingProgressPercent').textContent = pct + '%';
+
+                const results = await Promise.all(batch.map(idx => checkSingleNumber(bulkNumbers[idx])));
+                results.forEach((result, j) => {
+                    const idx = batch[j];
+                    if (result.live) {
+                        result.index = idx + 1;
+                        bulkResults[idx] = result;
+                        renderRow(result);
+                        resolved++;
+                    }
+                });
+                if (ri + BATCH_SIZE < failedIndices.length) await delay(2000);
+            }
+
+            // Done
+            const newFailedCount = bulkResults.filter(r => r && (r.currentOperator === 'Other/Unknown' || r.viFailed)).length;
+            const liveCount = bulkResults.filter(r => r && r.live).length;
+            progressText.textContent = `Retry done: ${resolved} resolved, ${newFailedCount} still unresolved`;
+            progressBar.style.width = '100%';
+            progressPercent.textContent = '100%';
+            document.getElementById('bulkResultSummary').textContent = `${bulkResults.length} numbers | ${liveCount} verified | ${newFailedCount} unresolved`;
+
+            bulkRunning = false;
+            retryBtn.disabled = false;
+            retryBtn.innerHTML = `<i class="fas fa-redo"></i> Retry Failed (<span id="bulkFailedCount">${newFailedCount}</span>)`;
+            document.getElementById('floatingBulkProgress').style.display = 'none';
+            document.getElementById('bulkActionButtons').style.display = 'flex';
+            if (newFailedCount > 0) {
+                retryBtn.style.display = 'inline-flex';
+            } else {
+                retryBtn.style.display = 'none';
+            }
+            showToast(`Retry complete: ${resolved} newly resolved`);
+        }
+
+        // Download results as CSV
+        function downloadBulkCSV() {
+            if (!bulkResults.length) { showToast('No results to download'); return; }
+            let csv = '#,Number,Original Operator,Circle,Current Operator,Type,Status\n';
+            bulkResults.forEach(r => {
+                if (r) csv += `${r.index},"${r.number}","${r.origOperator}","${r.origCircle}","${r.currentOperator}","${r.type}","${r.status}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Bulk_Phone_Lookup_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('CSV downloaded');
+        }
+    </script>
+    <!-- Hit Counter -->
+    <div style="text-align: center; padding: 20px 0;">
+        <img src="https://hits.sh/punjab.pages.dev.svg?view=today-total&style=for-the-badge&label=Punjab&extraCount=0&color=080e08&labelColor=9c3232" alt="Hit Counter" />
+    </div>
+</body>
+</html>

@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAC Address Lookup | Punjab Investigation Tools</title>
+    <meta name="description" content="Identify device manufacturer from MAC address using IEEE OUI database with 56,000+ vendor records.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/tool-common.css">
+    
+    <!-- PDF Generation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 15, 26, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        .loading-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(34, 211, 238, 0.2);
+            border-top-color: #22d3ee;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .loading-text {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: var(--text-secondary, #a0a0b0);
+        }
+        .loading-progress {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #22d3ee;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .lookup-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+    <!-- Favicon -->
+    <link rel="icon" href="/tools/favicon.svg" type="image/svg+xml">
+    <!-- Canonical & SEO -->
+    <link rel="canonical" href="https://punjab.pages.dev/mac/">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://punjab.pages.dev/mac/">
+    <meta property="og:title" content="MAC Address Lookup | Punjab Investigation Tools">
+    <meta property="og:description" content="Identify device manufacturer from MAC address using IEEE OUI database with 56,000+ vendor records. Free MAC address lookup.">
+    <meta property="og:image" content="https://punjab.pages.dev/og-image.svg">
+    <meta property="og:site_name" content="Punjab Investigation Tools">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MAC Address Lookup | Punjab Investigation Tools">
+    <meta name="twitter:description" content="Identify device manufacturer from MAC address using IEEE OUI database with 56,000+ vendor records. Free MAC address lookup.">
+    <meta name="twitter:image" content="https://punjab.pages.dev/og-image.svg">
+    <meta name="theme-color" content="#e94560">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text"><i class="fas fa-database"></i> Loading OUI Database...</div>
+        <div class="loading-progress" id="loadingProgress">Initializing...</div>
+    </div>
+
+    <header class="header">
+        <div class="header-container">
+            <a href="/tools/" class="logo" style="text-decoration: none; color: inherit;">
+                <div class="logo-icon">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-title">Punjab Investigation Tools</span>
+                    <span class="logo-subtitle">MAC Address Lookup</span>
+                </div>
+            </a>
+            <div class="header-actions">
+                <a href="/tools/" class="back-home-btn">
+                    <i class="fas fa-home"></i> All Tools
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1><i class="fas fa-network-wired"></i> MAC Address Lookup</h1>
+                <p>Identify device manufacturer from MAC address using IEEE OUI database</p>
+            </div>
+        </section>
+
+        <section class="input-section">
+            <div class="input-group">
+                <h3><i class="fas fa-keyboard"></i> Enter MAC Address</h3>
+                <div class="input-row">
+                    <input type="text" id="macInput" class="input-field" placeholder="XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX" maxlength="17" disabled>
+                    <button class="verify-btn" id="lookupBtn" onclick="lookupMAC()" disabled>
+                        <i class="fas fa-search"></i> Lookup
+                    </button>
+                </div>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 10px;">
+                    <i class="fas fa-info-circle"></i> Formats accepted: AA:BB:CC:DD:EE:FF, AA-BB-CC-DD-EE-FF, or AABBCCDDEEFF
+                </p>
+                <div id="dbStatus" style="margin-top: 15px; padding: 10px 15px; background: rgba(34, 211, 238, 0.1); border-radius: 8px; font-size: 0.85rem; color: var(--text-secondary); border: 1px solid rgba(34, 211, 238, 0.2);">
+                    <i class="fas fa-spinner fa-spin"></i> Loading OUI database...
+                </div>
+            </div>
+        </section>
+
+        <section class="results-section" id="resultsSection" style="display: none;">
+            <div class="result-card" id="resultCard">
+                <div class="result-header">
+                    <div class="result-icon" id="resultIcon">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <div class="result-title">
+                        <h3 id="resultTitle">MAC Address Lookup Result</h3>
+                        <p id="resultSubtitle">Analysis complete</p>
+                    </div>
+                </div>
+
+                <div class="result-details" id="resultDetails">
+                    <!-- Results will be populated here -->
+                </div>
+
+                <div class="mac-breakdown" id="macBreakdown" style="margin-top: 25px;">
+                    <!-- MAC breakdown will be shown here -->
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h4><i class="fas fa-triangle-exclamation"></i> Important: MAC Address Randomization</h4>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Modern smartphones (iOS 14+, Android 10+)</strong> use randomized MAC addresses by default when scanning for networks</li>
+                    <li>A device may show different MAC addresses on different networks</li>
+                    <li>The <strong>real MAC address</strong> is typically only visible when actually connected to a network</li>
+                    <li>Random MACs usually have the <strong>locally administered bit</strong> set (second character is 2, 6, A, or E)</li>
+                    <li>This feature was introduced for <strong>privacy protection</strong> and is now standard behavior</li>
+                </ul>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn" onclick="copyResult()">
+                    <i class="fas fa-copy"></i> Copy Result
+                </button>
+                <button class="action-btn" onclick="downloadPDF()">
+                    <i class="fas fa-file-pdf"></i> Download PDF
+                </button>
+                <button class="action-btn" onclick="resetForm()">
+                    <i class="fas fa-redo"></i> Check Another
+                </button>
+            </div>
+        </section>
+
+        <section class="info-section">
+            <h3><i class="fas fa-info-circle"></i> About MAC Addresses</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-icon"><i class="fas fa-fingerprint"></i></div>
+                    <h4>What is MAC Address?</h4>
+                    <p>Media Access Control (MAC) address is a unique 48-bit identifier assigned to network interface controllers. It's used for communication within a network segment.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon"><i class="fas fa-building"></i></div>
+                    <h4>OUI (Vendor Prefix)</h4>
+                    <p>The first 3 bytes (6 characters) identify the manufacturer through the Organizationally Unique Identifier (OUI) registered with IEEE.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon"><i class="fas fa-shuffle"></i></div>
+                    <h4>MAC Randomization</h4>
+                    <p>Modern devices randomize MAC addresses when scanning WiFi networks for privacy. This prevents tracking users across locations.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p><i class="fas fa-shield-check"></i> All processing happens locally in your browser. No data is sent to any server.</p>
+            <p>© 2024-<span id="currentYear"></span> Punjab Investigation Tools</p>
+        </div>
+    </footer>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Action completed</span>
+    </div>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // OUI Database - will be loaded from JSON file
+        let ouiDatabase = {};
+        let dbLoaded = false;
+        let dbEntryCount = 0;
+
+        // Load OUI database
+        async function loadOUIDatabase() {
+            const loadingProgress = document.getElementById('loadingProgress');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const dbStatus = document.getElementById('dbStatus');
+            const macInput = document.getElementById('macInput');
+            const lookupBtn = document.getElementById('lookupBtn');
+
+            try {
+                loadingProgress.textContent = 'Fetching OUI database...';
+                
+                const response = await fetch('ouiDB.json');
+                if (!response.ok) {
+                    throw new Error('Failed to load database');
+                }
+
+                loadingProgress.textContent = 'Parsing database...';
+                ouiDatabase = await response.json();
+                dbEntryCount = Object.keys(ouiDatabase).length;
+                
+                loadingProgress.textContent = `Loaded ${dbEntryCount.toLocaleString()} vendor records`;
+                
+                // Enable input and button
+                dbLoaded = true;
+                macInput.disabled = false;
+                lookupBtn.disabled = false;
+                
+                dbStatus.innerHTML = `<i class="fas fa-check-circle" style="color: var(--success-color);"></i> OUI Database loaded: <strong>${dbEntryCount.toLocaleString()}</strong> vendor records from IEEE registry`;
+                dbStatus.style.background = 'rgba(16, 185, 129, 0.1)';
+                dbStatus.style.borderColor = 'rgba(16, 185, 129, 0.2)';
+
+                // Hide loading overlay
+                setTimeout(() => {
+                    loadingOverlay.classList.add('hidden');
+                    macInput.focus();
+                }, 500);
+
+            } catch (error) {
+                console.error('Error loading OUI database:', error);
+                loadingProgress.textContent = 'Error loading database';
+                dbStatus.innerHTML = `<i class="fas fa-exclamation-triangle" style="color: var(--warning-color);"></i> Failed to load OUI database. Using limited fallback.`;
+                dbStatus.style.background = 'rgba(245, 158, 11, 0.1)';
+                dbStatus.style.borderColor = 'rgba(245, 158, 11, 0.2)';
+                
+                // Use fallback database
+                ouiDatabase = getFallbackDatabase();
+                dbEntryCount = Object.keys(ouiDatabase).length;
+                dbLoaded = true;
+                macInput.disabled = false;
+                lookupBtn.disabled = false;
+                
+                setTimeout(() => {
+                    loadingOverlay.classList.add('hidden');
+                }, 500);
+            }
+        }
+
+        // Fallback database with common vendors
+        function getFallbackDatabase() {
+            return {
+                '00000C': { vendor: 'Cisco Systems', type: 'MA-L' },
+                '001E58': { vendor: 'D-Link Corporation', type: 'MA-L' },
+                '001EC2': { vendor: 'Apple, Inc.', type: 'MA-L' },
+                '00505E': { vendor: 'VMware, Inc.', type: 'MA-L' },
+                '080027': { vendor: 'Oracle VirtualBox', type: 'MA-L' },
+                '000C29': { vendor: 'VMware, Inc.', type: 'MA-L' },
+                '00155D': { vendor: 'Microsoft Hyper-V', type: 'MA-L' },
+                'ACDE48': { vendor: 'Apple, Inc.', type: 'MA-L' },
+                'E86A64': { vendor: 'Samsung Electronics', type: 'MA-L' },
+                '286C07': { vendor: 'XIAOMI Communications', type: 'MA-L' },
+                '00E04C': { vendor: 'Realtek Semiconductor', type: 'MA-L' },
+                '525400': { vendor: 'QEMU/KVM Virtual', type: 'MA-L' },
+            };
+        }
+
+        // Load database on page load
+        loadOUIDatabase();
+
+        function normalizeMAC(mac) {
+            // Remove all separators and convert to uppercase
+            let normalized = mac.replace(/[:\-\.]/g, '').toUpperCase();
+            
+            // Validate length
+            if (normalized.length !== 12) {
+                return null;
+            }
+            
+            // Validate hex characters
+            if (!/^[0-9A-F]{12}$/.test(normalized)) {
+                return null;
+            }
+            
+            // Format as XX:XX:XX:XX:XX:XX
+            return normalized.match(/.{2}/g).join(':');
+        }
+
+        function isLocallyAdministered(mac) {
+            // Check if the second character is 2, 6, A, or E (locally administered bit set)
+            const secondChar = mac.charAt(1).toUpperCase();
+            return ['2', '6', 'A', 'E'].includes(secondChar);
+        }
+
+        function isMulticast(mac) {
+            // Check if the first byte's LSB is 1 (multicast)
+            const firstByte = parseInt(mac.substring(0, 2), 16);
+            return (firstByte & 0x01) === 1;
+        }
+
+        function lookupVendor(mac) {
+            // Remove colons for lookup
+            const cleanMac = mac.replace(/:/g, '');
+            
+            // Try different prefix lengths (MA-L: 6, MA-M: 7, MA-S: 9)
+            const prefixes = [
+                cleanMac.substring(0, 9), // MA-S (OUI-36)
+                cleanMac.substring(0, 7), // MA-M
+                cleanMac.substring(0, 6)  // MA-L (Standard OUI)
+            ];
+
+            for (const prefix of prefixes) {
+                if (ouiDatabase[prefix]) {
+                    return {
+                        ...ouiDatabase[prefix],
+                        prefix: prefix,
+                        prefixFormatted: prefix.length === 6 ? 
+                            prefix.match(/.{2}/g).join(':') : 
+                            prefix
+                    };
+                }
+            }
+            return null;
+        }
+
+        function lookupMAC() {
+            if (!dbLoaded) {
+                showToast('Database is still loading, please wait...');
+                return;
+            }
+
+            const input = document.getElementById('macInput').value.trim();
+            const mac = normalizeMAC(input);
+            
+            if (!mac) {
+                showToast('Please enter a valid MAC address');
+                return;
+            }
+
+            const vendorInfo = lookupVendor(mac);
+            const isLocal = isLocallyAdministered(mac);
+            const isMulti = isMulticast(mac);
+            const oui = mac.substring(0, 8);
+
+            document.getElementById('resultsSection').style.display = 'block';
+            
+            const resultIcon = document.getElementById('resultIcon');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultSubtitle = document.getElementById('resultSubtitle');
+
+            if (vendorInfo) {
+                resultIcon.className = 'result-icon valid';
+                resultIcon.innerHTML = '<i class="fas fa-building"></i>';
+                resultTitle.textContent = vendorInfo.vendor;
+                resultSubtitle.textContent = `Manufacturer identified from IEEE OUI database`;
+            } else if (isLocal) {
+                resultIcon.className = 'result-icon warning';
+                resultIcon.innerHTML = '<i class="fas fa-shuffle"></i>';
+                resultTitle.textContent = 'Locally Administered / Random MAC';
+                resultSubtitle.textContent = 'This appears to be a randomized or locally assigned address';
+            } else {
+                resultIcon.className = 'result-icon warning';
+                resultIcon.innerHTML = '<i class="fas fa-question"></i>';
+                resultTitle.textContent = 'Unknown Manufacturer';
+                resultSubtitle.textContent = 'OUI not found in database';
+            }
+
+            let detailsHTML = `
+                <div class="detail-item">
+                    <div class="detail-label">MAC Address</div>
+                    <div class="detail-value" style="font-family: 'JetBrains Mono', monospace;">${mac}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">OUI (Vendor Prefix)</div>
+                    <div class="detail-value" style="font-family: 'JetBrains Mono', monospace;">${oui}</div>
+                </div>
+            `;
+
+            if (vendorInfo) {
+                detailsHTML += `
+                    <div class="detail-item">
+                        <div class="detail-label">Manufacturer</div>
+                        <div class="detail-value">${vendorInfo.vendor}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Assignment Type</div>
+                        <div class="detail-value">${getBlockTypeDescription(vendorInfo.type)}</div>
+                    </div>
+                `;
+                if (vendorInfo.updated) {
+                    detailsHTML += `
+                        <div class="detail-item">
+                            <div class="detail-label">Registry Updated</div>
+                            <div class="detail-value">${vendorInfo.updated}</div>
+                        </div>
+                    `;
+                }
+            }
+
+            detailsHTML += `
+                <div class="detail-item">
+                    <div class="detail-label">Address Type</div>
+                    <div class="detail-value" style="color: ${isLocal ? 'var(--warning-color)' : 'var(--success-color)'}">
+                        ${isLocal ? 'Locally Administered (Possibly Randomized)' : 'Universally Administered (Hardware MAC)'}
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Cast Type</div>
+                    <div class="detail-value">${isMulti ? 'Multicast' : 'Unicast'}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Lookup Time</div>
+                    <div class="detail-value">${new Date().toLocaleString()}</div>
+                </div>
+            `;
+
+            document.getElementById('resultDetails').innerHTML = detailsHTML;
+
+            // MAC Breakdown visualization
+            const parts = mac.split(':');
+            document.getElementById('macBreakdown').innerHTML = `
+                <h4 style="margin-bottom: 15px; color: var(--text-primary);"><i class="fas fa-puzzle-piece"></i> MAC Address Structure</h4>
+                <div style="display: flex; gap: 5px; font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; flex-wrap: wrap; justify-content: center;">
+                    <div style="background: rgba(34, 211, 238, 0.3); padding: 15px; border-radius: 8px; border: 2px solid rgba(34, 211, 238, 0.5); text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 5px;">OUI (Vendor)</div>
+                        ${parts.slice(0, 3).join(':')}
+                    </div>
+                    <div style="background: rgba(16, 185, 129, 0.3); padding: 15px; border-radius: 8px; border: 2px solid rgba(16, 185, 129, 0.5); text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 5px;">NIC Specific</div>
+                        ${parts.slice(3).join(':')}
+                    </div>
+                </div>
+                ${isLocal ? `
+                <div style="margin-top: 20px; padding: 15px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; text-align: center;">
+                    <i class="fas fa-shuffle" style="color: var(--warning-color);"></i>
+                    <span style="color: var(--warning-color); margin-left: 10px;">This MAC address has the locally administered bit set, indicating it may be randomized by the device for privacy.</span>
+                </div>
+                ` : ''}
+                <div style="margin-top: 15px; padding: 12px; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 8px; text-align: center; font-size: 0.85rem; color: var(--text-secondary);">
+                    <i class="fas fa-database"></i> Database contains <strong>${dbEntryCount.toLocaleString()}</strong> vendor records from IEEE OUI registry
+                </div>
+            `;
+
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function getBlockTypeDescription(type) {
+            const types = {
+                'MA-L': 'MAC Address Block Large (OUI) - 16M addresses',
+                'MA-M': 'MAC Address Block Medium - 1M addresses',
+                'MA-S': 'MAC Address Block Small (OUI-36) - 4K addresses',
+                'CID': 'Company Identifier - For internal use'
+            };
+            return types[type] || type;
+        }
+
+        function copyResult() {
+            const mac = normalizeMAC(document.getElementById('macInput').value);
+            const vendorInfo = lookupVendor(mac);
+            const isLocal = isLocallyAdministered(mac);
+            const oui = mac.substring(0, 8);
+            
+            let text = `MAC Address Lookup Report\n`;
+            text += `=========================\n`;
+            text += `Generated: ${new Date().toLocaleString()}\n\n`;
+            text += `MAC Address: ${mac}\n`;
+            text += `OUI: ${oui}\n`;
+            text += `Manufacturer: ${vendorInfo ? vendorInfo.vendor : 'Unknown'}\n`;
+            if (vendorInfo) {
+                text += `Assignment Type: ${vendorInfo.type}\n`;
+                if (vendorInfo.updated) text += `Registry Updated: ${vendorInfo.updated}\n`;
+            }
+            text += `Address Type: ${isLocal ? 'Locally Administered (Possibly Random)' : 'Universally Administered'}\n`;
+            text += `\n--------------------------\n`;
+            text += `Generated by Punjab Investigation Tools\n`;
+            text += `Database: ${dbEntryCount.toLocaleString()} IEEE OUI records`;
+            
+            navigator.clipboard.writeText(text);
+            showToast('Result copied to clipboard');
+        }
+
+        async function downloadPDF() {
+            showToast('Generating PDF...');
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const mac = normalizeMAC(document.getElementById('macInput').value);
+            const vendorInfo = lookupVendor(mac);
+            const isLocal = isLocallyAdministered(mac);
+            const oui = mac.substring(0, 8);
+            
+            // Header
+            doc.setFillColor(26, 26, 46);
+            doc.rect(0, 0, 210, 40, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(20);
+            doc.text('MAC Address Lookup Report', 20, 25);
+            
+            doc.setFontSize(10);
+            doc.text('Punjab Investigation Tools', 150, 15);
+            doc.text(new Date().toLocaleString(), 150, 22);
+            
+            // Content
+            doc.setTextColor(0, 0, 0);
+            let y = 55;
+            
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('MAC Address Details', 20, y);
+            y += 15;
+            
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'normal');
+            
+            const addLine = (label, value) => {
+                doc.setFont(undefined, 'bold');
+                doc.text(`${label}:`, 20, y);
+                doc.setFont(undefined, 'normal');
+                doc.text(value, 70, y);
+                y += 8;
+            };
+            
+            addLine('MAC Address', mac);
+            addLine('OUI (Prefix)', oui);
+            addLine('Manufacturer', vendorInfo ? vendorInfo.vendor : 'Unknown');
+            if (vendorInfo) {
+                addLine('Assignment Type', vendorInfo.type);
+                if (vendorInfo.updated) addLine('Registry Updated', vendorInfo.updated);
+            }
+            addLine('Address Type', isLocal ? 'Locally Administered' : 'Universally Administered');
+            
+            y += 10;
+            
+            // Warning box
+            if (isLocal) {
+                doc.setFillColor(255, 243, 205);
+                doc.rect(15, y, 180, 25, 'F');
+                doc.setTextColor(133, 77, 14);
+                doc.setFontSize(10);
+                doc.text('Warning: This MAC address has the locally administered bit set,', 20, y + 10);
+                doc.text('indicating it may be randomized by the device for privacy protection.', 20, y + 18);
+                y += 35;
+            }
+            
+            // Footer
+            doc.setTextColor(128, 128, 128);
+            doc.setFontSize(9);
+            doc.text(`Database: ${dbEntryCount.toLocaleString()} IEEE OUI records | Generated by Punjab Investigation Tools`, 20, 275);
+            doc.setTextColor(59, 130, 246);
+            doc.textWithLink('https://punjab.pages.dev', 20, 282, { url: 'https://punjab.pages.dev' });
+            
+            doc.save(`MAC_Lookup_${mac.replace(/:/g, '')}.pdf`);
+            showToast('PDF downloaded successfully');
+        }
+
+        function resetForm() {
+            document.getElementById('macInput').value = '';
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('macInput').focus();
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('active');
+            setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // Allow Enter key to lookup
+        document.getElementById('macInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') lookupMAC();
+        });
+    </script>
+    <!-- Hit Counter -->
+    <div style="text-align: center; padding: 20px 0;">
+        <img src="https://hits.sh/punjab.pages.dev.svg?view=today-total&style=for-the-badge&label=Punjab&extraCount=0&color=080e08&labelColor=9c3232" alt="Hit Counter" />
+    </div>
+</body>
+</html>

@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punjab Investigation Tools | Digital Forensics & Evidence Verification</title>
+    <meta name="description" content="Professional digital investigation tools for Punjab Police. Hash generation, evidence verification, and forensic analysis under Bharatiya Sakshya Adhiniyam 2023.">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="keywords" content="Punjab Police, Digital Forensics, Hash Generator, IMEI Verifier, Image Forensics, Evidence Verification, BSA 2023, Bharatiya Sakshya Adhiniyam, Investigation Tools, CDR Analysis, Metadata Extractor">
+    <meta name="author" content="Punjab Investigation Tools">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://punjab.pages.dev/">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://punjab.pages.dev/">
+    <meta property="og:title" content="Punjab Investigation Tools | Digital Forensics Platform">
+    <meta property="og:description" content="Professional-grade digital forensics tools for law enforcement. Secure, client-side processing for evidence verification under Bharatiya Sakshya Adhiniyam, 2023.">
+    <meta property="og:image" content="https://punjab.pages.dev/og-image.svg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="Punjab Investigation Tools">
+    <meta property="og:locale" content="en_IN">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://punjab.pages.dev/">
+    <meta name="twitter:title" content="Punjab Investigation Tools | Digital Forensics Platform">
+    <meta name="twitter:description" content="Professional-grade digital forensics tools for law enforcement. Secure, client-side processing for evidence verification.">
+    <meta name="twitter:image" content="https://punjab.pages.dev/og-image.svg">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/tools/favicon.svg" type="image/svg+xml">
+
+    <!-- Additional SEO -->
+    <meta name="theme-color" content="#e94560">
+    <meta name="msapplication-TileColor" content="#e94560">
+    <meta name="geo.region" content="IN-PB">
+    <meta name="geo.placename" content="Punjab, India">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/homepage.css">
+    
+    <!-- Structured Data / JSON-LD -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Punjab Investigation Tools",
+        "description": "Professional digital investigation tools for law enforcement. Hash generation, IMEI verification, image forensics, and evidence verification under Bharatiya Sakshya Adhiniyam 2023.",
+        "url": "https://punjab.pages.dev",
+        "applicationCategory": "SecurityApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "INR"
+        },
+        "featureList": [
+            "Hash Generator (SHA-256, SHA-512, MD5)",
+            "Image Forensics Analysis",
+            "IMEI Verification",
+            "CDR Analysis",
+            "Metadata Extraction",
+            "Aadhaar Validation",
+            "MAC Address Lookup"
+        ],
+        "author": {
+            "@type": "Organization",
+            "name": "Punjab Investigation Tools"
+        }
+    }
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <a href="/tools/" class="logo" style="text-decoration: none; color: inherit;">
+                <div class="logo-icon">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-title">Punjab Investigation Tools</span>
+                    <span class="logo-subtitle">Digital Forensics Platform</span>
+                </div>
+            </a>
+            <div class="header-actions">
+                <a href="https://github.com/PBhadoo/punjab.pages.dev" target="_blank" class="github-link" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: var(--text-secondary, #a0a0b0); text-decoration: none; font-size: 0.9rem; transition: all 0.2s;">
+                    <i class="fab fa-github"></i> Source
+                </a>
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    <span>Online</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Development Warning Banner -->
+        <div style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1)); border: 1px solid rgba(251, 191, 36, 0.4); border-radius: 10px; padding: 15px 20px; margin: 20px 20px; max-width: calc(100% - 40px); width: 1200px; margin-left: auto; margin-right: auto; display: flex; align-items: center; gap: 15px;">
+            <i class="fas fa-triangle-exclamation" style="color: #fbbf24; font-size: 1.5rem;"></i>
+            <div>
+                <strong style="color: #fbbf24;">Development Notice:</strong>
+                <span style="color: var(--text-secondary, #a0a0b0);"> This project is constantly under development. Please don't rely solely on these tools for critical decisions. Always verify results through official channels.</span>
+            </div>
+        </div>
+
+        <!-- Hero Section -->
+        <section class="homepage-hero">
+            <div class="hero-badge">
+                <i class="fas fa-gavel"></i>
+                BSA 2023 Compliant
+            </div>
+            <h1>
+                <span class="gradient-text">Punjab Investigation</span><br>
+                <span class="highlight">Tools</span>
+            </h1>
+            <p class="hero-description">
+                Professional-grade digital forensics tools for law enforcement. 
+                Secure, client-side processing for evidence verification under 
+                Bharatiya Sakshya Adhiniyam, 2023.
+            </p>
+            
+            <div class="stats-row">
+                <div class="stat-item">
+                    <span class="stat-number">100%</span>
+                    <span class="stat-label">Client-Side Processing</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">25+</span>
+                    <span class="stat-label">Investigation Tools</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">3</span>
+                    <span class="stat-label">Languages Supported</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tools Section -->
+        <section class="tools-section">
+            <div class="section-header">
+                <h2><i class="fas fa-toolbox"></i> Investigation Tools</h2>
+                <p>Select a tool to get started with your digital evidence analysis</p>
+            </div>
+
+            <!-- Search Bar -->
+            <div style="max-width:600px;margin:0 auto 30px;position:relative;">
+                <i class="fas fa-search" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--text-secondary);font-size:1rem;"></i>
+                <input type="text" id="toolSearch" placeholder="Search tools... (e.g. PDF, hash, font, image, QR)" oninput="filterTools()" style="width:100%;padding:14px 16px 14px 44px;background:rgba(0,0,0,0.3);border:2px solid var(--card-border);border-radius:12px;color:var(--text-primary);font-size:1rem;box-sizing:border-box;outline:none;transition:border-color 0.3s;" onfocus="this.style.borderColor='var(--accent-secondary)'" onblur="this.style.borderColor='var(--card-border)'">
+            </div>
+
+            <div class="tools-grid" id="toolsGrid">
+                <!-- General Tools - Available -->
+                <a href="general/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <i class="fas fa-toolbox"></i>
+                    </div>
+                    <h3>General Purpose Tools</h3>
+                    <p>PDF and image tools — merge, split, compress, convert, resize, watermark, and more. 24+ tools for everyday file processing needs.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">PDF Tools</span>
+                        <span class="feature-tag">Image Tools</span>
+                        <span class="feature-tag">QR Codes</span>
+                    </div>
+                </a>
+
+                <!-- Hash Generator - Available -->
+                <a href="hash/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon hash">
+                        <i class="fas fa-fingerprint"></i>
+                    </div>
+                    <h3>Hash Generator</h3>
+                    <p>Generate cryptographic hash values (MD5, SHA-1, SHA-256, SHA-512, SHA3, BLAKE2b) for electronic evidence with BSA 2023 Section 63(4)(c) certificate generation.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">SHA-256</span>
+                        <span class="feature-tag">SHA-512</span>
+                        <span class="feature-tag">PDF Certificate</span>
+                    </div>
+                </a>
+
+                <!-- Image Forensics - Available -->
+                <a href="image-forensics/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon forensic">
+                        <i class="fas fa-magnifying-glass-chart"></i>
+                    </div>
+                    <h3>Image Forensics</h3>
+                    <p>Analyze images for manipulation detection, error level analysis (ELA), metadata extraction, and forensic markers to verify authenticity.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">ELA Analysis</span>
+                        <span class="feature-tag">EXIF Data</span>
+                        <span class="feature-tag">Manipulation Detection</span>
+                    </div>
+                </a>
+
+                <!-- IMEI Verifier - Available -->
+                <a href="imei/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon imei">
+                        <i class="fas fa-mobile-screen"></i>
+                    </div>
+                    <h3>IMEI Verifier</h3>
+                    <p>Verify IMEI integrity using Luhn algorithm, identify device manufacturer, model information, and check device validity.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">Luhn Check</span>
+                        <span class="feature-tag">TAC Lookup</span>
+                        <span class="feature-tag">Manufacturer ID</span>
+                    </div>
+                </a>
+
+                <!-- MAC Address Lookup - Available -->
+                <a href="mac/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon mac">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <h3>MAC Address Lookup</h3>
+                    <p>Identify device manufacturer from MAC address, verify format validity, and learn about MAC address rotation on mobile devices.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">OUI Lookup</span>
+                        <span class="feature-tag">Vendor ID</span>
+                        <span class="feature-tag">Format Check</span>
+                    </div>
+                </a>
+
+                <!-- Phone Number Check - Available -->
+                <a href="phone/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon phone">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <h3>Phone Number Lookup</h3>
+                    <p>Identify country, region, and possible telecom operator from phone numbers. Includes information about number portability.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">Country Code</span>
+                        <span class="feature-tag">Operator ID</span>
+                        <span class="feature-tag">Portability Info</span>
+                    </div>
+                </a>
+
+                <!-- File Comparison - Available -->
+                <a href="compare/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon compare">
+                        <i class="fas fa-code-compare"></i>
+                    </div>
+                    <h3>File Comparison</h3>
+                    <p>Compare two files byte-by-byte to verify integrity, detect modifications, and confirm if files with different names are identical.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">Byte Compare</span>
+                        <span class="feature-tag">Hash Match</span>
+                        <span class="feature-tag">Integrity Check</span>
+                    </div>
+                </a>
+
+                <!-- Fingerprint Matcher - Available -->
+                <a href="fingerprint/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon fingerprint">
+                        <i class="fas fa-hand-dots"></i>
+                    </div>
+                    <h3>Fingerprint Matcher</h3>
+                    <p>Compare two fingerprint images and calculate similarity percentage using advanced pattern matching algorithms.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">Pattern Match</span>
+                        <span class="feature-tag">Similarity %</span>
+                        <span class="feature-tag">Minutiae Analysis</span>
+                    </div>
+                </a>
+
+                <!-- Document Metadata - Available -->
+                <a href="metadata/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon metadata">
+                        <i class="fas fa-file-lines"></i>
+                    </div>
+                    <h3>Document Metadata</h3>
+                    <p>Extract creation date, modification date, author, last accessed time and hidden metadata from documents and files.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">Creation Date</span>
+                        <span class="feature-tag">Modified Date</span>
+                        <span class="feature-tag">Author Info</span>
+                    </div>
+                </a>
+
+                <!-- CDR Analysis - Available -->
+                <a href="cdr/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon cdr">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>CDR Analysis</h3>
+                    <p>Analyze Call Data Records - visualize call patterns, frequent contacts, duration analysis, and generate investigation reports.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">Call Patterns</span>
+                        <span class="feature-tag">Timeline View</span>
+                        <span class="feature-tag">Contact Analysis</span>
+                    </div>
+                </a>
+
+                <!-- IPDR Analysis - Available -->
+                <a href="ipdr/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon ipdr">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>IPDR Analysis</h3>
+                    <p>Analyze IP Data Records - track data sessions, bandwidth usage, connection patterns, and IP address activities.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">IP Tracking</span>
+                        <span class="feature-tag">Session Analysis</span>
+                        <span class="feature-tag">Usage Patterns</span>
+                    </div>
+                </a>
+
+                <!-- Aadhaar Validator - Available -->
+                <a href="aadhaar/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon aadhaar">
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                    <h3>Aadhaar Validator</h3>
+                    <p>Validate Aadhaar number integrity using Verhoeff algorithm checksum verification with link to official UIDAI portal.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">Verhoeff Check</span>
+                        <span class="feature-tag">Format Validation</span>
+                        <span class="feature-tag">UIDAI Link</span>
+                    </div>
+                </a>
+
+                <!-- QR Code Tools - Available -->
+                <a href="qrcode/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon qrcode">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <h3>QR Code Tools</h3>
+                    <p>Generate QR codes for text, URLs, WiFi, vCards and more. Scan QR codes using camera or upload images. Create UPI payment QR codes.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">Generate QR</span>
+                        <span class="feature-tag">Scan/Read</span>
+                        <span class="feature-tag">UPI Payment</span>
+                    </div>
+                </a>
+
+                <!-- OCR Tool - Available -->
+                <a href="ocr/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon ocr">
+                        <i class="fas fa-font"></i>
+                    </div>
+                    <h3>OCR Tool</h3>
+                    <p>Extract text from images using Tesseract.js OCR engine. Supports multiple languages including English, Hindi, Punjabi, and more.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">Multi-Language</span>
+                        <span class="feature-tag">Text Extraction</span>
+                        <span class="feature-tag">Confidence Score</span>
+                    </div>
+                </a>
+
+                <!-- Steganography Tool - Available -->
+                <a href="steganography/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon steganography">
+                        <i class="fas fa-user-secret"></i>
+                    </div>
+                    <h3>Steganography Tool</h3>
+                    <p>Detect and analyze hidden data in images. Extract hidden messages or encode secret text using LSB steganography techniques.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">Hidden Data Detection</span>
+                        <span class="feature-tag">LSB Analysis</span>
+                        <span class="feature-tag">Encode/Decode</span>
+                    </div>
+                </a>
+
+                <!-- Signature Checksum - Available -->
+                <a href="signature/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon signature">
+                        <i class="fas fa-signature"></i>
+                    </div>
+                    <h3>Signature Checksum</h3>
+                    <p>Generate and verify secure daily signature codes using SHA-256 checksums. Perfect for daily verification codes and time-based authentication.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">SHA-256</span>
+                        <span class="feature-tag">Daily Codes</span>
+                        <span class="feature-tag">PIN Based</span>
+                    </div>
+                </a>
+
+                <!-- Password Generator - Available -->
+                <a href="password/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon password">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <h3>Password Generator</h3>
+                    <p>Generate cryptographically secure passwords using Web Crypto API. Multiple modes, entropy calculation, and strength analysis.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">Crypto Secure</span>
+                        <span class="feature-tag">Passphrase</span>
+                        <span class="feature-tag">Bulk Generate</span>
+                    </div>
+                </a>
+
+                <!-- IP Address Lookup - Available -->
+                <a href="ip/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon ipdr">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>IP Address Lookup</h3>
+                    <p>Comprehensive IP intelligence - find country, ISP, ASN, detect VPN/proxy/Tor, geolocation with risk scoring. Bulk lookup with PDF reports and Excel export.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">Geolocation</span>
+                        <span class="feature-tag">VPN/Proxy Detection</span>
+                        <span class="feature-tag">Bulk Lookup</span>
+                    </div>
+                </a>
+
+                <!-- Gurmukhi Pad - Available -->
+                <a href="transliterate/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);">
+                        <i class="fas fa-language"></i>
+                    </div>
+                    <h3>Gurmukhi Pad — ਗੁਰਮੁਖੀ ਪੈਡ</h3>
+                    <p>Type in English, get Punjabi (Gurmukhi) text instantly. Live transliteration with suggestions powered by Google Input Tools API.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">Punjabi Typing</span>
+                        <span class="feature-tag">Transliteration</span>
+                        <span class="feature-tag">Live Suggestions</span>
+                    </div>
+                </a>
+
+                <!-- Gurmukhi Font Converter - Available -->
+                <a href="font-converter/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon" style="background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);">
+                        <i class="fas fa-repeat"></i>
+                    </div>
+                    <h3>Gurmukhi Font Converter</h3>
+                    <p>Convert Punjabi text between 7 Gurmukhi fonts — Unicode (Raavi), AnmolLipi, Asees, GurbaniLipi, DrChatrik, Joy & Satluj. All fonts preview at once.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">7 Fonts</span>
+                        <span class="feature-tag">AnmolLipi ↔ Unicode</span>
+                        <span class="feature-tag">Live Convert</span>
+                    </div>
+                </a>
+
+                <!-- Vehicle Number Decoder - Available -->
+                <a href="vehicle/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(251, 146, 60, 0.2)); color: #ef4444;">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <h3>Vehicle Number Decoder</h3>
+                    <p>Decode Indian vehicle registration numbers — identify state, RTO office, series. Supports standard format and new BH (Bharat) series numbers.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">State ID</span>
+                        <span class="feature-tag">RTO Lookup</span>
+                        <span class="feature-tag">BH Series</span>
+                    </div>
+                </a>
+
+                <!-- GST Validator - Available -->
+                <a href="gst/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2)); color: #10b981;">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <h3>GST Number Validator</h3>
+                    <p>Validate GSTIN using official checksum algorithm. Decode state code, embedded PAN, entity type and registration number from 15-digit GSTIN.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">Checksum Verify</span>
+                        <span class="feature-tag">State Decode</span>
+                        <span class="feature-tag">PAN Extract</span>
+                    </div>
+                </a>
+
+                <!-- PAN Validator - Available -->
+                <a href="pan/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon" style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.2)); color: #fbbf24;">
+                        <i class="fas fa-id-badge"></i>
+                    </div>
+                    <h3>PAN Card Validator</h3>
+                    <p>Validate PAN card number format and decode entity type, taxpayer category, surname initial and check digit from the 10-character PAN structure.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">Format Check</span>
+                        <span class="feature-tag">Entity Type</span>
+                        <span class="feature-tag">Decode PAN</span>
+                    </div>
+                </a>
+
+                <!-- IFSC Lookup - Available -->
+                <a href="ifsc/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(79, 70, 229, 0.2)); color: #818cf8;">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <h3>IFSC Code Lookup</h3>
+                    <p>Look up Indian bank branch details from IFSC code — bank name, branch, address, city, MICR code and UPI/RTGS/NEFT availability.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">Bank Details</span>
+                        <span class="feature-tag">Branch Info</span>
+                        <span class="feature-tag">MICR Code</span>
+                    </div>
+                </a>
+
+                <!-- Age Calculator - Available -->
+                <a href="age-calculator/" class="tool-card available">
+                    <span class="tool-badge available">Available</span>
+                    <div class="tool-icon" style="background: linear-gradient(135deg, rgba(20, 184, 166, 0.2), rgba(6, 182, 212, 0.2)); color: #14b8a6;">
+                        <i class="fas fa-calendar-days"></i>
+                    </div>
+                    <h3>Age & Date Calculator</h3>
+                    <p>Calculate exact age, days between dates, day of week for any date. Includes working day counts, zodiac signs — useful for investigation timelines.</p>
+                    <div class="tool-features">
+                        <span class="feature-tag">Age Calculator</span>
+                        <span class="feature-tag">Date Difference</span>
+                        <span class="feature-tag">Timeline Tool</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <h2><i class="fas fa-rocket"></i> Start Analyzing Evidence</h2>
+            <p>Begin with our Hash Generator - the most essential tool for digital evidence verification under BSA 2023.</p>
+            <a href="hash/" class="cta-btn">
+                <i class="fas fa-fingerprint"></i>
+                Open Hash Generator
+            </a>
+        </section>
+
+        <!-- Legal Framework Section -->
+        <section class="legal-section">
+            <div class="section-header">
+                <h2><i class="fas fa-scale-balanced"></i> Legal Framework</h2>
+                <p>Built in compliance with Indian digital evidence laws</p>
+            </div>
+
+            <div class="legal-cards">
+                <div class="legal-card">
+                    <h3><i class="fas fa-gavel"></i> BSA 2023 - Section 63</h3>
+                    <p>Bharatiya Sakshya Adhiniyam, 2023 provides the framework for admissibility of electronic records as evidence. Section 63(4)(c) requires proper certification of digital evidence.</p>
+                </div>
+                <div class="legal-card">
+                    <h3><i class="fas fa-certificate"></i> Certificate Generation</h3>
+                    <p>Our tools generate Part A and Part B certificates as required under Section 63(4) for proper documentation of electronic evidence authenticity.</p>
+                </div>
+                <div class="legal-card">
+                    <h3><i class="fas fa-user-shield"></i> Privacy First</h3>
+                    <p>All processing happens locally in your browser. No files are ever uploaded to any server, ensuring complete confidentiality of sensitive evidence.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="homepage-footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <h3><i class="fas fa-shield-halved"></i> Punjab Investigation Tools</h3>
+                <p>Professional digital forensics platform for law enforcement agencies. All tools operate client-side ensuring data privacy and security.</p>
+            </div>
+            <div class="footer-column">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="https://upload.indiacode.nic.in/schedulefile?aid=AC_CEN_5_23_00049_2023-47_1719292804654&rid=1163" target="_blank">Official BSA Form <i class="fas fa-external-link-alt" style="font-size: 0.7rem;"></i></a></li>
+                    <li><a href="https://www.indiacode.nic.in/handle/123456789/20063" target="_blank">BSA 2023 Full Text <i class="fas fa-external-link-alt" style="font-size: 0.7rem;"></i></a></li>
+                    <li><a href="https://github.com/PBhadoo/punjab.pages.dev" target="_blank">GitHub Source <i class="fab fa-github" style="font-size: 0.8rem;"></i></a></li>
+                    <li><a href="/tools/sitemap.xml">Sitemap</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="disclaimer.html">Disclaimer</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                    <li><a href="terms.html">Terms of Use</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2024-<span id="currentYear"></span> Punjab Investigation Tools. Open source tool for electronic evidence authentication.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // Search/filter tools
+        function filterTools() {
+            const query = document.getElementById('toolSearch').value.toLowerCase().trim();
+            const grid = document.getElementById('toolsGrid');
+            const cards = Array.from(grid.children);
+
+            if (!query) {
+                // Reset order — show all
+                cards.forEach(c => c.style.display = '');
+                cards.forEach(c => c.style.order = '');
+                return;
+            }
+
+            let matchOrder = 0;
+            cards.forEach(card => {
+                const text = (card.textContent || '').toLowerCase();
+                if (text.includes(query)) {
+                    card.style.display = '';
+                    card.style.order = matchOrder++;
+                } else {
+                    card.style.display = 'none';
+                    card.style.order = '999';
+                }
+            });
+        }
+    </script>
+
+    <!-- Hit Counter -->
+    <div style="text-align: center; padding: 20px 0;">
+        <img src="https://hits.sh/punjab.pages.dev.svg?view=today-total&style=for-the-badge&label=Punjab&extraCount=0&color=080e08&labelColor=9c3232" alt="Hit Counter" />
+    </div>
+</body>
+</html>
