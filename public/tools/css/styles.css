@@ -1,4 +1,4 @@
-/* Punjab Hashing Tool - Stylesheet */
+/* Dbweb shared tool styles */
 /* Modern dark theme with gradient background */
 
 :root {
@@ -1150,4 +1150,54 @@ body {
         flex-direction: column;
         gap: 15px;
     }
+}
+
+
+/* Dbweb unified UI overrides */
+:root {
+  --primary-gradient: linear-gradient(145deg,#f7f8fc 0%,#eef2ff 55%,#f8fafc 100%);
+  --accent-color: #4f46e5;
+  --accent-primary: #4f46e5;
+  --accent-secondary: #6366f1;
+  --text-primary: #171923;
+  --text-secondary: #596174;
+  --text-muted: #737b8c;
+  --bg-primary: #f7f8fc;
+  --card-bg: rgba(255,255,255,.88);
+  --card-border: #e2e6f0;
+  --success-color: #16a34a;
+  --warning-color: #d97706;
+}
+html { background:#f7f8fc; }
+body {
+  background:radial-gradient(ellipse at 90% 0%,#e8eaff 0%,transparent 42%),#f7f8fc !important;
+  color:#171923 !important;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;
+}
+.header,.header-container { border-color:#e2e6f0 !important; }
+.header { background:rgba(255,255,255,.78); backdrop-filter:blur(16px); }
+.logo-icon,.tool-icon,.file-icon { background:linear-gradient(135deg,#4f46e5,#818cf8) !important; color:#fff !important; box-shadow:0 8px 24px #4f46e51f !important; }
+.logo-title,.hero-content h1 { background:linear-gradient(135deg,#202338,#4f46e5) !important; -webkit-background-clip:text !important; background-clip:text !important; }
+.upload-area,.progress-container,.file-card,.hash-item,.hash-info-card,.info-card,.modal-content {
+  background:rgba(255,255,255,.9) !important; border-color:#e2e6f0 !important; color:#171923 !important;
+  box-shadow:0 8px 28px rgba(28,35,70,.045);
+}
+.upload-area:hover,.upload-area.drag-over,.file-card:hover,.hash-info-card:hover,.info-card:hover { border-color:#a5b4fc !important; box-shadow:0 12px 30px rgba(79,70,229,.09); }
+.upload-btn,.action-btn.primary { background:linear-gradient(135deg,#4f46e5,#6366f1) !important; border:0 !important; color:#fff !important; box-shadow:0 5px 16px #4f46e51f; }
+.action-btn,.copy-btn,.back-home-btn { background:#fff !important; color:#34384b !important; border:1px solid #e0e4ee !important; }
+.action-btn:hover,.copy-btn:hover,.back-home-btn:hover { border-color:#a5b4fc !important; color:#4338ca !important; background:#f5f6ff !important; }
+input,select,textarea { max-width:100%; }
+input:not([type=checkbox]):not([type=radio]),select,textarea { border-color:#dfe3ee; border-radius:10px; }
+input:focus,select:focus,textarea:focus { outline:0; border-color:#818cf8; box-shadow:0 0 0 3px #6366f11c; }
+.hash-value { background:#f3f5fb !important; color:#30364a !important; }
+.modal { background:rgba(20,24,40,.42) !important; backdrop-filter:blur(8px); }
+.modal-content { border-radius:18px !important; }
+.footer,.homepage-footer,.footer-links,.footer-copyright,.footer-info,.homepage-footer .footer-grid,.info-section,.legal-notice,.disclaimer,.disclaimer-section { display:none !important; }
+@media(max-width:700px) {
+  .header { padding:12px 16px !important; }
+  .main-content { padding:24px 14px !important; }
+  .hero-content h1 { font-size:clamp(1.8rem,8vw,2.5rem) !important; }
+  .upload-area { padding:34px 18px !important; }
+  .file-card-header,.file-card-body { padding:16px !important; }
+  .hash-grid,.hash-info-grid { grid-template-columns:minmax(0,1fr) !important; }
 }
