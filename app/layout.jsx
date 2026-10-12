@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Lookup Console",
-  description: "Number and Aadhaar lookup console"
+  title: "Dbweb",
+  description: "Dbweb tools and lookup workspace"
 };
 
 export default function RootLayout({ children }) {
