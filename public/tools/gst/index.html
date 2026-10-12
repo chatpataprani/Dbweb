@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GST Number Validator | Punjab Investigation Tools</title>
+    <title>GST Number Validator | Dbweb Tools</title>
     <meta name="description" content="Validate GST number using checksum algorithm. Decode state code, PAN details, entity type from 15-digit GSTIN.">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,12 +16,12 @@
     <!-- Favicon -->
     <link rel="icon" href="/tools/favicon.svg" type="image/svg+xml">
     <!-- Canonical & SEO -->
-    <link rel="canonical" href="https://punjab.pages.dev/gst/">
+    <link rel="canonical" href="https://dbweb.vercel.app/tools/gst/">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://punjab.pages.dev/gst/">
-    <meta property="og:title" content="GST Number Validator | Punjab Investigation Tools">
+    <meta property="og:url" content="https://dbweb.vercel.app/tools/gst/">
+    <meta property="og:title" content="GST Number Validator | Dbweb Tools">
     <meta property="og:description" content="Validate GST number using checksum algorithm. Decode state code, PAN details, entity type from 15-digit GSTIN.">
-    <meta property="og:image" content="https://punjab.pages.dev/og-image.svg">
+    <meta property="og:image" content="https://Dbweb.pages.dev/og-image.svg">
     <meta name="theme-color" content="#e94560">
 
     <style>
@@ -197,7 +197,7 @@
                     <i class="fas fa-shield-halved"></i>
                 </div>
                 <div class="logo-text">
-                    <span class="logo-title">Punjab Investigation Tools</span>
+                    <span class="logo-title">Dbweb Tools</span>
                     <span class="logo-subtitle">GST Number Validator</span>
                 </div>
             </a>
@@ -345,7 +345,7 @@
     </main>
 
     <footer style="text-align:center;padding:30px 20px;border-top:1px solid var(--card-border);color:var(--text-secondary);font-size:0.9rem;margin-top:40px;">
-        <p>© 2024-2026 Punjab Investigation Tools. <a href="/tools/disclaimer.html" style="color:var(--accent-secondary)">Disclaimer</a> · <a href="/tools/privacy.html" style="color:var(--accent-secondary)">Privacy</a> · <a href="/tools/terms.html" style="color:var(--accent-secondary)">Terms</a></p>
+        <p>© 2024-2026 Dbweb Tools. <a href="/tools/disclaimer.html" style="color:var(--accent-secondary)">Disclaimer</a> · <a href="/tools/privacy.html" style="color:var(--accent-secondary)">Privacy</a> · <a href="/tools/terms.html" style="color:var(--accent-secondary)">Terms</a></p>
     </footer>
 
     <div class="toast" id="toast">
@@ -359,7 +359,7 @@
     const GST_STATES = {
         '01': 'Jammu and Kashmir',
         '02': 'Himachal Pradesh',
-        '03': 'Punjab',
+        '03': 'Dbweb',
         '04': 'Chandigarh',
         '05': 'Uttarakhand',
         '06': 'Haryana',
@@ -450,7 +450,7 @@
 
         if (!RE_GSTIN.test(g)) {
             // Provide specific guidance
-            if (!/^\d{2}/.test(g)) return { error: 'First 2 characters must be digits (state code, e.g. 03 for Punjab).' };
+            if (!/^\d{2}/.test(g)) return { error: 'First 2 characters must be digits (state code, e.g. 03 for Dbweb).' };
             if (g[14] !== undefined && g[13] !== 'Z') return { error: `Character 14 must be 'Z', found '${g[13]}'.` };
             return { error: `Invalid GSTIN format. Expected: SS·AAAAAXXXX A·E·Z·C (15 chars, where S=digit, A=letter, X=alphanumeric, E=entity, C=check).` };
         }
@@ -626,7 +626,6 @@
 
     <!-- Hit Counter -->
     <div style="text-align:center;padding:20px 0;">
-        <img src="https://hits.sh/punjab.pages.dev/gst.svg?view=today-total&style=for-the-badge&label=GST+Validator&extraCount=0&color=080e08&labelColor=9c3232" alt="Hit Counter" />
-    </div>
+        </div>
 </body>
 </html>
