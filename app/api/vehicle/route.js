@@ -11,12 +11,14 @@ const DEVELOPER_INFO = {
   website: "https://dbweb.vercel.app"
 };
 
-// Deliberately exclude owner/father names, owner serial numbers, personal phone
-// numbers, registration/insurance identifiers, and residential addresses.
+// Return vehicle specifications and vehicle-related validity details only.
+// Personal owner/father names, personal phone numbers, owner serial numbers,
+// and residential addresses are intentionally not exposed.
 const FIELDS = [
   "Model Name", "Maker Model", "Vehicle Class", "Fuel Type", "Fuel Norms",
-  "Registration Date", "Insurance Company", "Insurance Expiry", "Insurance Upto",
-  "Fitness Upto", "Tax Upto", "PUC Upto", "Financier Name", "Registered RTO"
+  "Registration Date", "Insurance Company", "Insurance No", "Insurance Expiry",
+  "Insurance Upto", "Fitness Upto", "Tax Upto", "PUC No", "PUC Upto",
+  "Financier Name", "Registered RTO"
 ];
 
 function decodeHtml(value) {
@@ -95,7 +97,7 @@ export async function POST(request) {
     }
     const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(registration)).then(buf => Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join(""));
     await client.from("device_lookups").insert({ device_id: deviceId, lookup_type: "vehicle", query_hash: hash });
-    return NextResponse.json({ status: "success", service: "Dbweb Vehicle RC Lookup", developer: DEVELOPER_INFO, type: "vehicle", rc: registration, data, note: "Only non-personal vehicle specifications are shown. Owner names, father’s names, owner serial numbers, personal phone numbers, and residential addresses are intentionally excluded." }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ status: "success", service: "Dbweb Vehicle RC Lookup", developer: DEVELOPER_INFO, type: "vehicle", rc: registration, data, note: "Shows vehicle specifications and vehicle-related validity details. Personal owner names, father’s names, owner serial numbers, personal phone numbers, and residential addresses are not displayed." }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("vehicle lookup error", error?.message);
     return NextResponse.json({ error: "Unable to complete vehicle lookup." }, { status: 500 });
