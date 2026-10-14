@@ -630,7 +630,7 @@ async function runEffect(tab,src,tok){
   }
 }
 function setDims(w,h){W=w;H=h;if(view.width!==w||view.height!==h){view.width=w;view.height=h;}}
-async async function render(){
+async function render(){
   const tok=++renderToken;
   if(cur==='collage'&&!suppress){renderCollage();return;}
   let res;
