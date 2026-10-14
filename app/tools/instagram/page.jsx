@@ -33,7 +33,7 @@ export default function InstagramAnalyzerPage() {
     <section className="igHero">
       <span className="igBadge"><Instagram size={15}/> DBWEB TOOL</span>
       <h1>Instagram Profile Analyzer</h1>
-      <p>View public profile details and profile picture.</p>
+      <p>View profile metadata when Instagram makes it publicly available. Instagram may limit automated requests.</p>
       <form className="igSearch" onSubmit={analyze}>
         <span className="igAt">@</span>
         <input value={username} onChange={e => setUsername(e.target.value)} placeholder="Enter Instagram username" aria-label="Instagram username" autoCapitalize="none" autoCorrect="off" maxLength={31} required />
@@ -54,7 +54,7 @@ export default function InstagramAnalyzerPage() {
         <div><UserRound size={18}/><span>Following</span><strong>{data.following}</strong></div>
         <div><FileText size={18}/><span>Posts</span><strong>{data.posts}</strong></div>
       </div>
-      <div className="igPhotoLink">{data.photoUrl ? <a href={data.photoUrl} target="_blank" rel="noreferrer"><ImageIcon size={16}/> Open profile picture <ExternalLink size={13}/></a> : <span>Profile picture unavailable</span>}</div>
+      <div className="igPhotoLink">{data.photoUrl ? <a href={data.photoUrl} target="_blank" rel="noreferrer"><ImageIcon size={16}/> Open profile picture <ExternalLink size={13}/></a> : <span>Profile picture unavailable</span>}</div>{data.note && <p className="igNotice" role="status">{data.note}</p>}{data.limited && <a className="igOpenProfile" href={data.profileUrl} target="_blank" rel="noreferrer">Open @{data.username} on Instagram <ExternalLink size={14}/></a>}
     </section>}
   </main>;
 }
