@@ -152,7 +152,37 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(233, 69, 96, 0.3);
         }
-    </style>
+    
+        /* High-contrast editor and form controls: text must remain readable while typing. */
+        .text-editor {
+            display:block;
+            background:#ffffff !important;
+            color:#172033 !important;
+            caret-color:#4338ca;
+            border:1px solid #cbd5e1 !important;
+            box-shadow:inset 0 1px 2px rgba(15,23,42,.04);
+            opacity:1 !important;
+            -webkit-text-fill-color:#172033 !important;
+        }
+        .text-editor::placeholder { color:#737d91 !important; opacity:1; -webkit-text-fill-color:#737d91 !important; }
+        .text-editor:focus { outline:0; border-color:#6366f1 !important; box-shadow:0 0 0 4px rgba(99,102,241,.14); }
+        .control-input,.control-select {
+            background:#ffffff !important;
+            color:#172033 !important;
+            border:1px solid #cbd5e1 !important;
+            -webkit-text-fill-color:#172033 !important;
+        }
+        .control-select option { background:#ffffff; color:#172033; }
+        .control-label,.format-controls h3,.format-controls h4 { color:#20263a !important; }
+        .format-controls,.stats-bar { color:#20263a; }
+        .stats-bar { background:#eef2ff !important; border:1px solid #dfe5ff; }
+        .stat-label { color:#586174 !important; }
+        .file-actions .btn-secondary { background:#eef2ff !important; color:#3730a3 !important; border-color:#c7d2fe !important; }
+        .file-actions .btn-secondary:hover { background:#e0e7ff !important; }
+        .split-btn { background:linear-gradient(135deg,#4f46e5,#6366f1) !important; color:#fff !important; }
+        .split-btn:hover { background:linear-gradient(135deg,#4338ca,#4f46e5) !important; }
+        @media(max-width:600px) { .text-editor { min-height:300px; padding:15px; } .stats-bar { flex-wrap:wrap; } .stat { min-width:38%; } .file-actions { flex-direction:column; } }
+</style>
 </head>
 <body>
     <!-- Header -->
