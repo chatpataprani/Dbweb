@@ -1,9 +1,10 @@
 'use client';
 
 import { useMemo, useState } from "react";
-import { Search, ArrowUpRight, Wrench, FileText, Fingerprint, Image, Smartphone, Phone, GitCompare, ScanFace, FileSearch, Activity, CreditCard, QrCode, ScanText, ShieldCheck, KeyRound, Globe, Type, CarFront, CalendarDays, Landmark, FileBadge, FileImage, Sparkles } from "lucide-react";
+import { Search, ArrowUpRight, Wrench, FileText, Instagram, Fingerprint, Image, Smartphone, Phone, GitCompare, ScanFace, FileSearch, Activity, CreditCard, QrCode, ScanText, ShieldCheck, KeyRound, Globe, Type, CarFront, CalendarDays, Landmark, FileBadge, FileImage, Sparkles } from "lucide-react";
 
 const tools = [
+  { name: "Instagram Profile Analyzer", description: "View public profile details, follower counts and profile picture.", href: "/tools/instagram", category: "Social", Icon: Instagram },
   { name: "General File Tools", description: "Work with PDFs and images: convert, compress, resize, merge, split and more.", href: "/tools/general/index.html", category: "Files", Icon: FileImage },
   { name: "Hash Generator", description: "Create file and text hashes using common cryptographic algorithms.", href: "/tools/hash/index.html", category: "Security", Icon: Fingerprint },
   { name: "Image Analysis", description: "Inspect image metadata and look for signs of editing.", href: "/tools/image-forensics/index.html", category: "Files", Icon: Image },
