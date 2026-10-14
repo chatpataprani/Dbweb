@@ -1201,3 +1201,29 @@ input:focus,select:focus,textarea:focus { outline:0; border-color:#818cf8; box-s
   .file-card-header,.file-card-body { padding:16px !important; }
   .hash-grid,.hash-info-grid { grid-template-columns:minmax(0,1fr) !important; }
 }
+
+
+/* Accessible high-contrast baseline for all Dbweb general-purpose tools */
+:root {
+  --text-primary:#172033;
+  --text-secondary:#586174;
+  --text-muted:#737d91;
+  --bg-primary:#f6f8ff;
+  --card-bg:#ffffff;
+  --card-border:#e1e6f2;
+  --accent-color:#4f46e5;
+  --accent-primary:#4f46e5;
+  --accent-secondary:#6366f1;
+  color-scheme:light;
+}
+body { background:#f6f8ff!important; color:#172033!important; }
+.header { background:rgba(255,255,255,.9)!important; border-color:#e1e6f2!important; }
+.header .logo-title { -webkit-text-fill-color:transparent; }
+.hero-content h1 { background:linear-gradient(135deg,#172033,#4f46e5)!important; -webkit-background-clip:text!important; background-clip:text!important; }
+.hero-content p,.tool-card p,.info-content p { color:#586174!important; }
+.tool-card,.file-card,.hash-info-card,.info-card,.upload-area,.progress-container,.modal-content,.format-controls { background:#fff!important; color:#172033!important; border-color:#e1e6f2!important; }
+.tool-card h3,.tool-title,.control-label,.format-controls h3,.format-controls h4 { color:#172033!important; }
+input:not([type=checkbox]):not([type=radio]),select,textarea { background:#fff!important; color:#172033!important; caret-color:#4f46e5; }
+input::placeholder,textarea::placeholder { color:#737d91!important; opacity:1!important; }
+input:focus,select:focus,textarea:focus { border-color:#6366f1!important; box-shadow:0 0 0 3px rgba(99,102,241,.14)!important; }
+select option { background:#fff!important; color:#172033!important; }
