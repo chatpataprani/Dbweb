@@ -154,3 +154,14 @@
 
 /* Vehicle RC option on the main lookup form */
 .seg{display:flex;flex-wrap:wrap;gap:3px;max-width:100%}.seg button{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}.seg button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}@media(max-width:430px){.seg{width:100%}.seg button{flex:1;padding:8px 7px;font-size:12px}}
+
+
+/* Vehicle RC lookup is temporarily unavailable */
+.seg .vehicleComingSoon{gap:6px;opacity:.72;cursor:not-allowed;border-style:dashed}
+.vehicleComingSoon span{font-size:10px;font-weight:700;padding:3px 6px;border-radius:5px;background:var(--s2);color:var(--mu)}
+.vehicleNotice{display:flex;align-items:flex-start;gap:12px;margin:14px 0;padding:15px;border:1px dashed var(--bd);border-radius:10px;background:var(--s1);color:var(--tx)}
+.vehicleNotice>svg{flex-shrink:0;color:var(--ac);margin-top:2px}
+.vehicleNotice strong{font-size:13px}
+.vehicleNotice p{margin-top:5px;color:var(--mu);font-size:12px;line-height:1.55}
+.vehicleNotice span{display:inline-block;margin-top:8px;font-size:10px;font-weight:750;letter-spacing:.4px;color:var(--ac);text-transform:uppercase}
+:root[data-theme="dark"] .vehicleComingSoon span{background:#303644;color:#c0c6d5}
