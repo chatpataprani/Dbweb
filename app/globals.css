@@ -112,7 +112,7 @@
 .igStats span{font-size:12px;color:var(--mu)}
 .igStats strong{font-size:20px;overflow-wrap:anywhere}
 .igPhotoLink{margin-top:16px}
-.igFootnote{margin:14px 3px 0;font-size:12px;color:var(--mu)}
+.igFootnote{display:none}
 .igLoadingCard{display:flex;align-items:center;gap:14px;margin-top:16px}
 .igLoadingCard p{color:var(--mu);font-size:12px;margin-top:3px}
 .igLoading{display:inline-block;width:15px;height:15px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:igSpin .7s linear infinite}
@@ -120,3 +120,34 @@
 @keyframes igSpin{to{transform:rotate(360deg)}}
 @media(max-width:560px){.igPage{padding-top:58px}.igSearch{flex-wrap:wrap}.igSearch input{width:calc(100% - 55px)}.igSearch .primary{width:100%}.igProfileHead{align-items:flex-start;gap:13px}.igAvatar{width:78px;height:78px}.igProfileIdentity h2{font-size:18px}.igStats{gap:7px}.igStats>div{padding:10px 8px}.igStats strong{font-size:17px}}
 @media(prefers-reduced-motion:reduce){.igLoading{animation:none}}
+
+/* Strong contrast for the Dbweb tools directory in both themes */
+.toolHub,.toolHubHero,.toolHubCard,.toolHubCardText{color:var(--tx)}
+.toolHubHero h1,.toolHubCardText strong,.toolHubEmpty strong{color:var(--tx)!important}
+.toolHubHero p,.toolHubCardText>span,.toolHubCardText small,.toolHubCount,.toolHubArrow{color:var(--mu)}
+.toolHubCardText>span{opacity:1;font-weight:450}
+.toolHubCard{background:var(--s1);color:var(--tx)!important}
+.toolHubCard:visited{color:var(--tx)!important}
+.toolHubFilters button{color:var(--tx)}
+.toolHubFilters button.active{color:var(--ac)}
+:root[data-theme="dark"] .toolHubCard{background:#191c24;border-color:#3a4050}
+:root[data-theme="dark"] .toolHubCardText strong{color:#f4f5fa!important}
+:root[data-theme="dark"] .toolHubCardText>span{color:#c0c6d5}
+:root[data-theme="dark"] .toolHubCardText small,.toolHubCount{color:#b3bbce}
+.shortPage .igHero>p{color:var(--mu)}
+.shortResultHead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.shortStatus{font-size:12px;color:var(--mu);overflow-wrap:anywhere}
+.shortDestination{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:14px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--ac);text-decoration:none;overflow-wrap:anywhere;word-break:break-word}
+.shortDestination span{min-width:0}
+.shortActions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.shortActions a{text-decoration:none}
+.shortActions .secondary{color:var(--tx)}
+.shortChainTitle{margin:22px 0 10px;font-size:14px}
+.shortChain{display:grid;gap:9px}
+.shortHop{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--bd);border-radius:9px;background:var(--bg);min-width:0}
+.shortHop>span{width:25px;height:25px;display:grid;place-items:center;flex-shrink:0;border-radius:7px;background:var(--acs);color:var(--ac);font-size:12px;font-weight:700}
+.shortHop>div{min-width:0}
+.shortHop strong{font-size:12px;color:var(--tx)}
+.shortHop p{margin-top:4px;font-size:12px;color:var(--mu);overflow-wrap:anywhere;word-break:break-word}
+:root[data-theme="dark"] .shortDestination,:root[data-theme="dark"] .shortHop{background:#141720}
+@media(max-width:560px){.shortResultHead{align-items:flex-start}.shortActions>*{flex:1}.shortDestination{font-size:12px}}
