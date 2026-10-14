@@ -763,26 +763,19 @@ A('catfish-ears','catfish','Cat ears overlay',.34,"<path d='M12 58L7 8L40 34Q50 
 A('catfish-tail','catfish','Cat tail',.28,"<path d='M16 80Q36 74 38 52Q39 31 58 30Q73 30 76 44Q80 57 68 59Q61 60 61 52' fill='none' stroke='#111' stroke-width='8' stroke-linecap='round'/><path d='M16 80Q36 74 38 52Q39 31 58 30Q73 30 76 44Q80 57 68 59Q61 60 61 52' fill='none' stroke='#555' stroke-width='2' stroke-linecap='round'/>");
 
 
-/* Online sticker pack: Twemoji artwork loaded from jsDelivr, not locally drawn SVGs. */
-const ONLINE_STICKERS=[
- ['1f496','love','Sparkling heart'],['1f49e','love','Revolving hearts'],['1f495','love','Two hearts'],
- ['1f338','flowers','Cherry blossom'],['1f339','flowers','Rose'],['1f337','flowers','Tulip'],
- ['1f98b','nature','Butterfly'],['1f984','cute','Unicorn'],['1f431','pets','Cat face'],
- ['1f436','pets','Dog face'],['1f430','pets','Rabbit'],['1f43b','pets','Bear'],
- ['1f47b','cute','Ghost'],['1f31f','celestial','Glowing star'],['2728','celestial','Sparkles'],
- ['1f319','celestial','Crescent moon'],['2600','nature','Sun'],['1f308','nature','Rainbow'],
- ['1f4ab','symbols','Dizzy sparkle'],['1f525','symbols','Fire'],['1f9f8','cute','Teddy bear'],
- ['1f353','food','Strawberry'],['1f34a','food','Orange'],['1f36d','food','Lollipop'],
- ['1f370','food','Cake'],['1f3b5','music','Music note'],['1f4bf','retro','CD disc'],
- ['1f381','symbols','Gift'],['1f48e','fashion','Gem'],['1f388','symbols','Balloon'],
- ['1f9cb','love','Pink heart'],['1f4a0','symbols','Diamond'],['1f389','seasonal','Party popper'],
- ['1f9e1','love','Orange heart'],['1f499','love','Blue heart'],['1f49c','love','Purple heart']
-];
-for(const [code,cat,name] of ONLINE_STICKERS){
+/* Stickers are imported from direct image URLs chosen by the user. No emoji artwork is bundled. */
+const ONLINE_STICKERS=[];
+function addStickerURL(raw){
+  const uri=(raw||'').trim();
+  if(!/^https?:\/\//i.test(uri)){say('Paste a direct image URL.');return;}
   const img=new Image();img.crossOrigin='anonymous';img.decoding='async';
-  const item={id:'web-'+code,cat,name,size:.22,img,uri:'https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/'+code+'.png'};
-  img.onload=()=>{if(cur==='stickers')redraw();};
-  img.src=item.uri;STK.push(item);
+  const name=uri.split('/').pop().split(/[?#]/)[0]||'Online sticker';
+  img.onload=()=>{
+    const item={id:'import-'+Date.now(),cat:'imported',name:name.replace(/[-_]/g,' ').slice(0,60),size:.22,img,uri};
+    STK.unshift(item);P.stk.cat='all';P.stk.search='';addSticker(item);say('Sticker added. Export may fail if the image host blocks canvas access.');
+  };
+  img.onerror=()=>say('Could not load it. Use a direct PNG/WebP image URL; Pinterest page links are not direct image links.');
+  img.src=uri;
 }
 function addSticker
 (s,x,y,size,rot){
@@ -1078,11 +1071,14 @@ function pStickers(p){
   const cat=P.stk.cat,tray=el('div',{class:'tray'}),q=(P.stk.search||'').trim().toLowerCase();
   const matches=STK.filter(s=>(cat==='all'||s.cat===cat)&&(!q||s.name.toLowerCase().includes(q)||s.cat.toLowerCase().includes(q)));
   matches.forEach(s=>tray.append(el('button',{type:'button',class:'btn','aria-label':'Add '+s.name,title:s.name,onclick:()=>addSticker(s)},el('img',{src:s.uri,alt:''}))));
-  const search=el('input',{type:'search',class:'txt',placeholder:'Search stickers…',value:P.stk.search,'aria-label':'Search stickers',oninput:e=>{P.stk.search=e.target.value;const pos=e.target.selectionStart;buildPanel();const n=$('#panel input[type=search]');if(n){n.focus();n.setSelectionRange(pos,pos);}}});
+  const search=el('input',{type:'search',class:'txt',placeholder:'Search imported stickers…',value:P.stk.search,'aria-label':'Search stickers',oninput:e=>{P.stk.search=e.target.value;const pos=e.target.selectionStart;buildPanel();const n=$('#panel input[type=search]');if(n){n.focus();n.setSelectionRange(pos,pos);}}});
+  const urlInput=el('input',{type:'url',class:'txt',placeholder:'Paste direct sticker image URL (PNG/WebP)','aria-label':'Sticker image URL',id:'stickerUrlInput'});
   p.append(
-    grp('Search all stickers',search),
-    grp('Sticker pack',chips([{key:'all',label:'All stickers'},...STK_CATS.map(c=>({key:c[0],label:c[1]}))],()=>P.stk.search? 'all':P.stk.cat,k=>{P.stk.cat=k;P.stk.search='';buildPanel();})),
-    grp(matches.length+' online stickers · tap to add, drag to move',tray)
+    grp('Find stickers',el('a',{class:'btn',href:'https://cutiora.com/',target:'_blank',rel:'noopener noreferrer'},'Browse Cutiora stickers')),
+    grp('Import sticker from a direct image URL',urlInput,btn('Add sticker URL',()=>addStickerURL(urlInput.value))),
+    grp('Search imported stickers',search),
+    grp('Sticker pack',chips([{key:'all',label:'All imported'},...STK_CATS.map(c=>({key:c[0],label:c[1]}))],()=>P.stk.search?'all':P.stk.cat,k=>{P.stk.cat=k;P.stk.search='';buildPanel();})),
+    grp(matches.length+' imported stickers · tap to add, drag to move',tray)
   );
   if(sel>=0){
     const s=stickers[sel];
@@ -1091,7 +1087,7 @@ function pStickers(p){
       slider('Rotation',-180,180,1,()=>s.rot,v=>{s.rot=v;redraw();},0),
       el('div',{class:'chips'},btn('Delete',()=>{stickers.splice(sel,1);sel=-1;buildPanel();redraw();}),btn('Clear all',()=>{stickers=[];sel=-1;buildPanel();redraw();}))
     );
-  }else p.append(el('p',{class:'note'},stickers.length?'Tap a sticker on the photo to select it.':'No stickers yet.'));
+  }else p.append(el('p',{class:'note'},stickers.length?'Tap a sticker on the photo to select it.':'Open Cutiora to find stickers, then paste a direct image URL above. Pinterest page links are not direct image URLs.'));
   const S0=P.stamp,swc=el('div',{class:'chips'});
   STAMP_COL.forEach((c,i)=>swc.append(el('button',{type:'button',class:'btn sw','aria-label':'Stamp color '+(i+1),style:'background:'+c,'aria-pressed':String(S0.col===i),onclick:()=>{S0.col=i;[...swc.children].forEach((x,j)=>x.setAttribute('aria-pressed',String(j===i)));redraw();}})));
   p.append(sec('Date stamp',
