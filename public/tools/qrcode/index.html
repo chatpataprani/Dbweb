@@ -1122,34 +1122,117 @@
         }
 
         // Upload Functions
+        // Robust image decoding: retry at multiple scales, contrast levels,
+        // grayscale/inverted versions and rotations before reporting failure.
+        function decodeQrFromImage(img) {
+            const maxSide = 1800;
+            const baseScale = Math.min(1, maxSide / Math.max(img.naturalWidth || img.width, img.naturalHeight || img.height));
+            const baseW = Math.max(1, Math.round((img.naturalWidth || img.width) * baseScale));
+            const baseH = Math.max(1, Math.round((img.naturalHeight || img.height) * baseScale));
+            const source = document.createElement('canvas');
+            source.width = baseW;
+            source.height = baseH;
+            const sourceCtx = source.getContext('2d', { willReadFrequently: true });
+            sourceCtx.imageSmoothingEnabled = true;
+            sourceCtx.imageSmoothingQuality = 'high';
+            sourceCtx.drawImage(img, 0, 0, baseW, baseH);
+
+            const variants = [];
+            variants.push(source);
+            // Upscaling helps tiny QR codes that occupy only a small part of an image.
+            if (Math.max(baseW, baseH) < 1400) {
+                const enlarged = document.createElement('canvas');
+                const scale = Math.min(2.5, 1400 / Math.max(baseW, baseH));
+                enlarged.width = Math.round(baseW * scale);
+                enlarged.height = Math.round(baseH * scale);
+                const ec = enlarged.getContext('2d', { willReadFrequently: true });
+                ec.imageSmoothingEnabled = false;
+                ec.drawImage(source, 0, 0, enlarged.width, enlarged.height);
+                variants.push(enlarged);
+            }
+
+            // Generate contrast-enhanced grayscale and hard-threshold variants.
+            const originalVariants = variants.slice();
+            for (const canvas of originalVariants) {
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const gray = new Uint8ClampedArray(frame.data);
+                const threshold = new Uint8ClampedArray(frame.data);
+                for (let i = 0; i < frame.data.length; i += 4) {
+                    const lum = Math.round(0.299 * frame.data[i] + 0.587 * frame.data[i + 1] + 0.114 * frame.data[i + 2]);
+                    const contrast = Math.max(0, Math.min(255, (lum - 128) * 1.45 + 128));
+                    gray[i] = gray[i + 1] = gray[i + 2] = contrast;
+                    threshold[i] = threshold[i + 1] = threshold[i + 2] = contrast < 150 ? 0 : 255;
+                }
+                const grayCanvas = document.createElement('canvas');
+                grayCanvas.width = canvas.width; grayCanvas.height = canvas.height;
+                grayCanvas.getContext('2d').putImageData(new ImageData(gray, canvas.width, canvas.height), 0, 0);
+                variants.push(grayCanvas);
+                const thresholdCanvas = document.createElement('canvas');
+                thresholdCanvas.width = canvas.width; thresholdCanvas.height = canvas.height;
+                thresholdCanvas.getContext('2d').putImageData(new ImageData(threshold, canvas.width, canvas.height), 0, 0);
+                variants.push(thresholdCanvas);
+            }
+
+            // Try all four orientations; jsQR also checks inverted QR codes.
+            const attempts = [];
+            for (const canvas of variants) {
+                for (const angle of [0, 90, 180, 270]) {
+                    let candidate = canvas;
+                    if (angle !== 0) {
+                        candidate = document.createElement('canvas');
+                        candidate.width = angle % 180 ? canvas.height : canvas.width;
+                        candidate.height = angle % 180 ? canvas.width : canvas.height;
+                        const c = candidate.getContext('2d', { willReadFrequently: true });
+                        c.translate(candidate.width / 2, candidate.height / 2);
+                        c.rotate(angle * Math.PI / 180);
+                        c.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+                    }
+                    attempts.push(candidate);
+                }
+            }
+
+            for (const canvas of attempts) {
+                try {
+                    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(pixels.data, pixels.width, pixels.height, { inversionAttempts: 'attemptBoth' });
+                    if (code && code.data) return code;
+                } catch (err) {
+                    // Continue with the next image variant.
+                }
+            }
+            return null;
+        }
+
         function readQRFromImage(event) {
-            const file = event.target.files[0];
+            const file = event.target.files && event.target.files[0];
             if (!file) return;
-            
+            if (!file.type.startsWith('image/')) {
+                showToast('Please choose an image file.', true);
+                event.target.value = '';
+                return;
+            }
+
             const reader = new FileReader();
+            reader.onerror = function() {
+                showToast('Could not read this image file. Try another image.', true);
+            };
             reader.onload = function(e) {
                 const img = new Image();
+                img.onerror = function() {
+                    showToast('This image format could not be opened. Try PNG, JPG or WebP.', true);
+                };
                 img.onload = function() {
-                    // Show preview
                     document.getElementById('uploadedImage').src = e.target.result;
                     document.getElementById('uploadPreview').style.display = 'block';
-                    
-                    // Decode QR
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
-                    
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const code = jsQR(imageData.data, imageData.width, imageData.height);
-                    
+                    const code = decodeQrFromImage(img);
                     if (code) {
                         uploadedData = code.data;
                         displayUploadResult(code.data);
                     } else {
-                        showToast('No QR code found in the image', true);
                         document.getElementById('uploadResult').style.display = 'none';
+                        showToast('Could not detect a QR code after trying enhanced contrast, scaling, inversion and rotation. Make sure the full QR is visible and not heavily blurred.', true);
                     }
                 };
                 img.src = e.target.result;
