@@ -171,7 +171,8 @@ input[type=range]::-moz-range-thumb{width:20px;height:26px;background:var(--face
     <div class="titlebar"><span class="t">Save Image</span></div>
     <div class="inner">
       <img id="saveImg" alt="Finished photo">
-      <p class="note">Press and hold the picture, then choose Save image (or Download image).</p>
+      <p class="note">Your edited image is ready to save.</p>
+      <a class="btn" id="bDownload" href="#" download="dbweb-lab-photo.png">Download PNG</a>
       <button class="btn" type="button" id="bClose">Close</button>
     </div>
   </div>
@@ -681,110 +682,11 @@ const ln=(d,w)=>"<path d='"+d+"' fill='none' stroke='#1b1b1b' stroke-opacity='.5
 let sunRays='';for(let i=0;i<12;i++){const a=i*Math.PI/6,x1=50+Math.cos(a)*24,y1=50+Math.sin(a)*24,x2=50+Math.cos(a)*42,y2=50+Math.sin(a)*42;sunRays+=ln('M'+x1.toFixed(1)+' '+y1.toFixed(1)+'L'+x2.toFixed(1)+' '+y2.toFixed(1),4);}
 const S=(id,cat,name,size,body)=>({id,cat,name,size,body});
 const STK_CATS=[['chrome','Chrome'],['holo','Holo'],['glitter','Glitter'],['foil','Foil'],['doodle','Doodle'],['paper','Paper'],['basic','Basic'],['food','Food'],['love','Love'],['y2k','Y2K'],['alphabet','Alphabet'],['cute','Cute'],['study','Study'],['pets','Pets'],['nature','Nature'],['fashion','Fashion'],['music','Music'],['travel','Travel'],['symbols','Symbols'],['kaomoji','Kaomoji'],['celestial','Celestial'],['retro','Retro'],['borders','Frames'],['drinks','Drinks'],['flowers','Flowers'],['sports','Sports'],['gaming','Gaming'],['seasonal','Seasonal']];
-const STK=[
-  /* chrome */
-  S('c-heart','chrome','Chrome heart',.2,grad('pink')+wrap(path('pink',HEART)+shine(33,33,12,5,-35)+shine(66,30,4,2,-35,.6)+"<path d='M40 82Q42 96 40 99Q35 96 38 82Z' fill='url(#g)' stroke='"+OUT.pink+"' stroke-width='2'/>")),
-  S('c-star','chrome','Pink star',.2,grad('pink')+wrap(poly('pink',star5(50,54,44,21))+"<polygon points='"+star5(50,54,30,14)+"' fill='#fff' opacity='.28'/>"+shine(40,36,9,4,-40))),
-  S('c-star-silver','chrome','Silver star',.2,grad('silver')+wrap(poly('silver',star5(50,54,44,21))+"<polygon points='"+star5(50,54,30,14)+"' fill='#fff' opacity='.3'/>"+shine(40,36,9,4,-40))),
-  S('c-sparkle','chrome','Silver sparkle',.2,grad('silver')+wrap(path('silver',SPARK)+shine(40,40,9,3.5,-45))),
-  S('c-cherry','chrome','Cherries',.22,grad('silver')+"<defs><radialGradient id='s' cx='.35' cy='.3' r='.8'><stop offset='0' stop-color='#fff'/><stop offset='.25' stop-color='#ff9fc2'/><stop offset='.6' stop-color='#c2185b'/><stop offset='1' stop-color='#4a0a28'/></radialGradient></defs>"+wrap("<path d='M36 62Q46 32 62 12M70 66Q66 38 62 12' fill='none' stroke='"+OUT.silver+"' stroke-width='7' stroke-linecap='round'/><path d='M36 62Q46 32 62 12M70 66Q66 38 62 12' fill='none' stroke='url(#g)' stroke-width='3.5' stroke-linecap='round'/>"+path('silver','M62 12Q84 2 92 20Q70 26 62 12Z')+"<circle cx='34' cy='76' r='17' fill='url(#s)' stroke='#4a0a28' stroke-width='3'/><circle cx='70' cy='78' r='17' fill='url(#s)' stroke='#4a0a28' stroke-width='3'/>"+shine(28,69,5,3,-40,.9)+shine(64,71,5,3,-40,.9))),
-  S('c-butterfly','chrome','Pink butterfly',.22,butterfly('pink')),
-  S('c-spiral','chrome','Spiral',.2,spiral('pink')),
-  S('c-blob','chrome','Silver blob',.2,grad('silver')+wrap(path('silver',BLOB)+shine(38,30,9,4,-35))),
-  /* holo */
-  S('h-heart','holo','Holo heart',.2,grad('holo')+wrap(path('holo',HEART)+shine(33,33,12,5,-35)+shine(66,30,4,2,-35,.6))),
-  S('h-star','holo','Holo star',.2,grad('holo')+wrap(poly('holo',star5(50,54,44,21))+"<polygon points='"+star5(50,54,30,14)+"' fill='#fff' opacity='.3'/>"+shine(40,36,9,4,-40))),
-  S('h-butterfly','holo','Holo butterfly',.22,butterfly('holo')),
-  S('h-planet','holo','Holo planet',.22,grad('holo')+wrap("<ellipse cx='50' cy='52' rx='46' ry='13' transform='rotate(-22 50 52)' fill='none' stroke='"+OUT.holo+"' stroke-width='12'/><ellipse cx='50' cy='52' rx='46' ry='13' transform='rotate(-22 50 52)' fill='none' stroke='url(#g)' stroke-width='7'/><circle cx='50' cy='52' r='25' fill='"+OUT.holo+"'/><circle cx='50' cy='52' r='22' fill='url(#g)'/>"+shine(41,43,8,4,-40)+"<path d='M10 66Q50 78 90 38' fill='none' stroke='url(#g)' stroke-width='6' stroke-linecap='round'/>")),
-  S('h-moon','holo','Holo moon',.2,grad('holo')+wrap(path('holo','M64 8C34 10 14 34 18 62C22 86 48 98 74 88C46 84 34 62 40 40C44 24 52 14 64 8Z')+shine(34,46,5,12,-10,.6))),
-  S('h-gem','holo','Holo gem',.2,grad('holo')+wrap(path('holo','M20 36L36 14H64L80 36L50 88Z')+"<path d='M20 36H80M36 14L50 36L64 14M50 36L50 88M36 14L20 36L50 88M64 14L80 36L50 88' fill='none' stroke='#fff' stroke-opacity='.65' stroke-width='1.8' stroke-linejoin='round'/>")),
-  S('h-disco','holo','Disco ball',.2,grad('silver')+wrap("<circle cx='50' cy='54' r='38' fill='"+OUT.silver+"'/><circle cx='50' cy='54' r='35' fill='url(#g)'/><g fill='none' stroke='#fff' stroke-opacity='.55' stroke-width='1.6'><ellipse cx='50' cy='54' rx='14' ry='35'/><ellipse cx='50' cy='54' rx='27' ry='35'/><path d='M15 54H85M22 38H78M22 70H78M32 24H68M32 84H68'/></g><path d='M50 16V4' stroke='"+OUT.silver+"' stroke-width='4'/>"+shine(36,38,8,4,-40,.85))),
-  /* glitter */
-  S('g-star','glitter','Glitter star',.2,glitter("<polygon points='"+star5(50,54,44,22)+"'/>",3,260)),
-  S('g-moon','glitter','Glitter moon',.2,glitter("<path d='M64 8C34 10 14 34 18 62C22 86 48 98 74 88C46 84 34 62 40 40C44 24 52 14 64 8Z'/>",5,240)),
-  S('g-flower','glitter','Glitter flower',.2,glitter([0,1,2,3,4,5].map(i=>"<path d='M50 50C38 30 42 8 50 6C58 8 62 30 50 50Z' transform='rotate("+(i*60)+" 50 50)'/>").join(''),8,320)),
-  S('g-heart','glitter','Glitter heart',.2,glitter("<path d='"+HEART+"'/>",11,260)),
-  /* foil */
-  S('f-star','foil','Gold star',.2,grad('gold')+wrap(poly('gold',star5(50,54,44,21))+"<polygon points='"+star5(50,54,30,14)+"' fill='#fff' opacity='.22'/>"+shine(40,36,8,3.5,-40,.85)+"<path d='M52 30L58 52L74 60M44 66L36 52' fill='none' stroke='#fff' stroke-opacity='.4' stroke-width='1.5'/>")),
-  S('f-sparkle','foil','Gold sparkle',.2,grad('gold')+wrap(path('gold',SPARK)+shine(40,40,9,3.5,-45,.85))),
-  S('f-heart','foil','Gold heart',.2,grad('gold')+wrap(path('gold',HEART)+shine(33,33,12,5,-35,.85))),
-  S('f-silver','foil','Foil star',.2,grad('glit')+wrap(poly('glit',star5(50,54,44,21))+shine(40,36,8,3.5,-40,.9))),
-  /* doodle */
-  S('d-sparkle','doodle','Doodle sparkle',.2,"<path d='M50 4C53 36 62 46 96 51C63 55 54 64 49 96C46 63 37 55 5 49C38 46 47 36 50 4Z' "+DW+"/>"),
-  S('d-north','doodle','North star',.3,"<polygon points='50,2 55,40 80,22 60,45 94,50 60,55 78,80 55,60 50,98 45,60 22,80 40,55 6,50 40,45 20,22 45,40' "+DW+"/>"),
-  S('d-shoot','doodle','Shooting star',.24,"<circle cx='72' cy='28' r='14' "+DW+"/>"+ln('M62 38L12 88',6)+ln('M52 24L10 52',4)+ln('M76 48L48 86',4)),
-  S('d-moon','doodle','Doodle moon',.2,"<path d='M62 8C32 12 14 36 18 62C22 86 48 98 76 88C48 84 36 62 42 40C46 24 52 14 62 8Z' "+DW+"/><circle cx='34' cy='64' r='4' fill='none' stroke='#1b1b1b' stroke-opacity='.45' stroke-width='2'/><circle cx='44' cy='82' r='3' fill='none' stroke='#1b1b1b' stroke-opacity='.45' stroke-width='2'/>"),
-  S('d-planet','doodle','Doodle planet',.22,"<circle cx='50' cy='50' r='24' "+DW+"/>"+ln('M6 64Q50 82 94 36',5)+"<ellipse cx='50' cy='50' rx='46' ry='13' transform='rotate(-22 50 50)' fill='none' stroke='#1b1b1b' stroke-opacity='.5' stroke-width='9'/><ellipse cx='50' cy='50' rx='46' ry='13' transform='rotate(-22 50 50)' fill='none' stroke='#fff' stroke-width='5'/>"),
-  S('d-sun','doodle','Doodle sun',.22,sunRays+"<circle cx='50' cy='50' r='17' "+DW+"/>"),
-  S('d-cloud','doodle','Doodle cloud',.26,"<path d='M26 76C8 76 6 52 26 50C26 30 54 24 62 42C78 34 96 50 86 66C98 74 92 80 76 78Z' "+DW+"/>"),
-  S('d-dots','doodle','Star dots',.24,"<path d='M24 10C25 24 30 28 44 30C30 32 26 36 24 50C22 36 18 32 4 30C18 28 22 24 24 10Z' "+DW+"/><path d='M74 40C75 58 82 64 98 66C82 68 76 74 74 92C72 74 66 68 50 66C66 64 72 58 74 40Z' "+DW+"/><circle cx='20' cy='78' r='5' "+DW+"/><circle cx='52' cy='22' r='3.5' "+DW+"/><circle cx='88' cy='14' r='4' "+DW+"/>"),
-  /* paper */
-  S('p-ticket','paper','Ticket',.3,"<path d='M6 24H94V42A8 8 0 0 0 94 58V76H6V58A8 8 0 0 0 6 42Z' fill='#f1e3b8' stroke='#6b4e1d' stroke-width='2'/><path d='M70 24V76' stroke='#6b4e1d' stroke-width='1.5' stroke-dasharray='3 3'/><text x='12' y='47' font-family='Courier New,monospace' font-size='13' font-weight='700' fill='#6b1d1d'>ADMIT</text><text x='12' y='62' font-family='Courier New,monospace' font-size='13' font-weight='700' fill='#6b1d1d'>ONE</text><text x='74' y='54' font-family='Courier New,monospace' font-size='10' fill='#6b1d1d'>0214</text>"),
-  S('p-stamp','paper','Postage stamp',.22,"<rect x='12' y='12' width='76' height='76' fill='#f6f2e6' stroke='#f6f2e6' stroke-width='6' stroke-dasharray='0 6.5' stroke-linecap='round'/><rect x='20' y='20' width='60' height='60' fill='#e9825a'/><circle cx='50' cy='46' r='14' fill='#ffe29a'/><rect x='20' y='60' width='60' height='20' fill='#6c3a5a'/><text x='24' y='76' font-family='Georgia,serif' font-size='11' fill='#f6f2e6'>50c</text>"),
-  S('p-tape','paper','Washi tape',.3,"<path d='M8 34L94 26L90 36L95 44L90 52L95 60L92 70L6 76L11 66L5 58L11 50L5 42L10 36Z' fill='#ffd05a' fill-opacity='.82' stroke='#000' stroke-opacity='.15'/><path d='M20 31L16 74M36 29L32 73M52 28L48 72M68 27L64 71M84 26L80 70' stroke='#fff' stroke-opacity='.4' stroke-width='3'/>"),
-  S('p-polaroid','paper','Polaroid frame',.4,"<path d='M14 8H86V92H14Z M22 16H78V70H22Z' fill-rule='evenodd' fill='#fafafa' stroke='#b4b4b4' stroke-width='1.5'/><rect x='22' y='16' width='56' height='54' fill='none' stroke='#cfcfcf' stroke-width='1'/>"),
-  S('p-film','paper','Film strip',.5,"<path d='M4 18H96V82H4Z M12 32H32V68H12Z M40 32H60V68H40Z M68 32H88V68H68Z' fill-rule='evenodd' fill='#1a1a1e'/><g fill='#d8d8e0'><rect x='8' y='21' width='5' height='5'/><rect x='22' y='21' width='5' height='5'/><rect x='36' y='21' width='5' height='5'/><rect x='50' y='21' width='5' height='5'/><rect x='64' y='21' width='5' height='5'/><rect x='78' y='21' width='5' height='5'/><rect x='8' y='74' width='5' height='5'/><rect x='22' y='74' width='5' height='5'/><rect x='36' y='74' width='5' height='5'/><rect x='50' y='74' width='5' height='5'/><rect x='64' y='74' width='5' height='5'/><rect x='78' y='74' width='5' height='5'/></g>"),
-  S('p-note','paper','Torn note',.3,"<path d='M8 14L30 10L52 14L74 9L94 14L90 40L94 64L88 90L62 86L40 91L16 86L10 62L14 38Z' fill='#f3ead2' stroke='#8a7a52' stroke-width='1.5'/><path d='M20 34H80M20 50H80M20 66H60' stroke='#c2b48a' stroke-width='1.5'/><text x='20' y='30' font-family='Courier New,monospace' font-size='13' font-style='italic' font-weight='700' fill='#4a3a1a'>Memory</text>"),
-  /* basic */
-  S('b-sparkle','basic','Sparkle',.18,"<path d='M50 4C54 34 66 46 96 50C66 54 54 66 50 96C46 66 34 54 4 50C34 46 46 34 50 4Z' fill='#fff7c2' stroke='#f2b705' stroke-width='3'/>"),
-  S('b-star','basic','Star',.17,"<polygon points='50,2 59,30 85,15 70,41 98,50 70,59 85,85 59,70 50,98 41,70 15,85 30,59 2,50 30,41 15,15 41,30' fill='#ff6fd8' stroke='#ffffff' stroke-width='3'/>"),
-  S('b-heart','basic','Heart',.16,"<path d='M50 88C10 58 6 30 26 18C40 10 50 22 50 30C50 22 60 10 74 18C94 30 90 58 50 88Z' fill='#ff4f87' stroke='#ffffff' stroke-width='4'/><path d='M26 30C30 24 38 24 42 30' stroke='#ffd0e0' stroke-width='4' fill='none' stroke-linecap='round'/>"),
-  S('b-flower','basic','Flower',.18,"<g fill='#ffffff' stroke='#ff9ccf' stroke-width='3'><circle cx='50' cy='26' r='19'/><circle cx='73' cy='43' r='19'/><circle cx='64' cy='70' r='19'/><circle cx='36' cy='70' r='19'/><circle cx='27' cy='43' r='19'/></g><circle cx='50' cy='50' r='13' fill='#ffd23f' stroke='#e0a800' stroke-width='3'/>"),
-  S('b-camera','basic','Camera',.22,"<rect x='30' y='16' width='26' height='14' rx='4' fill='#222' stroke='#fff' stroke-width='3'/><rect x='8' y='28' width='84' height='56' rx='10' fill='#222' stroke='#fff' stroke-width='3'/><circle cx='50' cy='56' r='20' fill='#445' stroke='#fff' stroke-width='3'/><circle cx='50' cy='56' r='11' fill='#8fa4d8'/><rect x='72' y='34' width='14' height='8' fill='#ffd23f'/>"),
-  S('b-rec','basic','Recording',.3,"<rect x='4' y='30' width='92' height='40' rx='8' fill='rgba(0,0,0,0.6)'/><circle cx='26' cy='50' r='9' fill='#ff2d2d'/><text x='42' y='60' font-family='Arial Black,Arial,sans-serif' font-size='28' font-weight='900' fill='#ffffff'>REC</text>"),
-  S('b-view','basic','Viewfinder',.9,"<path d='M6 28V6H28M72 6H94V28M94 72V94H72M28 94H6V72' stroke='#ffffff' stroke-width='4' fill='none' stroke-linecap='square'/><path d='M44 50H56M50 44V56' stroke='#ffffff' stroke-width='3'/>"),
-  S('b-play','basic','Play',.16,"<polygon points='20,20 20,80 78,50' fill='#ffffff' stroke='#000' stroke-width='5' stroke-linejoin='round'/>") ,
-  ...[
-    S('food-strawberry','food','Strawberry',.22,"<path d='M50 28C24 12 8 35 20 57L42 88Q50 96 58 88L80 57C92 35 76 12 50 28Z' fill='#ff426a' stroke='#fff' stroke-width='4'/><path d='M50 29Q42 12 26 16Q40 2 50 18Q60 2 74 16Q58 12 50 29Z' fill='#56b86b' stroke='#fff' stroke-width='3'/><g fill='#ffe98c'><ellipse cx='35' cy='43' rx='2' ry='4'/><ellipse cx='58' cy='42' rx='2' ry='4'/><ellipse cx='45' cy='61' rx='2' ry='4'/><ellipse cx='65' cy='62' rx='2' ry='4'/><ellipse cx='35' cy='69' rx='2' ry='4'/></g>"),
-    S('food-coffee','food','Coffee cup',.25,"<path d='M22 28H72L67 82H28Z' fill='#fff0d9' stroke='#7d4d3b' stroke-width='4'/><path d='M72 40H82Q95 43 84 60H70' fill='none' stroke='#7d4d3b' stroke-width='5'/><path d='M28 39H70' stroke='#d99b73' stroke-width='4'/><path d='M42 20Q34 10 42 4M56 20Q48 10 56 4' fill='none' stroke='#b9a3ff' stroke-width='4' stroke-linecap='round'/>"),
-    S('food-pizza','food','Pizza slice',.25,"<path d='M50 8L90 88L10 88Z' fill='#ffd36b' stroke='#b46a3b' stroke-width='5' stroke-linejoin='round'/><path d='M18 78Q50 65 82 78' fill='none' stroke='#e55d53' stroke-width='10'/><g fill='#e94b56' stroke='#fff0cc' stroke-width='2'><circle cx='42' cy='48' r='7'/><circle cx='62' cy='67' r='7'/><circle cx='57' cy='35' r='7'/></g>"),
-    S('love-heart','love','Love heart',.22,"<path d='M50 88C8 60 4 28 26 16C40 9 50 20 50 28C50 20 60 9 74 16C96 28 92 60 50 88Z' fill='#ff5b9a' stroke='#fff' stroke-width='5'/><path d='M29 28Q38 21 44 30' fill='none' stroke='#ffd8e7' stroke-width='5' stroke-linecap='round'/>"),
-    S('love-bow','love','Ribbon bow',.24,"<path d='M48 48Q10 8 10 35Q10 58 48 52Q10 88 27 92Q48 92 52 53Q90 92 92 67Q95 45 53 48Q91 10 72 9Q52 8 48 48Z' fill='#ff9fcf' stroke='#fff' stroke-width='4'/><circle cx='50' cy='50' r='10' fill='#ffdce9' stroke='#fff' stroke-width='3'/>"),
-    S('love-sparkle','love','Love sparkle',.2,"<path d='M50 2L59 39L98 50L59 61L50 98L41 61L2 50L41 39Z' fill='#fff1a8' stroke='#ff8bbd' stroke-width='4'/><circle cx='76' cy='23' r='6' fill='#ff8bbd'/><circle cx='24' cy='76' r='5' fill='#ff8bbd'/>"),
-    S('y2k-disc','y2k','Retro disc',.25,"<circle cx='50' cy='50' r='40' fill='#c9f5ff' stroke='#26213c' stroke-width='5'/><circle cx='50' cy='50' r='29' fill='none' stroke='#f38cd4' stroke-width='5'/><circle cx='50' cy='50' r='18' fill='none' stroke='#fff' stroke-width='4'/><circle cx='50' cy='50' r='6' fill='#26213c'/><path d='M18 36L81 65M27 19L73 81' stroke='#fff' stroke-opacity='.8' stroke-width='4'/>"),
-    S('y2k-flower','y2k','Y2K flower',.24,"<g fill='#ff7fd1' stroke='#fff' stroke-width='3'><ellipse cx='50' cy='24' rx='16' ry='22'/><ellipse cx='50' cy='76' rx='16' ry='22'/><ellipse cx='24' cy='50' rx='22' ry='16'/><ellipse cx='76' cy='50' rx='22' ry='16'/></g><circle cx='50' cy='50' r='17' fill='#fff17c' stroke='#fff' stroke-width='4'/>"),
-    S('cute-cloud','cute','Cute cloud',.26,"<path d='M22 72C3 72 5 44 25 44C27 20 54 16 64 36C86 25 101 51 84 64C96 78 82 84 67 80Z' fill='#fff' stroke='#a5dfff' stroke-width='5'/><circle cx='42' cy='58' r='3' fill='#333'/><circle cx='63' cy='58' r='3' fill='#333'/><path d='M46 66Q52 73 59 66' fill='none' stroke='#ff8cb8' stroke-width='3' stroke-linecap='round'/>"),
-    S('cute-cat','cute','Cat face',.24,"<path d='M17 38L15 10L39 25Q50 20 61 25L85 10L83 38Q98 68 73 83Q50 96 27 83Q2 68 17 38Z' fill='#fff1f8' stroke='#8f709d' stroke-width='4'/><ellipse cx='36' cy='54' rx='4' ry='7' fill='#403448'/><ellipse cx='64' cy='54' rx='4' ry='7' fill='#403448'/><path d='M46 64L54 64L50 69Z' fill='#ff83ad'/><path d='M50 69Q44 77 39 71M50 69Q56 77 61 71' fill='none' stroke='#8f709d' stroke-width='2.5'/>"),
-    S('cute-bunny','cute','Bunny',.25,"<ellipse cx='35' cy='28' rx='13' ry='26' transform='rotate(-12 35 28)' fill='#fff' stroke='#d9b4d8' stroke-width='4'/><ellipse cx='65' cy='28' rx='13' ry='26' transform='rotate(12 65 28)' fill='#fff' stroke='#d9b4d8' stroke-width='4'/><circle cx='50' cy='59' r='32' fill='#fff' stroke='#d9b4d8' stroke-width='4'/><circle cx='39' cy='56' r='3' fill='#493c50'/><circle cx='61' cy='56' r='3' fill='#493c50'/><ellipse cx='50' cy='64' rx='5' ry='4' fill='#ff9ebd'/>"),
-    S('study-book','study','Book stack',.27,"<path d='M15 24Q34 12 50 26Q66 12 85 24V78Q66 66 50 80Q34 66 15 78Z' fill='#fff4d0' stroke='#7962a6' stroke-width='4'/><path d='M50 26V80M24 37Q37 32 43 39M58 39Q69 32 78 37M24 50Q37 45 43 52M58 52Q69 45 78 50' fill='none' stroke='#d7a9d2' stroke-width='3'/>"),
-    S('study-pencil','study','Pencil',.24,"<g transform='rotate(35 50 50)'><rect x='35' y='12' width='30' height='67' rx='4' fill='#ffe16d' stroke='#5b4a55' stroke-width='4'/><path d='M35 25H65M35 69H65' stroke='#f39baf' stroke-width='5'/><path d='M35 79L50 98L65 79Z' fill='#e8c4a3' stroke='#5b4a55' stroke-width='3'/></g>"),
-    S('study-star','study','Study star',.2,"<path d='M50 5L61 37L95 38L68 58L78 91L50 72L22 91L32 58L5 38L39 37Z' fill='#ffe37d' stroke='#fff' stroke-width='5'/><path d='M50 20L56 43L78 43L60 56L66 77L50 64L34 77L40 56L22 43L44 43Z' fill='#ffbdde'/>"),
-    S('cute-sun','cute','Happy sun',.22,"<g stroke='#ffb34c' stroke-width='5' stroke-linecap='round'><path d='M50 4V16M50 84V96M4 50H16M84 50H96M17 17L25 25M75 75L83 83M17 83L25 75M75 25L83 17'/></g><circle cx='50' cy='50' r='29' fill='#ffe16c' stroke='#ffb34c' stroke-width='4'/><circle cx='40' cy='46' r='3' fill='#543e4e'/><circle cx='60' cy='46' r='3' fill='#543e4e'/><path d='M40 58Q50 68 60 58' fill='none' stroke='#543e4e' stroke-width='3' stroke-linecap='round'/>"),
-    S('food-ramen','food','Ramen bowl',.26,"<path d='M14 48H86Q82 85 50 87Q18 85 14 48Z' fill='#ff9eb8' stroke='#fff' stroke-width='4'/><path d='M20 49Q28 35 36 49Q44 35 52 49Q60 35 68 49Q76 35 84 49' fill='none' stroke='#ffe5a2' stroke-width='5'/><path d='M32 30Q24 18 36 10M50 30Q42 18 54 10M66 30Q58 18 70 10' fill='none' stroke='#8a6bb2' stroke-width='4' stroke-linecap='round'/>"),
-    S('love-envelope','love','Love letter',.25,"<rect x='10' y='24' width='80' height='56' rx='5' fill='#fff4f8' stroke='#e88cb8' stroke-width='4'/><path d='M12 29L50 58L88 29' fill='none' stroke='#e88cb8' stroke-width='4'/><path d='M50 80C30 65 28 52 39 49C46 47 50 54 50 56C50 54 56 47 63 49C74 52 70 65 50 80Z' fill='#ff5f9c'/>"),
-    S('y2k-camera','y2k','Digicam',.27,"<rect x='8' y='28' width='84' height='58' rx='10' fill='#b9eaff' stroke='#463a62' stroke-width='5'/><rect x='25' y='18' width='26' height='13' rx='3' fill='#b9eaff' stroke='#463a62' stroke-width='4'/><circle cx='54' cy='56' r='21' fill='#f9a7dc' stroke='#463a62' stroke-width='4'/><circle cx='54' cy='56' r='11' fill='#7ee2f3' stroke='#fff' stroke-width='3'/><circle cx='77' cy='40' r='4' fill='#ffea82'/>"),
-    S('cute-bubble','cute','Bubble',.2,"<circle cx='50' cy='46' r='37' fill='#c8f6ff' stroke='#fff' stroke-width='5'/><path d='M28 68L18 89L45 79' fill='#c8f6ff' stroke='#fff' stroke-width='5' stroke-linejoin='round'/><ellipse cx='37' cy='34' rx='9' ry='5' fill='#fff' opacity='.9'/>")
-  ],
-  ...Array.from({length:26},(_,i)=>{const ch=String.fromCharCode(65+i);return S('letter-'+ch.toLowerCase(),'alphabet','Letter '+ch,.18,"<circle cx='50' cy='50' r='44' fill='#"+['ff8fc7','b9a3ff','8fe4f2','ffd76e'][i%4]+"' stroke='#fff' stroke-width='5'/><text x='50' y='67' text-anchor='middle' font-family='Arial,sans-serif' font-size='50' font-weight='900' fill='#fff' stroke='#5e466d' stroke-width='2' paint-order='stroke'>"+ch+"</text>");})
-].map(s=>{s.uri=svg(s.body);s.img=new Image();s.img.onload=()=>redraw();s.img.src=s.uri;return s;});
-
-/* Large original sticker library: reusable emoji/text SVG stickers, generated locally. */
-const EXTRA_STICKERS={
- pets:['🐱','🐈','🐈‍⬛','🐶','🐕','🐰','🐹','🐼','🐻','🐻‍❄️','🦊','🐸','🐥','🐣','🦋','🐢','🐬','🐳','🦄','🐾','🐮','🐷','🐵','🦖'],
- nature:['🌈','🌷','🌻','🌼','🌹','🪷','🍀','🌿','🌱','🌵','🍄','🌴','🌊','☁️','🌧️','❄️','🌸','🪻','🌺','🪴','🌾','🍁'],
- fashion:['🎀','👑','💍','💎','👛','👜','👒','🕶️','👓','👠','👟','🧢','🧸','🪞','🪭','🪡','💅','👗','🧥','🧦'],
- music:['🎧','🎵','🎶','🎤','🎹','🎸','🥁','🎻','💿','📀','📼','🎼','🎷','🎺','🪩','🎚️','🎛️','🔊','🎙️'],
- travel:['✈️','🛫','🚀','🚗','🚲','🚃','🚇','🗺️','🧳','🏝️','🏖️','🗼','🗽','🏰','⛺','🌍','📍','🛵','🚦','🎡'],
- symbols:['♡','♥','❥','ღ','✧','✦','✩','★','☆','✿','❀','❁','☾','☼','༄','୨୧','∞','꩜','𖹭','⟡','⭒','⋆','⊹','༺','༻','⸜','⸝','〰','✓','!','?','＋','♡⃝'],
- kaomoji:['૮₍ ˶ᵔ ᵕ ᵔ˶ ₎ა','(˶˃ ᵕ ˂˶)','(｡•́‿•̀｡)','(╥﹏╥)','(づ｡◕‿‿◕｡)づ','(๑˃ᴗ˂)ﻭ','(¬_¬”)','(ᵔ◡ᵔ)','(≧▽≦)','(｡♥‿♥｡)','(ಥ﹏ಥ)','ʕ•ᴥ•ʔ','(づ￣ ³￣)づ','(✿◠‿◠)','(ง •̀_•́)ง','(¬‿¬)','(•̀ᴗ•́)و','( ˘ ³˘)♥'],
- celestial:['☀️','🌙','🌛','🌜','⭐','🌟','💫','✨','☄️','🪐','🌌','🌠','🌞','🌚','🌝','🌕','🌑','🔮','🪽','🪄'],
- retro:['📟','📺','📻','☎️','🕹️','🎮','🪫','💾','💽','🖱️','⌨️','📸','📷','🧿','🪬','🪩','🛼','📺','🗯️','💬'],
- borders:['✧･ﾟ: *✧･ﾟ:*','୨୧','♡ ♡ ♡','✦ ───── ✦','⋆｡°✩','╰┈➤','꒰ঌ ໒꒱','୨୧ ─ ୨୧','♡₊˚','✧˖°','⋆ ˚｡⋆୨୧˚','┊͙ ˘͈ᵕ˘͈','━━━━♡━━━━','༺♡༻','*ੈ✩‧₊˚'],
- drinks:['🧋','☕','🍵','🥤','🧃','🍹','🍓🥛','🧋','🍶','🥛','🍸','🧉','🍋‍🟩','🧊','🍵'],
- flowers:['🌸','🌺','🌻','🌹','🌷','💐','🪷','🌼','🏵️','🌱','🌿','🍃','🌾','🪻','🌸🌸'],
- sports:['⚽','🏀','🏈','⚾','🎾','🏐','🏓','🏸','🥊','🏆','🥇','🏁','⛸️','🛹','🏄'],
- gaming:['🎮','👾','🕹️','🎲','🧩','♟️','🃏','🪄','💎','🪙','🛡️','⚔️','🧙','🧝','👑'],
- seasonal:['🎃','👻','🕸️','🦇','🎄','🎁','❄️','☃️','🎅','🧧','🎉','🎊','🎂','🎈','🪅','🪻','🌷']
-};
-for(const [cat,items] of Object.entries(EXTRA_STICKERS)) items.forEach((label,i)=>{
-  const body="<text x='50' y='57' text-anchor='middle' dominant-baseline='middle' font-family='Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif' font-size='"+(label.length>7?25:66)+"'>"+label.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+"</text>";
-  const st=S('extra-'+cat+'-'+i,cat,label,.22,body);st.uri=svg(st.body);st.img=new Image();st.img.onload=()=>redraw();st.img.src=st.uri;STK.push(st);
-});
-
+const STK=[];
 /* Monochrome transparent PNG-style accessory pack. SVG sources have transparent backgrounds and are rasterized into the export canvas. */
 STK.length=0;
 STK_CATS.splice(0,STK_CATS.length,['glasses','Glass specs'],['stars','Silver stars'],['moustache','Moustaches'],['headwear','Caps & headwear'],['face','Face details'],['accessories','Black PNG accessories'],['catfish','Catfish & face'],['details','Minimal details'],['frames','Transparent frames']);
-const A=(id,cat,name,size,body)=>{const st=S(id,cat,name,size,body);st.uri=svg(body);st.img=new Image();st.img.onload=()=>redraw();st.img.src=st.uri;STK.push(st);};
+const A=()=>{}; // Sticker art is loaded from the online Twemoji asset pack below.
 
 A('silver-wire-round','glasses','Silver wire round specs',.40,"<g fill='rgba(225,235,245,.08)' stroke='#c8cdd4' stroke-width='4' stroke-linejoin='round'><ellipse cx='27' cy='43' rx='20' ry='21'/><ellipse cx='73' cy='43' rx='20' ry='21'/><path d='M47 39Q50 35 53 39M7 38L1 34M93 38L99 34' fill='none' stroke-width='3'/></g><g fill='none' stroke='#fff' stroke-width='1.2' opacity='.9'><path d='M14 29Q23 22 33 25M60 25Q71 21 81 29'/></g>");
 A('silver-wire-oval','glasses','Silver oval spectacles',.38,"<g fill='rgba(225,235,245,.04)' stroke='#b9c0ca' stroke-width='3.5'><ellipse cx='27' cy='43' rx='22' ry='16'/><ellipse cx='73' cy='43' rx='22' ry='16'/><path d='M49 40Q50 38 51 40M5 40L0 36M95 40L100 36' fill='none' stroke-width='3'/></g><path d='M13 32Q25 26 36 31M64 31Q76 26 87 32' fill='none' stroke='#fff' stroke-width='1.3'/>");
@@ -860,6 +762,28 @@ A('catfish-nose-heart','catfish','Cat nose & mouth',.18,"<path d='M39 40Q50 28 6
 A('catfish-ears','catfish','Cat ears overlay',.34,"<path d='M12 58L7 8L40 34Q50 29 60 34L93 8L88 58' fill='none' stroke='#111' stroke-width='6' stroke-linejoin='round' stroke-linecap='round'/><path d='M18 46L15 20L33 36M67 36L85 20L82 46' fill='none' stroke='#111' stroke-width='2.5'/>");
 A('catfish-tail','catfish','Cat tail',.28,"<path d='M16 80Q36 74 38 52Q39 31 58 30Q73 30 76 44Q80 57 68 59Q61 60 61 52' fill='none' stroke='#111' stroke-width='8' stroke-linecap='round'/><path d='M16 80Q36 74 38 52Q39 31 58 30Q73 30 76 44Q80 57 68 59Q61 60 61 52' fill='none' stroke='#555' stroke-width='2' stroke-linecap='round'/>");
 
+
+/* Online sticker pack: Twemoji artwork loaded from jsDelivr, not locally drawn SVGs. */
+const ONLINE_STICKERS=[
+ ['1f496','love','Sparkling heart'],['1f49e','love','Revolving hearts'],['1f495','love','Two hearts'],
+ ['1f338','flowers','Cherry blossom'],['1f339','flowers','Rose'],['1f337','flowers','Tulip'],
+ ['1f98b','nature','Butterfly'],['1f984','cute','Unicorn'],['1f431','pets','Cat face'],
+ ['1f436','pets','Dog face'],['1f430','pets','Rabbit'],['1f43b','pets','Bear'],
+ ['1f47b','cute','Ghost'],['1f31f','celestial','Glowing star'],['2728','celestial','Sparkles'],
+ ['1f319','celestial','Crescent moon'],['2600','nature','Sun'],['1f308','nature','Rainbow'],
+ ['1f4ab','symbols','Dizzy sparkle'],['1f525','symbols','Fire'],['1f9f8','cute','Teddy bear'],
+ ['1f353','food','Strawberry'],['1f34a','food','Orange'],['1f36d','food','Lollipop'],
+ ['1f370','food','Cake'],['1f3b5','music','Music note'],['1f4bf','retro','CD disc'],
+ ['1f381','symbols','Gift'],['1f48e','fashion','Gem'],['1f388','symbols','Balloon'],
+ ['1f9cb','love','Pink heart'],['1f4a0','symbols','Diamond'],['1f389','seasonal','Party popper'],
+ ['1f9e1','love','Orange heart'],['1f499','love','Blue heart'],['1f49c','love','Purple heart']
+];
+for(const [code,cat,name] of ONLINE_STICKERS){
+  const img=new Image();img.crossOrigin='anonymous';img.decoding='async';
+  const item={id:'web-'+code,cat,name,size:.22,img,uri:'https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/'+code+'.png'};
+  img.onload=()=>{if(cur==='stickers')redraw();};
+  img.src=item.uri;STK.push(item);
+}
 function addSticker
 (s,x,y,size,rot){
   stickers.push({img:s.img,x:x==null?.5+(Math.random()-.5)*.2:x,y:y==null?.5+(Math.random()-.5)*.2:y,size:size||s.size,rot:rot||0});
@@ -1158,7 +1082,7 @@ function pStickers(p){
   p.append(
     grp('Search all stickers',search),
     grp('Sticker pack',chips([{key:'all',label:'All stickers'},...STK_CATS.map(c=>({key:c[0],label:c[1]}))],()=>P.stk.search? 'all':P.stk.cat,k=>{P.stk.cat=k;P.stk.search='';buildPanel();})),
-    grp(matches.length+' stickers · transparent PNG-style overlays · tap to add, drag to move',tray)
+    grp(matches.length+' online stickers · tap to add, drag to move',tray)
   );
   if(sel>=0){
     const s=stickers[sel];
@@ -1244,7 +1168,7 @@ function buildPanel(){
 function selectTab(key){
   cur=key;sel=-1;
   [...$('#tabs').children].forEach(b=>{const on=b.dataset.tab===key;b.setAttribute('aria-pressed',String(on));if(on)b.scrollIntoView({inline:'center',block:'nearest'});});
-  buildPanel();schedule();if(window.innerWidth<700)setTimeout(()=>$('#panel').scrollIntoView({behavior:'smooth',block:'start'}),40);
+  buildPanel();if(window.innerWidth<700&&$('#panel').getBoundingClientRect().top>window.innerHeight)setTimeout(()=>$('#panel').scrollIntoView({behavior:'auto',block:'start'}),0);
 }
 function buildTabs(){
   const box=$('#tabs');
@@ -1323,12 +1247,26 @@ function apply(){
 function undo(){if(!history.length){say('Nothing to undo.');return;}setBaseData(history.pop());resetCollage();suppress=true;say('Undone.');render();}
 function resetAll(){history.push(base);setBaseData(cloneID(original));resetCollage();suppress=true;say('Back to the original picture.');render();}
 function save(){
-  if(!effCanvas)return;
-  const c=document.createElement('canvas');c.width=W;c.height=H;drawScene(c.getContext('2d'),false);
-  $('#saveImg').src=c.toDataURL('image/png');$('#overlay').hidden=false;$('#bClose').focus();
+  if(!effCanvas){say('Upload a photo first.');return;}
+  const c=document.createElement('canvas');c.width=W;c.height=H;
+  drawScene(c.getContext('2d'),false);
+  $('#overlay').hidden=false;
+  $('#saveImg').removeAttribute('src');
+  $('#bDownload').textContent='Preparing PNG…';
+  $('#bDownload').setAttribute('aria-disabled','true');
+  c.toBlob(blob=>{
+    if(!blob){say('Could not export this image. Try a smaller photo.');$('#overlay').hidden=true;return;}
+    const link=$('#bDownload'),url=URL.createObjectURL(blob),old=link.dataset.url;
+    if(old)URL.revokeObjectURL(old);
+    link.dataset.url=url;link.href=url;link.download='dbweb-lab-photo.png';
+    link.textContent='Download PNG';link.removeAttribute('aria-disabled');
+    $('#saveImg').src=url;
+    $('#bClose').focus();
+  },'image/png');
 }
 $('#bApply').onclick=apply;$('#bUndo').onclick=undo;$('#bReset').onclick=resetAll;$('#bSave').onclick=save;
 $('#bClose').onclick=()=>{$('#overlay').hidden=true;};
+$('#bDownload').addEventListener('click',e=>{if($('#bDownload').getAttribute('aria-disabled')==='true'){e.preventDefault();return;}});
 $('#bUpload').onclick=()=>$('#file').click();
 $('#file').onchange=e=>{const f=[...e.target.files];e.target.value='';if(f.length)handleFiles(f,'main');};
 const stage=$('#stage');let dragDepth=0;
