@@ -56,6 +56,5 @@ export default function InstagramAnalyzerPage() {
       </div>
       <div className="igPhotoLink">{data.photoUrl ? <a href={data.photoUrl} target="_blank" rel="noreferrer"><ImageIcon size={16}/> Open profile picture <ExternalLink size={13}/></a> : <span>Profile picture unavailable</span>}</div>
     </section>}
-    <p className="igFootnote">Only public profile information is requested. Instagram may limit requests, and some profiles may not return complete details.</p>
   </main>;
 }
