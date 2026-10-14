@@ -625,3 +625,22 @@
 .back-home-btn { background:#fff !important; border:1px solid #e0e4ee !important; color:#4f46e5 !important; border-radius:10px !important; }
 .back-home-btn:hover { background:#f5f6ff !important; border-color:#a5b4fc !important; }
 .tool-container,.tool-content,.tool-card,.result-card,.panel,.section-card { border-radius:15px; }
+
+
+/* Consistent, readable controls across standalone utilities and text tools */
+.back-home-btn { background:rgba(141,165,255,.12)!important; border:1px solid rgba(141,165,255,.28)!important; color:#c7d2fe!important; border-radius:10px!important; }
+.back-home-btn:hover { background:rgba(141,165,255,.2)!important; border-color:#a8baff!important; color:#fff!important; }
+.tool-container,.tool-content,.tool-card,.result-card,.panel,.section-card,.editor-card,.input-group,.analysis-card { border-radius:15px; }
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),textarea,select { max-width:100%; }
+textarea,input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),select { accent-color:#a8baff; }
+textarea:focus,input:focus,select:focus { outline-color:#a8baff; }
+button,a,.tool-card { -webkit-tap-highlight-color:transparent; }
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible { outline:2px solid #a8baff; outline-offset:2px; }
+p,li,.tool-description,.description,.help-text { line-height:1.65; overflow-wrap:anywhere; }
+pre,code,.hash-value,.meta-value { overflow-wrap:anywhere; word-break:break-word; }
+@media(max-width:600px) {
+  .editor-card,.input-group,.result-card,.analysis-card { padding:16px!important; }
+  .toolbar,.toolbar-actions,.action-buttons,.results-actions { gap:8px!important; flex-wrap:wrap; }
+  .toolbar button,.toolbar-btn,.action-btn,.verify-btn { min-height:42px; }
+  .typing-area,textarea { font-size:16px!important; }
+}
