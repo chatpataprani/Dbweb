@@ -56,8 +56,22 @@ export async function GET(request) {
     const title = meta(html, "og:title");
     const photoUrl = meta(html, "og:image");
     const description = meta(html, "description", "name");
+    const profileUrl = `https://www.instagram.com/${encodeURIComponent(username)}/`;
+    // Instagram often blocks automated requests or returns a login shell without
+    // public metadata. Return a useful, honest fallback rather than a misleading
+    // server error; do not fabricate profile statistics.
     if (!title && !photoUrl && !description) {
-      return NextResponse.json({ error: "Instagram did not return public profile details for this username." }, { status: 502 });
+      return NextResponse.json({
+        username,
+        fullName: "Public details unavailable",
+        followers: "Unavailable",
+        following: "Unavailable",
+        posts: "Unavailable",
+        photoUrl: null,
+        profileUrl,
+        limited: true,
+        note: "Instagram did not provide public metadata for this request. Open the profile directly or try again later; statistics are not guessed."
+      }, { headers: { "Cache-Control": "no-store" } });
     }
 
     const fullName = title ? title.split("(@")[0].trim() : "—";
@@ -67,7 +81,9 @@ export async function GET(request) {
       fullName: fullName || "—",
       ...counts,
       photoUrl: photoUrl || null,
-      profileUrl: `https://www.instagram.com/${encodeURIComponent(username)}/`,
+      profileUrl,
+      limited: !title || !description,
+      note: !title || !description ? "Some public profile fields were unavailable in Instagram's response." : undefined
     }, {
       headers: { "Cache-Control": "no-store" },
     });
