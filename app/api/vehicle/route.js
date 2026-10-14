@@ -5,10 +5,18 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{3}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const DEVELOPER_INFO = {
+  name: "Dbweb by chatpataprani",
+  github: "https://github.com/chatpataprani/Dbweb",
+  website: "https://dbweb.vercel.app"
+};
+
+// Deliberately exclude owner/father names, owner serial numbers, personal phone
+// numbers, registration/insurance identifiers, and residential addresses.
 const FIELDS = [
   "Model Name", "Maker Model", "Vehicle Class", "Fuel Type", "Fuel Norms",
   "Registration Date", "Insurance Company", "Insurance Expiry", "Insurance Upto",
-  "Fitness Upto", "Tax Upto", "PUC Upto", "Registered RTO"
+  "Fitness Upto", "Tax Upto", "PUC Upto", "Financier Name", "Registered RTO"
 ];
 
 function decodeHtml(value) {
@@ -87,7 +95,7 @@ export async function POST(request) {
     }
     const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(registration)).then(buf => Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join(""));
     await client.from("device_lookups").insert({ device_id: deviceId, lookup_type: "vehicle", query_hash: hash });
-    return NextResponse.json({ type: "vehicle", rc: registration, data, note: "Only non-personal vehicle specifications are shown. Owner names, phone numbers, and addresses are intentionally excluded." }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ status: "success", service: "Dbweb Vehicle RC Lookup", developer: DEVELOPER_INFO, type: "vehicle", rc: registration, data, note: "Only non-personal vehicle specifications are shown. Owner names, father’s names, owner serial numbers, personal phone numbers, and residential addresses are intentionally excluded." }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("vehicle lookup error", error?.message);
     return NextResponse.json({ error: "Unable to complete vehicle lookup." }, { status: 500 });
