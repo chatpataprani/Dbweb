@@ -1425,14 +1425,15 @@ function pCatfish(p){
   el('p',{class:'note'},'The right panel uses stronger pixelation. Use Download PNG to save the result.')
  );
 }
-let catfishSource=null,catfishActive=false,catfishUndoSource=null;
+let catfishSource=null,catfishActive=false,catfishUndoSource=null,catfishEntrySource=null;
 function makeCatfish(){
  const C=catfishCfg;
  if(!base){say('Upload a photo first.');return;}
  // Capture the actual uploaded/editable photo once; never use a previously generated collage as input.
  if(!catfishActive){
-  catfishSource=cloneID(base);
-  catfishUndoSource=cloneID(base);
+  catfishSource=cloneID(catfishEntrySource||base);
+  catfishEntrySource=null;
+  catfishUndoSource=cloneID(catfishSource);
   history.push(cloneID(base));if(history.length>10)history.shift();
   catfishActive=true;
  }
@@ -1475,6 +1476,14 @@ function buildPanel(){
   TABS.find(t=>t[0]===cur)[2](p);
 }
 function selectTab(key){
+  // Preserve the currently visible edit (filters/effects and placed stickers) before entering Catfish.
+  if(key==='catfish'&&cur!=='catfish'&&base){
+    const sourceCanvas=document.createElement('canvas');sourceCanvas.width=BW;sourceCanvas.height=BH;
+    const sourceCtx=sourceCanvas.getContext('2d');
+    const visibleSource=effCanvas||baseCanvas();
+    drawScene(sourceCtx,false,visibleSource,BW,BH);
+    catfishEntrySource=sourceCtx.getImageData(0,0,BW,BH);
+  }
   cur=key;sel=-1;
   [...$('#tabs').children].forEach(b=>{const on=b.dataset.tab===key;b.setAttribute('aria-pressed',String(on));if(on)b.scrollIntoView({inline:'center',block:'nearest'});});
   buildPanel();schedule();if(window.innerWidth<700)setTimeout(()=>$('#panel').scrollIntoView({behavior:'smooth',block:'start'}),40);
@@ -1559,8 +1568,8 @@ async function apply(){
   history.push(base);if(history.length>10)history.shift();
   setBaseData(res);resetCollage();suppress=true;clearMask();say('Applied. Change a setting to preview again.');render();
 }
-function undo(){if(!history.length){say('Nothing to undo.');return;}catfishActive=false;catfishSource=null;catfishUndoSource=null;setBaseData(history.pop());resetCollage();suppress=true;clearMask();say('Undone.');render();}
-function resetAll(){catfishActive=false;catfishSource=null;catfishUndoSource=null;history=[];setBaseData(cloneID(original));stickers=[];sel=-1;resetCollage();clearMask();suppress=true;say('Photo reset. Restored the original photo.');if(cur==='stickers'||cur==='collage')buildPanel();render();}
+function undo(){if(!history.length){say('Nothing to undo.');return;}catfishActive=false;catfishSource=null;catfishUndoSource=null;catfishEntrySource=null;setBaseData(history.pop());resetCollage();suppress=true;clearMask();say('Undone.');render();}
+function resetAll(){catfishActive=false;catfishSource=null;catfishUndoSource=null;catfishEntrySource=null;history=[];setBaseData(cloneID(original));stickers=[];sel=-1;resetCollage();clearMask();suppress=true;say('Photo reset. Restored the original photo.');if(cur==='stickers'||cur==='collage')buildPanel();render();}
 async function save(){
   if(!effCanvas)return;
   say('Preparing the full-size picture…');await new Promise(r=>setTimeout(r,30));
