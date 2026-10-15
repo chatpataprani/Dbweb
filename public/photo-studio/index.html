@@ -7,18 +7,24 @@
 <meta name="description" content="Dbweb Lab: a retro photo editor with digicam, CCD, flip-phone and film looks, collage, stickers and text.">
 <title>Dbweb Lab</title>
 <style>[hidden]{display:none!important}html{-webkit-text-size-adjust:100%}</style>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;600&family=VT323&family=Special+Elite&family=Permanent+Marker&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Jersey+10&family=Jersey+15&display=swap">
 <style>
 /* Layout: one gray Win98-style window on a teal desktop. Sticky preview on top, a scrolling tab strip, a settings panel, then action buttons. */
 :root{
   --desk:#008080; --face:#c0c0c0; --soft:#dfdfdf; --hi:#ffffff; --mid:#808080; --ink:#000000;
   --press:#a8a8a8; --title1:#000080; --title2:#1084d0; --note:#303030; --field:#ffffff; --etch:#4a4a4a; --trayfill:#6e7080;
-  --ui:"Archivo Narrow","Arial Narrow",Arial,sans-serif;
-  --mono:"VT323",ui-monospace,Menlo,monospace;
+  --ui:"Pixelify Sans",system-ui,sans-serif;
+  --mono:"Jersey 15","Pixelify Sans",sans-serif;
   color-scheme:light;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
+/* Dbweb Lab typography: Pixelify Sans for general UI, Jersey 15 for display titles,
+   and Jersey 10 for compact controls and labels. */
+.titlebar,.welcome .hero div{font-family:"Jersey 15","Pixelify Sans",sans-serif}
+.lab,.row label,.note,.status,.welcome .chips span{font-family:"Jersey 10","Pixelify Sans",sans-serif}
+.btn,.txt,.num,input,select,textarea{font-family:"Pixelify Sans",system-ui,sans-serif}
+
 body{
   background:var(--desk);color:var(--ink);font:16px/1.25 var(--ui);
   padding-block:16px 28px;
