@@ -203,7 +203,7 @@ const $=s=>document.querySelector(s);
 const MAXD=1080,PREV=600;
 const view=$('#view'),vctx=view.getContext('2d');
 let W=MAXD,H=MAXD,BW=MAXD,BH=MAXD,base=null,pbase=null,ps=1,original=null,history=[],lastResult=null,effCanvas=null,effPool=null,rdPending=false,colPend=false,comparing=false;
-let cur='filters',suppress=false,renderToken=0,pending=false,uid=0,syncs=[];
+let cur='stickers',suppress=false,renderToken=0,pending=false,uid=0,syncs=[];
 let stickers=[],sel=-1,drag=null,painting=false,lastP=null,maskCv=null,maskCx=null;
 let textDraft='hello world',textColor='#ff4f9a',textOutline='#ffffff',textSize=24,textFont='Arial Black,Arial,sans-serif',textShadow=true;
 let bcFor=null,bcCanvas=null;let ocFor=null,ocCanvas=null;
@@ -215,8 +215,8 @@ const P={
   ccd:{blur:true,bloom:1,tint:0,refl:.45,style:1,noiseOn:true,noise:.2,sharp:.5,ca:.5,lofi:.2},
   g3:{bloom:.4},
   jpeg:{q:12,passes:2},
-  stamp:{on:true,text:"'"+z2(now.getFullYear()%100)+' '+z2(now.getMonth()+1)+' '+z2(now.getDate()),pos:'br',col:0},
-  stk:{cat:'accessories',search:''},
+  stamp:{on:false,text:"'"+z2(now.getFullYear()%100)+' '+z2(now.getMonth()+1)+' '+z2(now.getDate()),pos:'br',col:0},
+  stk:{cat:'all',search:''},
   effects:{preset:'halation',intensity:.7,grain:.25,vig:.2,scan:.25,leak:.35,bloom:.15,split:0}
 };
 const STAMP_COL=['#ff8a1f','#ffe14d','#ffffff'];
@@ -1320,7 +1320,7 @@ async function loadPublishedStickers(){
   }catch(error){console.warn('Could not load admin-uploaded stickers:',error);}
 }
 function pStickers(p){
-  if(P.stk.cat==='mine'&&!STK.some(s=>s.cat==='mine'))P.stk.cat='accessories';
+  if(P.stk.cat==='mine'&&!STK.some(s=>s.cat==='mine'))P.stk.cat='all';
   const cat=P.stk.cat,tray=el('div',{class:'tray'}),q=(P.stk.search||'').trim().toLowerCase();
   const matches=STK.filter(s=>(cat==='all'||s.cat===cat)&&(!q||s.name.toLowerCase().includes(q)||s.cat.toLowerCase().includes(q)));
   matches.forEach(s=>tray.append(el('button',{type:'button',class:'btn','aria-label':'Add '+s.name,title:s.name,onclick:()=>addSticker(s)},el('img',{src:s.uri,alt:'',loading:'lazy',decoding:'async'}))));
