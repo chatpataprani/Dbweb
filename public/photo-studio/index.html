@@ -26,10 +26,16 @@ html,body{margin:0}
 .btn,.txt,.num,input,select,textarea{font-family:"Pixelify Sans",system-ui,sans-serif}
 
 body{
-  background:var(--desk);color:var(--ink);font:16px/1.25 var(--ui);
+  position:relative;isolation:isolate;
+  background:transparent;color:var(--ink);font:16px/1.25 var(--ui);
   padding-block:16px 28px;
   padding-left:max(16px,env(safe-area-inset-left,0px));
   padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+body::before{
+  content:"";position:fixed;inset:-8px;z-index:-1;
+  background:linear-gradient(rgba(0,0,0,.12),rgba(0,0,0,.18)),url("https://i.ibb.co/ZpcWX8s6/74a8174f73b53bc4ad1d8708ebc613ff.jpg") center/cover no-repeat;
+  filter:blur(2.5px);transform:scale(1.015);pointer-events:none;
 }
 .win{
   max-width:560px;margin:0 auto;background:var(--face);padding:3px;
