@@ -1411,27 +1411,18 @@ function pPfp(p){
   p.append(grp('Border pattern',chips([{key:'solid',label:'Solid'},{key:'dots',label:'Dots'},{key:'gingham',label:'Gingham'},{key:'stars',label:'Stars'},{key:'hearts',label:'Hearts'},{key:'stripes',label:'Stripes'}],()=>pfpPattern,k=>{pfpPattern=k;},'three')),colorField('Main color',()=>pfpColor,v=>{pfpColor=v;}),colorField('Pattern color',()=>pfpColor2,v=>{pfpColor2=v;}),btn('Create circular PFP',makePfp,'wideb'),el('p',{class:'note'},'Upload or edit a photo first. The tool crops it to a circle and adds a patterned ring. Export as PNG to preserve transparency.'));
 }
 
-let catfishCfg={stretch:145,slim:82,pixel:6,glasses:false,ears:false,nose:false,moustache:false,original:true,stretched:true,divider:true};
+let catfishCfg={stretch:145,slim:82,pixel:12,original:true,stretched:true,divider:true};
 function pCatfish(p){
  const C=catfishCfg;
  p.append(
-  grp('Catfish collage',el('p',{class:'note'},'Create a two-panel collage: original on the left, vertically stretched and slimmer pixelated version on the right. Optional accessories can be switched on or off.')),
+  grp('Catfish collage',el('p',{class:'note'},'Create a two-panel collage: original on the left, vertically stretched, slimmer, and pixelated version on the right.')),
   slider('Vertical stretch (%)',100,200,1,()=>C.stretch,v=>{C.stretch=v;if(catfishActive)makeCatfish();},0),
   slider('Horizontal width (%)',35,100,1,()=>C.slim,v=>{C.slim=v;if(catfishActive)makeCatfish();},0),
   slider('Pixel blur size',4,36,1,()=>C.pixel,v=>{C.pixel=v;if(catfishActive)makeCatfish();},0),
   grp('Panels',checkbox('Show original panel',()=>C.original,v=>{C.original=v;if(catfishActive)makeCatfish();}),checkbox('Show stretched panel',()=>C.stretched,v=>{C.stretched=v;if(catfishActive)makeCatfish();}),checkbox('Center divider',()=>C.divider,v=>{C.divider=v;if(catfishActive)makeCatfish();})),
-  grp('Optional accessories',checkbox('Nerd glasses',()=>C.glasses,v=>{C.glasses=v;if(catfishActive)makeCatfish();}),checkbox('Dog ears',()=>C.ears,v=>{C.ears=v;if(catfishActive)makeCatfish();}),checkbox('Dog nose',()=>C.nose,v=>{C.nose=v;if(catfishActive)makeCatfish();}),checkbox('Moustache',()=>C.moustache,v=>{C.moustache=v;if(catfishActive)makeCatfish();})),
   btn('Create Catfish collage',makeCatfish,'wideb'),
-  el('p',{class:'note'},'The right panel is deliberately pixelated to match the reference. Use Download PNG to save the result.')
+  el('p',{class:'note'},'The right panel uses stronger pixelation. Use Download PNG to save the result.')
  );
-}
-function catfishAccessory(ctx,x,y,w,h,kind){
- ctx.save();ctx.translate(x,y);ctx.scale(w/100,h/100);
- if(kind==='glasses'){ctx.strokeStyle='#211326';ctx.lineWidth=7;ctx.fillStyle='rgba(255,255,255,.04)';ctx.beginPath();ctx.roundRect(3,24,42,34,10);ctx.roundRect(55,24,42,34,10);ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(45,34);ctx.lineTo(55,34);ctx.stroke();}
- if(kind==='ears'){ctx.fillStyle='#8c4d2b';ctx.beginPath();ctx.moveTo(7,42);ctx.quadraticCurveTo(-5,0,29,4);ctx.quadraticCurveTo(42,22,34,43);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(93,42);ctx.quadraticCurveTo(105,0,71,4);ctx.quadraticCurveTo(58,22,66,43);ctx.closePath();ctx.fill();ctx.fillStyle='#d68c9c';ctx.beginPath();ctx.moveTo(15,31);ctx.quadraticCurveTo(12,12,26,12);ctx.lineTo(29,32);ctx.fill();ctx.beginPath();ctx.moveTo(85,31);ctx.quadraticCurveTo(88,12,74,12);ctx.lineTo(71,32);ctx.fill();}
- if(kind==='nose'){ctx.fillStyle='#a86637';ctx.beginPath();ctx.ellipse(50,32,30,23,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#20151a';ctx.beginPath();ctx.ellipse(50,27,16,11,0,0,Math.PI*2);ctx.fill();}
- if(kind==='moustache'){ctx.fillStyle='#111';ctx.beginPath();ctx.moveTo(50,20);ctx.bezierCurveTo(33,2,15,5,4,10);ctx.bezierCurveTo(6,34,30,37,50,24);ctx.bezierCurveTo(70,37,94,34,96,10);ctx.bezierCurveTo(85,5,67,2,50,20);ctx.fill();}
- ctx.restore();
 }
 let catfishSource=null,catfishActive=false;
 function makeCatfish(){
@@ -1448,18 +1439,13 @@ function makeCatfish(){
   const panel=document.createElement('canvas');panel.width=rightW;panel.height=S;panel.getContext('2d').drawImage(src,sx,sy,cropW,cropH,0,0,rightW,S);
   const transformed=document.createElement('canvas');transformed.width=rightW;transformed.height=S;const t=transformed.getContext('2d');
   const dw=rightW*C.slim/100,dh=S*C.stretch/100;t.drawImage(panel,(rightW-dw)/2,(S-dh)/2,dw,dh);
-  const pixel=Math.max(1,Math.round(C.pixel/4)),small=document.createElement('canvas');small.width=Math.max(1,Math.round(rightW/pixel));small.height=Math.max(1,Math.round(S/pixel));
+  const pixel=Math.max(2,Math.round(C.pixel)),small=document.createElement('canvas');small.width=Math.max(1,Math.round(rightW/pixel));small.height=Math.max(1,Math.round(S/pixel));
   const sc=small.getContext('2d');sc.imageSmoothingEnabled=true;sc.drawImage(transformed,0,0,small.width,small.height);
   x.save();x.beginPath();x.rect(pw,0,rightW,S);x.clip();x.imageSmoothingEnabled=false;x.drawImage(small,pw,0,rightW,S);x.restore();
-  const fx=pw+rightW*.5,fy=S*.43,aw=rightW*.78,ah=aw*.62;
-  if(C.ears)catfishAccessory(x,fx-aw*.55,fy-ah*1.15,aw*1.1,ah,'ears');
-  if(C.glasses)catfishAccessory(x,fx-aw/2,fy-ah*.28,aw,ah,'glasses');
-  if(C.nose)catfishAccessory(x,fx-aw*.18,fy+ah*.15,aw*.36,aw*.28,'nose');
-  if(C.moustache)catfishAccessory(x,fx-aw*.28,fy+ah*.42,aw*.56,ah*.3,'moustache');
  }
  // Replace the working image instead of appending another collage.
  const id=x.getImageData(0,0,S,S);setBaseData(id);original=cloneID(base);history=[];lastResult=null;resetCollage();clearMask();suppress=true;render();
- say('Catfish updated. Accessories and settings are applied to the same collage.');
+ say('Catfish collage created with stronger pixelation on the right panel.');
 }
 const TABS=[['jpeg','JPEG',pJpeg],['filters','Filters',pFilters],['effects','Effects FX',pEffects],['text','Text & Symbols',pText],['collage','Collage',pCollage],['catfish','Catfish',pCatfish],['blur','Blur/Pixelate',pBlur],['ccd','CCD',pCCD],['nokia','Nokia',pAuto],['quarter','1/4"',pAuto],['g3','iPhone 3GS',pG3],['stickers','Stickers',pStickers],['photobooth','Photo Booth',pBooth],['pfp','PFP Border',pPfp]];
 function buildPanel(){
