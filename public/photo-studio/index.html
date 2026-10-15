@@ -1428,43 +1428,44 @@ let catfishSource=null,catfishActive=false,catfishUndoSource=null;
 function makeCatfish(){
  const C=catfishCfg;
  if(!base){say('Upload a photo first.');return;}
- // Keep the first source photo for all slider updates/re-creations, never collage a collage.
+ // Capture the actual uploaded/editable photo once; never use a previously generated collage as input.
  if(!catfishActive){
   catfishSource=cloneID(base);
   catfishUndoSource=cloneID(base);
   history.push(cloneID(base));if(history.length>10)history.shift();
   catfishActive=true;
  }
- const sourceData=catfishSource,S=Math.min(sourceData.width,sourceData.height),pw=Math.floor(S/2),rightW=S-pw;
- const src=document.createElement('canvas');src.width=sourceData.width;src.height=sourceData.height;src.getContext('2d').putImageData(cloneID(sourceData),0,0);
- const out=document.createElement('canvas');out.width=S;out.height=S;const x=out.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,S,S);
- const cropW=Math.min(src.width,src.height*.52),cropH=Math.min(src.height,src.width/.52),sx=(src.width-cropW)/2,sy=(src.height-cropH)/2;
- const drawPanel=(target,dx,dw)=>{target.save();target.beginPath();target.rect(dx,0,dw,S);target.clip();target.drawImage(src,sx,sy,cropW,cropH,dx,0,dw,S);target.restore();};
- if(C.original)drawPanel(x,0,pw);
+ const sourceData=catfishSource,W=sourceData.width,H=sourceData.height;
+ // Preserve the photo's aspect ratio. Each panel uses the full image; no square crop.
+ const panelW=W,outW=panelW*2,outH=H;
+ const src=document.createElement('canvas');src.width=W;src.height=H;src.getContext('2d').putImageData(cloneID(sourceData),0,0);
+ const out=document.createElement('canvas');out.width=outW;out.height=outH;
+ const x=out.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,outW,outH);
+ if(C.original)x.drawImage(src,0,0,W,H,0,0,panelW,outH);
  if(C.stretched){
-  const panel=document.createElement('canvas');panel.width=rightW;panel.height=S;panel.getContext('2d').drawImage(src,sx,sy,cropW,cropH,0,0,rightW,S);
-  const transformed=document.createElement('canvas');transformed.width=rightW;transformed.height=S;const t=transformed.getContext('2d');
-  // Fill the whole panel first so slimming never leaves transparent/white side strips.
-  t.drawImage(panel,0,0,rightW,S);
-  const dw=rightW*C.slim/100,dh=S*C.stretch/100;
-  const slimCanvas=document.createElement('canvas');slimCanvas.width=Math.max(1,Math.round(dw));slimCanvas.height=S;
-  const st=slimCanvas.getContext('2d');
-  st.drawImage(panel,0,0,panel.width,panel.height,0,0,slimCanvas.width,S);
-  const stretched=document.createElement('canvas');stretched.width=slimCanvas.width;stretched.height=S;
-  stretched.getContext('2d').drawImage(slimCanvas,0,(S-dh)/2,slimCanvas.width,dh);
-  // Extend the nearest edge columns into the margins rather than exposing white gaps.
-  const marginX=Math.max(0,(rightW-dw)/2);
-  if(marginX>0){
-   t.drawImage(stretched,0,0,1,S,0,0,Math.ceil(marginX),S);
-   t.drawImage(stretched,stretched.width-1,0,1,S,Math.floor(marginX+dw),0,rightW-Math.floor(marginX+dw),S);
-  }
-  t.drawImage(stretched,0,0,stretched.width,S,Math.round(marginX),0,Math.max(1,Math.round(dw)),S);
-  const pixel=Math.max(2,Math.round(C.pixel)),small=document.createElement('canvas');small.width=Math.max(1,Math.round(rightW/pixel));small.height=Math.max(1,Math.round(S/pixel));
+  const dw=Math.max(1,Math.round(panelW*C.slim/100));
+  const dh=Math.max(1,Math.round(H*C.stretch/100));
+  const transformed=document.createElement('canvas');transformed.width=panelW;transformed.height=H;
+  const t=transformed.getContext('2d');
+  // Scale the full photo into a narrower, taller face image and fill both side margins
+  // by extending the image edges so no white seams show.
+  const slim=document.createElement('canvas');slim.width=dw;slim.height=H;
+  slim.getContext('2d').drawImage(src,0,0,W,H,0,0,dw,H);
+  const top=Math.round((H-dh)/2);
+  const stretched=document.createElement('canvas');stretched.width=dw;stretched.height=H;
+  stretched.getContext('2d').drawImage(slim,0,0,dw,H,0,top,dw,dh);
+  const marginL=Math.floor((panelW-dw)/2),marginR=panelW-dw-marginL;
+  if(marginL>0)t.drawImage(stretched,0,0,1,H,0,0,marginL,H);
+  t.drawImage(stretched,0,0,dw,H,marginL,0,dw,H);
+  if(marginR>0)t.drawImage(stretched,dw-1,0,1,H,marginL+dw,0,marginR,H);
+  const pixel=Math.max(2,Math.round(C.pixel)),small=document.createElement('canvas');
+  small.width=Math.max(1,Math.round(panelW/pixel));small.height=Math.max(1,Math.round(H/pixel));
   const sc=small.getContext('2d');sc.imageSmoothingEnabled=true;sc.drawImage(transformed,0,0,small.width,small.height);
-  x.save();x.beginPath();x.rect(pw,0,rightW,S);x.clip();x.imageSmoothingEnabled=false;x.drawImage(small,pw,0,rightW,S);x.restore();
+  x.save();x.imageSmoothingEnabled=false;x.drawImage(small,panelW,0,panelW,H);x.restore();
  }
- const id=x.getImageData(0,0,S,S);setBaseData(id);lastResult=null;resetCollage();clearMask();suppress=true;render();
- say('Catfish collage created from the original photo.');
+ // The panels touch edge-to-edge; no divider or gutter is inserted.
+ const id=x.getImageData(0,0,outW,outH);setBaseData(id);lastResult=null;resetCollage();clearMask();suppress=true;render();
+ say('Catfish collage created using the original photo proportions.');
 }
 const TABS=[['jpeg','JPEG',pJpeg],['filters','Filters',pFilters],['effects','Effects FX',pEffects],['text','Text & Symbols',pText],['collage','Collage',pCollage],['catfish','Catfish',pCatfish],['blur','Blur/Pixelate',pBlur],['ccd','CCD',pCCD],['nokia','Nokia',pAuto],['quarter','1/4"',pAuto],['g3','iPhone 3GS',pG3],['stickers','Stickers',pStickers],['photobooth','Photo Booth',pBooth],['pfp','PFP Border',pPfp]];
 function buildPanel(){
