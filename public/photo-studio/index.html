@@ -1585,7 +1585,12 @@ async function save(){
   drawScene(c.getContext('2d'),false,src,c.width,c.height);
   const data=c.toDataURL('image/png');$('#saveImg').src=data;$('#overlay').hidden=false;$('#bClose').focus();
   try{localStorage.setItem('dbweb-lab-last-work',data);}catch(e){say('Image is ready, but this browser could not save a restore copy.');}
-  const a=document.createElement('a');a.href=data;a.download='dbweb-lab.png';document.body.appendChild(a);a.click();a.remove();
+  const tabInfo=TABS.find(t=>t[0]===cur);
+  const tabSlug=(tabInfo?tabInfo[1]:cur).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'edit';
+  const seqKey='dbweb-lab-download-sequence';
+  let seq=1;try{seq=(parseInt(localStorage.getItem(seqKey),10)||0)+1;localStorage.setItem(seqKey,String(seq));}catch(e){seq=Date.now();}
+  const filename='dbweb-'+tabSlug+'-'+String(seq).padStart(3,'0')+'.png';
+  const a=document.createElement('a');a.href=data;a.download=filename;document.body.appendChild(a);a.click();a.remove();
   say('PNG downloaded. Restore work can reopen your last saved export on this browser.');
 }
 const cmp=$('#bCompare');
