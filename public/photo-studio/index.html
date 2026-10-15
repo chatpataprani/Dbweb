@@ -1315,7 +1315,7 @@ async function loadPublishedStickers(){
       STK.push({id,cat:'uploaded',name:item.name.replace(/^\\d+-/,''),size:.34,img,uri:item.url,mine:false,uploaded:true});
       added++;
     }
-    if(added&&!STK_CATS.some(c=>c[0]==='uploaded'))STK_CATS.push(['uploaded','Admin uploads']);
+    // Admin-uploaded stickers are loaded into the library without exposing an Admin uploads category.
     if(cur==='stickers')buildPanel();
   }catch(error){console.warn('Could not load admin-uploaded stickers:',error);}
 }
