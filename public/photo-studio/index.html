@@ -1295,6 +1295,30 @@ function pText(p){
  p.append(grp('Caption / text',input),grp('Font style',fontChips),slider('Text size',10,44,1,()=>textSize,v=>{textSize=v;},0),colorField('Text color',()=>textColor,v=>{textColor=v;}),colorField('Outline color',()=>textOutline,v=>{textOutline=v;}),checkbox('Soft shadow behind text',()=>textShadow,v=>{textShadow=v;}),btn('Add text to photo',addCustomText,'wideb'),grp('Aesthetic symbols & kaomoji',symbolTray),el('p',{class:'note'},'Add as many captions as you want. Text becomes a movable sticker; drag it on the preview and use the Stickers tab to adjust size or rotation.'));
 }
 
+async function loadPublishedStickers(){
+  try{
+    const response=await fetch('/api/admin/stickers',{cache:'no-store'});
+    if(!response.ok)throw new Error('Sticker library request failed');
+    const data=await response.json();
+    if(!Array.isArray(data.stickers))throw new Error(data.error||'Sticker library unavailable');
+    const existing=new Set(STK.filter(s=>s.cat==='uploaded').map(s=>s.id));
+    let added=0;
+    for(const item of data.stickers){
+      if(!item||!item.name||!item.url)continue;
+      const id='uploaded-'+item.name;
+      if(existing.has(id))continue;
+      const img=new Image();
+      img.crossOrigin='anonymous';
+      img.onload=redrawSoon;
+      img.onerror=()=>{const i=STK.findIndex(s=>s.id===id);if(i>=0)STK.splice(i,1);if(cur==='stickers')buildPanel();};
+      img.src=item.url;
+      STK.push({id,cat:'uploaded',name:item.name.replace(/^\\d+-/,''),size:.34,img,uri:item.url,mine:false,uploaded:true});
+      added++;
+    }
+    if(added&&!STK_CATS.some(c=>c[0]==='uploaded'))STK_CATS.push(['uploaded','Admin uploads']);
+    if(cur==='stickers')buildPanel();
+  }catch(error){console.warn('Could not load admin-uploaded stickers:',error);}
+}
 function pStickers(p){
   if(P.stk.cat==='mine'&&!STK.some(s=>s.cat==='mine'))P.stk.cat='accessories';
   const cat=P.stk.cat,tray=el('div',{class:'tray'}),q=(P.stk.search||'').trim().toLowerCase();
@@ -1530,7 +1554,7 @@ function sampleImage(){
 
 window.addEventListener('pagehide',stopBooth);
 /* ---------- start ---------- */
-buildTabs();buildPanel();loadMine();
+buildTabs();buildPanel();loadMine();loadPublishedStickers();
 setBase(sampleImage(),'sample.png');
 sel=-1;
 $('#welcome').hidden=false;
