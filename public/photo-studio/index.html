@@ -212,7 +212,7 @@ const view=$('#view'),vctx=view.getContext('2d');
 let W=MAXD,H=MAXD,BW=MAXD,BH=MAXD,base=null,pbase=null,ps=1,original=null,history=[],lastResult=null,effCanvas=null,effPool=null,rdPending=false,colPend=false,comparing=false;
 let cur='stickers',suppress=false,renderToken=0,pending=false,uid=0,syncs=[];
 let stickers=[],sel=-1,drag=null,painting=false,lastP=null,maskCv=null,maskCx=null;
-let textDraft='hello world',textColor='#ff4f9a',textOutline='#ffffff',textSize=24,textFont='Arial Black,Arial,sans-serif',textShadow=true;
+let textDraft='hello world',textColor='#ff4f9a',textOutline='#ffffff',textSize=24,textFont='DM Sans',textShadow=true;
 let bcFor=null,bcCanvas=null;let ocFor=null,ocCanvas=null;
 
 const now=new Date(),z2=n=>String(n).padStart(2,'0');
@@ -1296,10 +1296,12 @@ async function addCustomText(){
  addSticker({img:c,cv:c,size:clamp(.14+textSize/44*.5,.14,.95),name:raw});say('Text added. Drag it on the photo to position it.');
 }
 function pText(p){
- const input=el('textarea',{class:'txt',rows:'3',maxlength:'90',placeholder:'Type your caption…',value:textDraft,'aria-label':'Text to add',style:'height:82px;padding:8px;resize:vertical;',oninput:e=>{textDraft=e.target.value;}});
- const fontChips=chips([{key:'Arial Black,Arial,sans-serif',label:'Bold'},{key:'Georgia,serif',label:'Serif'},{key:'Courier New,monospace',label:'Typewriter'},{key:'Impact,sans-serif',label:'Impact'},{key:'Permanent Marker,cursive',label:'Marker'},{key:'Special Elite,monospace',label:'Retro'},{key:'VT323,monospace',label:'Pixel'},{key:'Archivo Narrow,sans-serif',label:'Narrow'}],()=>textFont,k=>{textFont=k;},'two');
- const symbolTray=el('div',{class:'chips'});['♡','✧','✦','⋆｡°✩','୨୧','☾','☆','♥','❀','⟡','✿','∞','꩜','⌁','╳','⋈'].forEach(t=>symbolTray.append(btn(t,()=>{textDraft+=(textDraft?' ':'')+t;input.value=textDraft;})));
- p.append(grp('Caption / text',input),grp('Font style',fontChips),slider('Text size',10,44,1,()=>textSize,v=>{textSize=v;},0),colorField('Text color',()=>textColor,v=>{textColor=v;}),colorField('Outline color',()=>textOutline,v=>{textOutline=v;}),checkbox('Soft shadow behind text',()=>textShadow,v=>{textShadow=v;}),btn('Add text to photo',addCustomText,'wideb'),grp('Aesthetic symbols & kaomoji',symbolTray),el('p',{class:'note'},'Add as many captions as you want. Text becomes a movable sticker; drag it on the preview and use the Stickers tab to adjust size or rotation.'));
+ const input=el('textarea',{class:'txt',rows:'3',maxlength:'90',placeholder:'Type your caption…',value:textDraft,'aria-label':'Text to add',style:'height:82px;padding:8px;resize:vertical;',oninput:e=>{textDraft=e.target.value;preview.textContent=textDraft||'Your text preview';}});
+ const preview=el('div',{style:'padding:12px 10px;min-height:36px;overflow-wrap:anywhere;text-align:center;background:#fff;color:'+textColor+';border:2px inset var(--mid);font:24px "'+textFont+'",sans-serif;'},textDraft||'Your text preview');
+ const fontGrid=el('div',{style:'display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;'});
+ FONTS.forEach(f=>fontGrid.append(el('button',{type:'button',class:'btn fontbtn',style:'font-family:"'+f+'",sans-serif;min-height:42px;white-space:normal;line-height:1.1;border-color:'+(textFont===f?'var(--ink)':'var(--mid)')+';background:'+(textFont===f?'var(--hi)':'var(--face)')+';', 'aria-pressed':String(textFont===f),onclick:()=>{textFont=f;preview.style.fontFamily='"'+f+'",sans-serif';[...fontGrid.children].forEach((b,i)=>{const active=FONTS[i]===f;b.setAttribute('aria-pressed',String(active));b.style.background=active?'var(--hi)':'var(--face)';b.style.borderColor=active?'var(--ink)':'var(--mid)';});try{document.fonts.load('32px "'+f+'"').then(()=>{preview.style.fontFamily='"'+f+'",sans-serif';});}catch(e){};}},f)));
+ const symbolTray=el('div',{class:'chips'});['♡','✧','✦','⋆｡°✩','୨୧','☾','☆','♥','❀','⟡','✿','∞','꩜','⌁','╳','⋈'].forEach(t=>symbolTray.append(btn(t,()=>{textDraft+=(textDraft?' ':'')+t;input.value=textDraft;preview.textContent=textDraft;})));
+ p.append(grp('Caption / text',input),grp('Live preview',preview),grp('Choose a font — each name previews in its own style',fontGrid),slider('Text size',10,44,1,()=>textSize,v=>{textSize=v;preview.style.fontSize=v+'px';},0),colorField('Text color',()=>textColor,v=>{textColor=v;preview.style.color=v;}),colorField('Outline color',()=>textOutline,v=>{textOutline=v;}),checkbox('Soft shadow behind text',()=>textShadow,v=>{textShadow=v;}),btn('Add text to photo',addCustomText,'wideb'),grp('Aesthetic symbols & kaomoji',symbolTray),el('p',{class:'note'},'Add multiple text layers to the same photo, choosing a different font for each. Each caption can be moved and resized separately.'));
 }
 
 async function loadPublishedStickers(){
