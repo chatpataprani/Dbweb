@@ -1436,10 +1436,11 @@ function catfishAccessory(ctx,x,y,w,h,kind){
 function makeCatfish(){
  const C=catfishCfg;
  if(!base){say('Upload a photo first.');return;}
- const W0=base.width,H0=base.height,gap=Math.max(2,Math.round(W0*.008)),pw=Math.floor((W0-gap)/2);
+ const S=Math.min(base.width,base.height),W0=S,H0=S,gap=Math.max(2,Math.round(S*.008)),pw=Math.floor((S-gap)/2);
  const source=document.createElement('canvas');source.width=W0;source.height=H0;
- source.getContext('2d').putImageData(cloneID(base),0,0);
- const out=document.createElement('canvas');out.width=W0;out.height=H0;
+ const sc=source.getContext('2d');const crop=Math.min(base.width,base.height),sx=(base.width-crop)/2,sy=(base.height-crop)/2;
+ sc.drawImage(base.canvas||base,sx,sy,crop,crop,0,0,W0,H0);
+ const out=document.createElement('canvas');out.width=S;out.height=S;
  const x=out.getContext('2d',{willReadFrequently:true});
  x.fillStyle='#fff';x.fillRect(0,0,W0,H0);
  // Build each panel independently. This avoids sampling the wrong half of a full-width canvas.
@@ -1447,7 +1448,7 @@ function makeCatfish(){
  if(C.stretched){
   const panel=document.createElement('canvas');panel.width=pw;panel.height=H0;
   const pctx=panel.getContext('2d');
-  drawCrop(pctx,source,0,0,pw,H0);
+  pctx.drawImage(source,0,0,W0,H0,0,0,pw,H0);
   // Preserve the panel as a background, then stretch the subject over it so the panel never turns blank.
   const transformed=document.createElement('canvas');transformed.width=pw;transformed.height=H0;
   const tx=transformed.getContext('2d');
