@@ -1411,7 +1411,7 @@ function pPfp(p){
   p.append(grp('Border pattern',chips([{key:'solid',label:'Solid'},{key:'dots',label:'Dots'},{key:'gingham',label:'Gingham'},{key:'stars',label:'Stars'},{key:'hearts',label:'Hearts'},{key:'stripes',label:'Stripes'}],()=>pfpPattern,k=>{pfpPattern=k;},'three')),colorField('Main color',()=>pfpColor,v=>{pfpColor=v;}),colorField('Pattern color',()=>pfpColor2,v=>{pfpColor2=v;}),btn('Create circular PFP',makePfp,'wideb'),el('p',{class:'note'},'Upload or edit a photo first. The tool crops it to a circle and adds a patterned ring. Export as PNG to preserve transparency.'));
 }
 
-let catfishCfg={stretch:145,slim:72,pixel:18,glasses:false,ears:false,nose:false,moustache:false,original:true,stretched:true,divider:true};
+let catfishCfg={stretch:145,slim:82,pixel:6,glasses:false,ears:false,nose:false,moustache:false,original:true,stretched:true,divider:true};
 function pCatfish(p){
  const C=catfishCfg;
  p.append(
@@ -1436,45 +1436,34 @@ function catfishAccessory(ctx,x,y,w,h,kind){
 function makeCatfish(){
  const C=catfishCfg;
  if(!base){say('Upload a photo first.');return;}
- const S=Math.min(base.width,base.height),W0=S,H0=S,gap=Math.max(2,Math.round(S*.008)),pw=Math.floor((S-gap)/2);
- const source=document.createElement('canvas');source.width=W0;source.height=H0;
- const sc=source.getContext('2d');const crop=Math.min(base.width,base.height),sx=(base.width-crop)/2,sy=(base.height-crop)/2;
- sc.drawImage(base.canvas||base,sx,sy,crop,crop,0,0,W0,H0);
+ const S=Math.min(base.width,base.height),pw=Math.floor(S/2),rightW=S-pw;
+ const src=document.createElement('canvas');src.width=base.width;src.height=base.height;
+ src.getContext('2d').putImageData(cloneID(base),0,0);
  const out=document.createElement('canvas');out.width=S;out.height=S;
- const x=out.getContext('2d',{willReadFrequently:true});
- x.fillStyle='#fff';x.fillRect(0,0,W0,H0);
- // Build each panel independently. This avoids sampling the wrong half of a full-width canvas.
- if(C.original)drawCrop(x,source,0,0,pw,H0);
+ const x=out.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,S,S);
+ const cropW=Math.min(src.width,src.height*.52),cropH=Math.min(src.height,src.width/.52);
+ const sx=(src.width-cropW)/2,sy=(src.height-cropH)/2;
+ const drawPanel=(target,dx,dw)=>{target.save();target.beginPath();target.rect(dx,0,dw,S);target.clip();target.drawImage(src,sx,sy,cropW,cropH,dx,0,dw,S);target.restore();};
+ if(C.original)drawPanel(x,0,pw);
  if(C.stretched){
-  const panel=document.createElement('canvas');panel.width=pw;panel.height=H0;
-  const pctx=panel.getContext('2d');
-  pctx.drawImage(source,0,0,W0,H0,0,0,pw,H0);
-  // Preserve the panel as a background, then stretch the subject over it so the panel never turns blank.
-  const transformed=document.createElement('canvas');transformed.width=pw;transformed.height=H0;
-  const tx=transformed.getContext('2d');
-  tx.drawImage(panel,0,0);
-  tx.save();tx.beginPath();tx.rect(0,0,pw,H0);tx.clip();
-  const dw=pw*(C.slim/100),dh=H0*(C.stretch/100);
-  tx.drawImage(panel,(pw-dw)/2,(H0-dh)/2,dw,dh);
-  tx.restore();
-  // Pixelate only the right panel, at a controllable resolution, then scale it back up sharply.
-  const block=Math.max(3,Math.round(C.pixel));
-  const small=document.createElement('canvas');
-  small.width=Math.max(1,Math.round(pw/block));small.height=Math.max(1,Math.round(H0/block));
-  const sctx=small.getContext('2d');
-  sctx.imageSmoothingEnabled=true;sctx.drawImage(transformed,0,0,small.width,small.height);
-  x.save();x.beginPath();x.rect(pw+gap,0,pw,H0);x.clip();
-  x.imageSmoothingEnabled=false;x.drawImage(small,pw+gap,0,pw,H0);x.restore();
-  // Accessories remain optional. Position them around the approximate face center of the right panel.
-  const ax=pw+gap,faceX=ax+pw*.5,faceY=H0*.43,aw=pw*.7,ah=aw*.62;
-  if(C.ears)catfishAccessory(x,faceX-aw*.55,faceY-ah*1.15,aw*1.1,ah,'ears');
-  if(C.glasses)catfishAccessory(x,faceX-aw/2,faceY-ah*.28,aw,ah,'glasses');
-  if(C.nose)catfishAccessory(x,faceX-aw*.18,faceY+ah*.15,aw*.36,aw*.28,'nose');
-  if(C.moustache)catfishAccessory(x,faceX-aw*.28,faceY+ah*.42,aw*.56,ah*.3,'moustache');
+  const panel=document.createElement('canvas');panel.width=rightW;panel.height=S;
+  const p=panel.getContext('2d');p.drawImage(src,sx,sy,cropW,cropH,0,0,rightW,S);
+  const transformed=document.createElement('canvas');transformed.width=rightW;transformed.height=S;
+  const t=transformed.getContext('2d');
+  const dw=rightW*(C.slim/100),dh=S*(C.stretch/100);
+  t.drawImage(panel,(rightW-dw)/2,(S-dh)/2,dw,dh);
+  const pixel=Math.max(1,Math.round(C.pixel/4)),small=document.createElement('canvas');
+  small.width=Math.max(1,Math.round(rightW/pixel));small.height=Math.max(1,Math.round(S/pixel));
+  const sc=small.getContext('2d');sc.imageSmoothingEnabled=true;sc.drawImage(transformed,0,0,small.width,small.height);
+  x.save();x.beginPath();x.rect(pw,0,rightW,S);x.clip();x.imageSmoothingEnabled=false;x.drawImage(small,pw,0,rightW,S);x.restore();
+  const fx=pw+rightW*.5,fy=S*.43,aw=rightW*.78,ah=aw*.62;
+  if(C.ears)catfishAccessory(x,fx-aw*.55,fy-ah*1.15,aw*1.1,ah,'ears');
+  if(C.glasses)catfishAccessory(x,fx-aw/2,fy-ah*.28,aw,ah,'glasses');
+  if(C.nose)catfishAccessory(x,fx-aw*.18,fy+ah*.15,aw*.36,aw*.28,'nose');
+  if(C.moustache)catfishAccessory(x,fx-aw*.28,fy+ah*.42,aw*.56,ah*.3,'moustache');
  }
- if(C.divider){x.fillStyle='#ff4f9a';x.fillRect(pw,0,gap,H0);}
  setBase(out,'catfish-collage.png');
- say('Catfish collage created. Right panel now uses its own correctly cropped image before stretching and pixelation.');
+ say('Catfish collage created: clearer pixelation and no divider.');
 }
 const TABS=[['jpeg','JPEG',pJpeg],['filters','Filters',pFilters],['effects','Effects FX',pEffects],['text','Text & Symbols',pText],['collage','Collage',pCollage],['catfish','Catfish',pCatfish],['blur','Blur/Pixelate',pBlur],['ccd','CCD',pCCD],['nokia','Nokia',pAuto],['quarter','1/4"',pAuto],['g3','iPhone 3GS',pG3],['stickers','Stickers',pStickers],['photobooth','Photo Booth',pBooth],['pfp','PFP Border',pPfp]];
 function buildPanel(){
