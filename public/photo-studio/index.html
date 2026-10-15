@@ -1438,7 +1438,7 @@ function makeCatfish(){
  const sourceData=catfishSource,W=sourceData.width,H=sourceData.height;
  // Split screen: original on the left (58%), catfish effect on the right (42%).
  // Keep the overall canvas in the uploaded photo's aspect ratio.
- const outW=W,outH=H,leftW=Math.round(outW*.58),rightW=outW-leftW;
+ const outW=W,outH=H,leftW=Math.round(outW*.65),rightW=outW-leftW;
  const src=document.createElement('canvas');src.width=W;src.height=H;src.getContext('2d').putImageData(cloneID(sourceData),0,0);
  const out=document.createElement('canvas');out.width=outW;out.height=outH;
  const x=out.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,outW,outH);
