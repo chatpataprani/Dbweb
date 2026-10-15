@@ -1411,7 +1411,51 @@ function pPfp(p){
   p.append(grp('Border pattern',chips([{key:'solid',label:'Solid'},{key:'dots',label:'Dots'},{key:'gingham',label:'Gingham'},{key:'stars',label:'Stars'},{key:'hearts',label:'Hearts'},{key:'stripes',label:'Stripes'}],()=>pfpPattern,k=>{pfpPattern=k;},'three')),colorField('Main color',()=>pfpColor,v=>{pfpColor=v;}),colorField('Pattern color',()=>pfpColor2,v=>{pfpColor2=v;}),btn('Create circular PFP',makePfp,'wideb'),el('p',{class:'note'},'Upload or edit a photo first. The tool crops it to a circle and adds a patterned ring. Export as PNG to preserve transparency.'));
 }
 
-const TABS=[['jpeg','JPEG',pJpeg],['filters','Filters',pFilters],['effects','Effects FX',pEffects],['text','Text & Symbols',pText],['collage','Collage',pCollage],['blur','Blur/Pixelate',pBlur],['ccd','CCD',pCCD],['nokia','Nokia',pAuto],['quarter','1/4"',pAuto],['g3','iPhone 3GS',pG3],['stickers','Stickers',pStickers],['photobooth','Photo Booth',pBooth],['pfp','PFP Border',pPfp]];
+let catfishCfg={stretch:145,slim:72,pixel:18,glasses:false,ears:false,nose:false,moustache:false,original:true,stretched:true,divider:true};
+function pCatfish(p){
+ const C=catfishCfg;
+ p.append(
+  grp('Catfish collage',el('p',{class:'note'},'Create a two-panel collage: original on the left, vertically stretched and slimmer pixelated version on the right. Optional accessories can be switched on or off.')),
+  slider('Vertical stretch (%)',100,200,1,()=>C.stretch,v=>{C.stretch=v;},0),
+  slider('Horizontal width (%)',35,100,1,()=>C.slim,v=>{C.slim=v;},0),
+  slider('Pixel blur size',4,36,1,()=>C.pixel,v=>{C.pixel=v;},0),
+  grp('Panels',checkbox('Show original panel',()=>C.original,v=>C.original=v),checkbox('Show stretched panel',()=>C.stretched,v=>C.stretched=v),checkbox('Center divider',()=>C.divider,v=>C.divider=v)),
+  grp('Optional accessories',checkbox('Nerd glasses',()=>C.glasses,v=>C.glasses=v),checkbox('Dog ears',()=>C.ears,v=>C.ears=v),checkbox('Dog nose',()=>C.nose,v=>C.nose=v),checkbox('Moustache',()=>C.moustache,v=>C.moustache=v)),
+  btn('Create Catfish collage',makeCatfish,'wideb'),
+  el('p',{class:'note'},'The right panel is deliberately pixelated to match the reference. Use Download PNG to save the result.')
+ );
+}
+function catfishAccessory(ctx,x,y,w,h,kind){
+ ctx.save();ctx.translate(x,y);ctx.scale(w/100,h/100);
+ if(kind==='glasses'){ctx.strokeStyle='#211326';ctx.lineWidth=7;ctx.fillStyle='rgba(255,255,255,.04)';ctx.beginPath();ctx.roundRect(3,24,42,34,10);ctx.roundRect(55,24,42,34,10);ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(45,34);ctx.lineTo(55,34);ctx.stroke();}
+ if(kind==='ears'){ctx.fillStyle='#8c4d2b';ctx.beginPath();ctx.moveTo(7,42);ctx.quadraticCurveTo(-5,0,29,4);ctx.quadraticCurveTo(42,22,34,43);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(93,42);ctx.quadraticCurveTo(105,0,71,4);ctx.quadraticCurveTo(58,22,66,43);ctx.closePath();ctx.fill();ctx.fillStyle='#d68c9c';ctx.beginPath();ctx.moveTo(15,31);ctx.quadraticCurveTo(12,12,26,12);ctx.lineTo(29,32);ctx.fill();ctx.beginPath();ctx.moveTo(85,31);ctx.quadraticCurveTo(88,12,74,12);ctx.lineTo(71,32);ctx.fill();}
+ if(kind==='nose'){ctx.fillStyle='#a86637';ctx.beginPath();ctx.ellipse(50,32,30,23,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#20151a';ctx.beginPath();ctx.ellipse(50,27,16,11,0,0,Math.PI*2);ctx.fill();}
+ if(kind==='moustache'){ctx.fillStyle='#111';ctx.beginPath();ctx.moveTo(50,20);ctx.bezierCurveTo(33,2,15,5,4,10);ctx.bezierCurveTo(6,34,30,37,50,24);ctx.bezierCurveTo(70,37,94,34,96,10);ctx.bezierCurveTo(85,5,67,2,50,20);ctx.fill();}
+ ctx.restore();
+}
+function makeCatfish(){
+ const C=catfishCfg;if(!base){say('Upload a photo first.');return;}
+ const W0=base.width,H0=base.height,src=document.createElement('canvas');src.width=W0;src.height=H0;src.getContext('2d').putImageData(cloneID(base),0,0);
+ const out=document.createElement('canvas');out.width=W0;out.height=H0;const x=out.getContext('2d');
+ x.fillStyle='#fff';x.fillRect(0,0,W0,H0);const gap=Math.max(2,Math.round(W0*.008)),pw=(W0-gap)/2;
+ if(C.original)drawCrop(x,src,0,0,pw,H0);
+ if(C.stretched){
+  const temp=document.createElement('canvas');temp.width=W0;temp.height=H0;const t=temp.getContext('2d');
+  const dw=pw*C.slim/100,dh=H0*C.stretch/100;
+  t.imageSmoothingEnabled=true;t.drawImage(src,(W0-dw)/2,(H0-dh)/2,dw,dh);
+  const small=document.createElement('canvas'),block=Math.max(2,Math.round(C.pixel));small.width=Math.max(1,Math.round(pw/block));small.height=Math.max(1,Math.round(H0/block));
+  const s=small.getContext('2d');s.imageSmoothingEnabled=true;s.drawImage(temp,pw,0,pw,H0,0,0,small.width,small.height);
+  x.imageSmoothingEnabled=false;x.drawImage(small,pw+gap,0,pw,H0);
+  const ax=pw+gap,faceX=ax+pw*.5,faceY=H0*.43,aw=pw*.7,ah=aw*.62;
+  if(C.ears)catfishAccessory(x,faceX-aw*.55,faceY-ah*1.15,aw*1.1,ah,'ears');
+  if(C.glasses)catfishAccessory(x,faceX-aw/2,faceY-ah*.28,aw,ah,'glasses');
+  if(C.nose)catfishAccessory(x,faceX-aw*.18,faceY+ah*.15,aw*.36,aw*.28,'nose');
+  if(C.moustache)catfishAccessory(x,faceX-aw*.28,faceY+ah*.42,aw*.56,aw*.3,'moustache');
+ }
+ if(C.divider){x.fillStyle='#ff4f9a';x.fillRect(pw,0,gap,H0);}
+ setBase(out,'catfish-collage.png');say('Catfish collage created. The right panel is pixelated. Download PNG to save it.');
+}
+const TABS=[['jpeg','JPEG',pJpeg],['filters','Filters',pFilters],['effects','Effects FX',pEffects],['text','Text & Symbols',pText],['collage','Collage',pCollage],['catfish','Catfish',pCatfish],['blur','Blur/Pixelate',pBlur],['ccd','CCD',pCCD],['nokia','Nokia',pAuto],['quarter','1/4"',pAuto],['g3','iPhone 3GS',pG3],['stickers','Stickers',pStickers],['photobooth','Photo Booth',pBooth],['pfp','PFP Border',pPfp]];
 function buildPanel(){
   const p=$('#panel');p.replaceChildren();syncs=[];
   TABS.find(t=>t[0]===cur)[2](p);
