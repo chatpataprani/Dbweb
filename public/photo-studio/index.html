@@ -1411,7 +1411,7 @@ function pPfp(p){
   p.append(grp('Border pattern',chips([{key:'solid',label:'Solid'},{key:'dots',label:'Dots'},{key:'gingham',label:'Gingham'},{key:'stars',label:'Stars'},{key:'hearts',label:'Hearts'},{key:'stripes',label:'Stripes'}],()=>pfpPattern,k=>{pfpPattern=k;},'three')),colorField('Main color',()=>pfpColor,v=>{pfpColor=v;}),colorField('Pattern color',()=>pfpColor2,v=>{pfpColor2=v;}),btn('Create circular PFP',makePfp,'wideb'),el('p',{class:'note'},'Upload or edit a photo first. The tool crops it to a circle and adds a patterned ring. Export as PNG to preserve transparency.'));
 }
 
-let catfishCfg={leftPercent:65,stretch:145,slim:82,pixel:12,original:true,stretched:true,divider:true};
+let catfishCfg={leftPercent:65,stretch:145,slim:82,pixel:12,blur:0,original:true,stretched:true,divider:true};
 function pCatfish(p){
  const C=catfishCfg;
  p.append(
@@ -1419,7 +1419,8 @@ function pCatfish(p){
   slider('Original panel width (%)',30,80,1,()=>C.leftPercent,v=>{C.leftPercent=v;if(catfishActive)makeCatfish();},0),
   slider('Vertical stretch (%)',100,200,1,()=>C.stretch,v=>{C.stretch=v;if(catfishActive)makeCatfish();},0),
   slider('Horizontal width (%)',35,100,1,()=>C.slim,v=>{C.slim=v;if(catfishActive)makeCatfish();},0),
-  slider('Pixel blur size',4,36,1,()=>C.pixel,v=>{C.pixel=v;if(catfishActive)makeCatfish();},0),
+  slider('Pixelate strength',4,36,1,()=>C.pixel,v=>{C.pixel=v;if(catfishActive)makeCatfish();},0),
+  slider('Pixel blur',0,12,1,()=>C.blur,v=>{C.blur=v;if(catfishActive)makeCatfish();},0),
   grp('Panels',checkbox('Show original panel',()=>C.original,v=>{C.original=v;if(catfishActive)makeCatfish();}),checkbox('Show stretched panel',()=>C.stretched,v=>{C.stretched=v;if(catfishActive)makeCatfish();}),checkbox('Center divider',()=>C.divider,v=>{C.divider=v;if(catfishActive)makeCatfish();})),
   btn('Create Catfish collage',makeCatfish,'wideb'),
   el('p',{class:'note'},'The right panel uses stronger pixelation. Use Download PNG to save the result.')
@@ -1464,7 +1465,12 @@ function makeCatfish(){
   const pixel=Math.max(2,Math.round(C.pixel)),small=document.createElement('canvas');
   small.width=Math.max(1,Math.round(rightW/pixel));small.height=Math.max(1,Math.round(H/pixel));
   const sc=small.getContext('2d');sc.imageSmoothingEnabled=true;sc.drawImage(transformed,0,0,small.width,small.height);
-  x.save();x.imageSmoothingEnabled=false;x.drawImage(small,leftW,0,rightW,H);x.restore();
+  const pixelated=document.createElement('canvas');pixelated.width=rightW;pixelated.height=H;
+  const pc=pixelated.getContext('2d');pc.imageSmoothingEnabled=false;pc.drawImage(small,0,0,rightW,H);
+  x.save();x.beginPath();x.rect(leftW,0,rightW,H);x.clip();
+  if(C.blur>0){x.filter='blur('+C.blur+'px)';x.drawImage(pixelated,leftW,0);}
+  else{x.drawImage(pixelated,leftW,0);}
+  x.restore();
  }
  // The panels touch edge-to-edge; no divider or gutter is inserted.
  const id=x.getImageData(0,0,outW,outH);setBaseData(id);lastResult=null;resetCollage();clearMask();suppress=true;render();
