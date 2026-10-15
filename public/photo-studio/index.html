@@ -1502,7 +1502,7 @@ async function apply(){
   setBaseData(res);resetCollage();suppress=true;clearMask();say('Applied. Change a setting to preview again.');render();
 }
 function undo(){if(!history.length){say('Nothing to undo.');return;}setBaseData(history.pop());resetCollage();suppress=true;say('Undone.');render();}
-function resetAll(){history.push(base);setBaseData(cloneID(original));resetCollage();suppress=true;say('Back to the original picture.');render();}
+function resetAll(){history.push(base);setBaseData(cloneID(original));suppress=true;say('Photo reset. Stickers and collage items are kept.');render();}
 async function save(){
   if(!effCanvas)return;
   say('Preparing the full-size picture…');await new Promise(r=>setTimeout(r,30));
