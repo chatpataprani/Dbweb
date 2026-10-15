@@ -1411,11 +1411,12 @@ function pPfp(p){
   p.append(grp('Border pattern',chips([{key:'solid',label:'Solid'},{key:'dots',label:'Dots'},{key:'gingham',label:'Gingham'},{key:'stars',label:'Stars'},{key:'hearts',label:'Hearts'},{key:'stripes',label:'Stripes'}],()=>pfpPattern,k=>{pfpPattern=k;},'three')),colorField('Main color',()=>pfpColor,v=>{pfpColor=v;}),colorField('Pattern color',()=>pfpColor2,v=>{pfpColor2=v;}),btn('Create circular PFP',makePfp,'wideb'),el('p',{class:'note'},'Upload or edit a photo first. The tool crops it to a circle and adds a patterned ring. Export as PNG to preserve transparency.'));
 }
 
-let catfishCfg={stretch:145,slim:82,pixel:12,original:true,stretched:true,divider:true};
+let catfishCfg={leftPercent:65,stretch:145,slim:82,pixel:12,original:true,stretched:true,divider:true};
 function pCatfish(p){
  const C=catfishCfg;
  p.append(
   grp('Catfish collage',el('p',{class:'note'},'Create a two-panel collage: original on the left, vertically stretched, slimmer, and pixelated version on the right.')),
+  slider('Original panel width (%)',30,80,1,()=>C.leftPercent,v=>{C.leftPercent=v;if(catfishActive)makeCatfish();},0),
   slider('Vertical stretch (%)',100,200,1,()=>C.stretch,v=>{C.stretch=v;if(catfishActive)makeCatfish();},0),
   slider('Horizontal width (%)',35,100,1,()=>C.slim,v=>{C.slim=v;if(catfishActive)makeCatfish();},0),
   slider('Pixel blur size',4,36,1,()=>C.pixel,v=>{C.pixel=v;if(catfishActive)makeCatfish();},0),
@@ -1436,9 +1437,9 @@ function makeCatfish(){
   catfishActive=true;
  }
  const sourceData=catfishSource,W=sourceData.width,H=sourceData.height;
- // Split screen: original on the left (58%), catfish effect on the right (42%).
+ // User-controlled split: original panel percentage on the left; the right panel gets the remainder.
  // Keep the overall canvas in the uploaded photo's aspect ratio.
- const outW=W,outH=H,leftW=Math.round(outW*.65),rightW=outW-leftW;
+ const outW=W,outH=H,leftW=Math.round(outW*Math.min(80,Math.max(30,C.leftPercent))/100),rightW=outW-leftW;
  const src=document.createElement('canvas');src.width=W;src.height=H;src.getContext('2d').putImageData(cloneID(sourceData),0,0);
  const out=document.createElement('canvas');out.width=outW;out.height=outH;
  const x=out.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,outW,outH);
@@ -1466,7 +1467,7 @@ function makeCatfish(){
  }
  // The panels touch edge-to-edge; no divider or gutter is inserted.
  const id=x.getImageData(0,0,outW,outH);setBaseData(id);lastResult=null;resetCollage();clearMask();suppress=true;render();
- say('Catfish collage created with a 58% original panel and 42% catfish panel.');
+ say('Catfish collage created: '+Math.round(leftW/outW*100)+'% original, '+(100-Math.round(leftW/outW*100))+'% catfish.');
 }
 const TABS=[['jpeg','JPEG',pJpeg],['filters','Filters',pFilters],['effects','Effects FX',pEffects],['text','Text & Symbols',pText],['collage','Collage',pCollage],['catfish','Catfish',pCatfish],['blur','Blur/Pixelate',pBlur],['ccd','CCD',pCCD],['nokia','Nokia',pAuto],['quarter','1/4"',pAuto],['g3','iPhone 3GS',pG3],['stickers','Stickers',pStickers],['photobooth','Photo Booth',pBooth],['pfp','PFP Border',pPfp]];
 function buildPanel(){
