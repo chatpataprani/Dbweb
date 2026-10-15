@@ -1436,16 +1436,17 @@ function makeCatfish(){
   catfishActive=true;
  }
  const sourceData=catfishSource,W=sourceData.width,H=sourceData.height;
- // Preserve the photo's aspect ratio. Each panel uses the full image; no square crop.
- const panelW=W,outW=panelW*2,outH=H;
+ // Split screen: original on the left (58%), catfish effect on the right (42%).
+ // Keep the overall canvas in the uploaded photo's aspect ratio.
+ const outW=W,outH=H,leftW=Math.round(outW*.58),rightW=outW-leftW;
  const src=document.createElement('canvas');src.width=W;src.height=H;src.getContext('2d').putImageData(cloneID(sourceData),0,0);
  const out=document.createElement('canvas');out.width=outW;out.height=outH;
  const x=out.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,outW,outH);
- if(C.original)x.drawImage(src,0,0,W,H,0,0,panelW,outH);
+ if(C.original)x.drawImage(src,0,0,W,H,0,0,leftW,outH);
  if(C.stretched){
-  const dw=Math.max(1,Math.round(panelW*C.slim/100));
+  const dw=Math.max(1,Math.round(rightW*C.slim/100));
   const dh=Math.max(1,Math.round(H*C.stretch/100));
-  const transformed=document.createElement('canvas');transformed.width=panelW;transformed.height=H;
+  const transformed=document.createElement('canvas');transformed.width=rightW;transformed.height=H;
   const t=transformed.getContext('2d');
   // Scale the full photo into a narrower, taller face image and fill both side margins
   // by extending the image edges so no white seams show.
@@ -1454,18 +1455,18 @@ function makeCatfish(){
   const top=Math.round((H-dh)/2);
   const stretched=document.createElement('canvas');stretched.width=dw;stretched.height=H;
   stretched.getContext('2d').drawImage(slim,0,0,dw,H,0,top,dw,dh);
-  const marginL=Math.floor((panelW-dw)/2),marginR=panelW-dw-marginL;
+  const marginL=Math.floor((rightW-dw)/2),marginR=rightW-dw-marginL;
   if(marginL>0)t.drawImage(stretched,0,0,1,H,0,0,marginL,H);
   t.drawImage(stretched,0,0,dw,H,marginL,0,dw,H);
   if(marginR>0)t.drawImage(stretched,dw-1,0,1,H,marginL+dw,0,marginR,H);
   const pixel=Math.max(2,Math.round(C.pixel)),small=document.createElement('canvas');
-  small.width=Math.max(1,Math.round(panelW/pixel));small.height=Math.max(1,Math.round(H/pixel));
+  small.width=Math.max(1,Math.round(rightW/pixel));small.height=Math.max(1,Math.round(H/pixel));
   const sc=small.getContext('2d');sc.imageSmoothingEnabled=true;sc.drawImage(transformed,0,0,small.width,small.height);
-  x.save();x.imageSmoothingEnabled=false;x.drawImage(small,panelW,0,panelW,H);x.restore();
+  x.save();x.imageSmoothingEnabled=false;x.drawImage(small,leftW,0,rightW,H);x.restore();
  }
  // The panels touch edge-to-edge; no divider or gutter is inserted.
  const id=x.getImageData(0,0,outW,outH);setBaseData(id);lastResult=null;resetCollage();clearMask();suppress=true;render();
- say('Catfish collage created using the original photo proportions.');
+ say('Catfish collage created with a 58% original panel and 42% catfish panel.');
 }
 const TABS=[['jpeg','JPEG',pJpeg],['filters','Filters',pFilters],['effects','Effects FX',pEffects],['text','Text & Symbols',pText],['collage','Collage',pCollage],['catfish','Catfish',pCatfish],['blur','Blur/Pixelate',pBlur],['ccd','CCD',pCCD],['nokia','Nokia',pAuto],['quarter','1/4"',pAuto],['g3','iPhone 3GS',pG3],['stickers','Stickers',pStickers],['photobooth','Photo Booth',pBooth],['pfp','PFP Border',pPfp]];
 function buildPanel(){
