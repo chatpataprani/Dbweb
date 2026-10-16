@@ -841,7 +841,7 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
   $("modePhone").addEventListener("click", function(){ setSection(true); loadSmsCountries(); });
 
   /* ---------- public SMS directory ---------- */
-  var SMS_API = "https://otp-api.shelex.dev/api";
+  var SMS_API = "/api/dbweb-sms";
   var smsCountriesLoaded = false, smsNumbers = [], smsSelected = null, smsCheckTimer = null, smsBusy = false;
   var smsEsc = function(v){ return String(v == null ? "" : v).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); };
   async function smsFetch(url, timeoutMs){
