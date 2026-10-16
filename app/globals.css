@@ -240,3 +240,31 @@
 .streamDetailHero{min-height:300px;display:flex;align-items:flex-end;background-size:cover;background-position:center;padding:28px;background-color:#171923}.streamDetailText{max-width:650px}.streamDetailBadge{font-size:10px;font-weight:800;letter-spacing:1px;color:var(--ac)}.streamDetailText h2{font-size:clamp(25px,4vw,40px);line-height:1.1;margin:9px 0}.streamDetailText>p{font-size:12px;color:#d0d2dc}.streamOverview{max-width:600px;line-height:1.65;margin:12px 0!important}.streamDetailSave{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border:1px solid #ffffff45;border-radius:8px;background:#101217a8;color:#fff;cursor:pointer}
 .streamModalBody{padding:22px}.streamModalBody h3{font-size:15px;margin:0 0 12px}.streamHint{display:flex;align-items:center;gap:8px;color:var(--mu);font-size:12px;line-height:1.6;margin:8px 0 14px}.streamProviders{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0 17px}.streamProvider{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--bd);border-radius:9px;background:var(--bg);font-size:12px}.streamProvider img{width:25px;height:25px;border-radius:6px;object-fit:cover}.streamOfficialLink{display:flex;align-items:center;gap:9px;padding:13px;border:1px solid var(--ac);border-radius:10px;background:var(--acs);color:var(--tx);font-size:12px;text-decoration:none}.streamExternalArrow{margin-left:auto;transform:rotate(135deg)}.streamTrailer{margin-top:24px}.streamVideo{aspect-ratio:16/9;overflow:hidden;border-radius:10px;background:#000}.streamVideo iframe{width:100%;height:100%;border:0}.streamDownloadNote{display:flex;align-items:flex-start;gap:12px;margin-top:20px;padding:14px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--ac)}.streamDownloadNote strong{color:var(--tx);font-size:13px}.streamDownloadNote p{margin-top:5px;color:var(--mu);font-size:12px;line-height:1.6}
 @media(max-width:1100px){.streamGrid{grid-template-columns:repeat(4,minmax(0,1fr))}}@media(max-width:700px){.streamPage{padding:15px 12px 32px}.streamGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.streamCardInfo{padding:8px;min-height:70px}.streamTitle{font-size:11px}.streamMeta{font-size:9px;gap:5px}.streamToolbar{align-items:flex-start;flex-direction:column}.streamSaved{align-self:stretch}.streamDetailHero{min-height:260px;padding:20px}.streamModalBody{padding:16px}.streamModalBackdrop{padding:8px}.streamModal{max-height:96vh}}@media(max-width:420px){.streamGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.streamHero{padding:22px 16px;border-radius:16px}.streamHero h1{letter-spacing:-1px}.streamSearch{gap:6px;padding-left:10px}.streamSearch input{font-size:12px}.streamSearchButton{padding:0 11px}.streamTabs button{padding:9px 10px;font-size:12px}}@media(prefers-reduced-motion:reduce){.streamSpin,.streamCard,.streamPosterButton img{animation:none!important;transition:none!important}}
+
+
+/* Steam account giveaway page */
+.steamPage{width:min(100% - 32px,1000px);margin:0 auto;padding:30px 0 24px;min-height:100dvh;color:var(--tx)}
+.steamHeader{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+.steamMark{width:48px;height:48px;display:grid;place-items:center;border:1px solid var(--bd);border-radius:15px;background:var(--s1);flex-shrink:0}
+.steamEyebrow{font-size:10px;letter-spacing:.15em;font-weight:800;opacity:.65;margin:0 0 4px}
+.steamHeader h1{font-size:clamp(24px,5vw,34px);line-height:1.1;margin:0}
+.steamSub{margin:6px 0 0;color:var(--mu);font-size:13px}
+.steamRefresh{margin-left:auto;display:inline-flex;align-items:center;gap:7px;flex-shrink:0}
+.steamGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:16px}
+.steamCard{padding:0;overflow:hidden}
+.steamGameImage{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:var(--s2);border-bottom:1px solid var(--bd)}
+.steamCardBody{padding:16px}
+.steamCardBody h2{font-size:17px;line-height:1.35;margin:0 0 15px}
+.steamCredential{display:grid;grid-template-columns:44px minmax(0,1fr) 32px;align-items:center;gap:9px;padding:10px 0;border-top:1px solid var(--bd)}
+.steamCredential>span{font-size:12px;color:var(--mu);font-weight:700}
+.steamCredential code{font-size:13px;overflow-wrap:anywhere;color:var(--tx);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.steamCredential .iconBtn{justify-self:end}
+.steamNotice{font-size:11px;color:var(--mu);margin:12px 0 0}
+.steamEmpty{padding:36px 18px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.steamEmpty h2{margin:5px 0 0;font-size:18px}
+.steamEmpty p{margin:0;color:var(--mu);font-size:13px}
+.steamError{margin-bottom:14px}
+.steamBack{display:flex;justify-content:center;margin:26px 0 0}
+.steamBack a{display:inline-flex;align-items:center;gap:5px;color:var(--mu);font-size:13px;text-decoration:none}
+.steamBack a:hover{color:var(--tx)}
+@media(max-width:520px){.steamPage{width:calc(100% - 24px);padding-top:18px}.steamHeader{gap:10px;align-items:flex-start}.steamMark{width:40px;height:40px;border-radius:12px}.steamRefresh{font-size:12px;padding:8px}.steamSub{font-size:12px}.steamGrid{grid-template-columns:1fr}}
