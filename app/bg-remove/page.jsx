@@ -205,11 +205,10 @@ export default function BackgroundRemoverPage() {
       setProgress("");
     } catch (e) {
       console.error("Dbweb background removal failed", e);
-      setError(e?.message?.includes("fetch") || e?.message?.includes("network")
-        ? "The AI model could not download. Check your connection and try again."
-        : (e?.message?.includes("fp16") || e?.message?.includes("WebGPU") || e?.message?.includes("memory") || e?.message?.includes("allocation")
-          ? "This device could not process the image. Try a smaller image or a newer browser."
-          : (e?.message || "Background removal failed. Try a different image or browser.")));
+      const message = String(e?.message || "").toLowerCase();
+      setError(message.includes("fetch") || message.includes("network") || message.includes("download")
+        ? "Could not prepare background removal. Check your connection and try again."
+        : "This image could not be processed on this device. Try a smaller image or a newer browser.");
       setStatus("error");
       setProgress("");
     }
