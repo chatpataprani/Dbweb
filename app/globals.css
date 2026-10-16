@@ -167,9 +167,9 @@
   ::view-transition-group(root),::view-transition-old(root),::view-transition-new(root){animation:none!important}
 }
 
-/* Small, neutral Instagram shortcut fixed to the bottom-left corner */
-.app aside{min-height:100vh;display:flex;flex-direction:column;position:relative}
-.instagramCornerLink{position:fixed;left:22px;bottom:12px;z-index:25;padding:5px 8px;color:var(--mu);font-size:11px;line-height:1.2;text-decoration:none;display:inline-flex;align-items:center;gap:5px;background:transparent}
-.instagramCornerLink span{font-size:14px;line-height:1;font-family:Arial,sans-serif;font-weight:400}
+/* Keep the Instagram shortcut at the sidebar's bottom; do not affect lookup layout */
+.app aside{min-height:100vh;position:relative}
+.instagramCornerLink{position:absolute;left:12px;bottom:12px;z-index:25;padding:5px 8px;color:var(--mu);font-size:11px;line-height:1.2;text-decoration:none;display:inline-flex;align-items:center;gap:5px;background:transparent}
+.instagramCornerLink svg{flex-shrink:0}
 .instagramCornerLink:hover{color:var(--tx)}
-@media(max-width:760px){.app aside{min-height:100dvh}.instagramCornerLink{position:absolute;left:12px;bottom:12px}}
+@media(max-width:760px){.app aside{min-height:100dvh}.instagramCornerLink{left:12px;bottom:12px}}
