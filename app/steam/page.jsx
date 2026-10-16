@@ -1,0 +1,13 @@
+'use client';
+import {useEffect,useState} from "react";
+import {Gamepad2,Copy,Check,RefreshCw,ArrowUpRight} from "lucide-react";
+export default function SteamPage(){
+ const [accounts,setAccounts]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState(""),[copied,setCopied]=useState("");
+ async function load(){setLoading(true);setError("");try{const r=await fetch("/api/admin/steam",{cache:"no-store"});const d=await r.json();if(!r.ok)throw new Error(d.error||"Steam accounts are unavailable.");setAccounts(d.accounts||[]);if(d.error)setError(d.error);}catch(e){setError(e.message||"Could not load Steam accounts.");}finally{setLoading(false);}}
+ useEffect(()=>{load();},[]);
+ async function copy(label,value){try{await navigator.clipboard.writeText(value);setCopied(label);window.setTimeout(()=>setCopied(""),1500);}catch{setError("Clipboard access was blocked. You can select and copy the text manually.");}}
+ return <main className="steamPage"><header className="steamHeader"><div className="steamMark"><Gamepad2 size={22}/></div><div><p className="steamEyebrow">DBWEB GIVEAWAYS</p><h1>Free Steam Accounts</h1><p className="steamSub">Game accounts shared by the Dbweb team.</p></div><button className="secondary steamRefresh" onClick={load} disabled={loading}><RefreshCw size={15}/>{loading?"Loading":"Refresh"}</button></header>
+ {error&&<div className="error steamError">{error}</div>}
+ {loading?<section className="card steamEmpty">Loading available accounts…</section>:accounts.length===0?<section className="card steamEmpty"><Gamepad2 size={30}/><h2>No accounts available yet</h2><p>Check back later — new game accounts will appear here when published.</p></section>:<div className="steamGrid">{accounts.map(a=><article className="card steamCard" key={a.id}><img className="steamGameImage" src={a.imageUrl} alt={a.title} loading="lazy"/><div className="steamCardBody"><h2>{a.title}</h2><div className="steamCredential"><span>ID</span><code>{a.accountId}</code><button className="iconBtn" aria-label="Copy account ID" onClick={()=>copy(a.id+"-id",a.accountId)}>{copied===a.id+"-id"?<Check size={15}/>:<Copy size={15}/>}</button></div><div className="steamCredential"><span>Pass</span><code>{a.password}</code><button className="iconBtn" aria-label="Copy password" onClick={()=>copy(a.id+"-pass",a.password)}>{copied===a.id+"-pass"?<Check size={15}/>:<Copy size={15}/>}</button></div><p className="steamNotice">Shared account · availability may change.</p></div></article>)}</div>}
+ <p className="steamBack"><a href="/">Back to Dbweb <ArrowUpRight size={14}/></a></p></main>;
+}
