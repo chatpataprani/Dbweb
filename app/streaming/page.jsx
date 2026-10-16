@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";\nimport Hls from "hls.js";
 import { ArrowLeft, Search, Play, Film, Sparkles, X, LoaderCircle, Bookmark, BookmarkCheck, ExternalLink, ShieldCheck, Info, Tv } from "lucide-react";
 
 const kinds = [
@@ -24,7 +24,7 @@ export default function StreamingPage() {
   const [streamChoice, setStreamChoice] = useState("");\n  const [episodeChoice, setEpisodeChoice] = useState("");
   const [detailBusy, setDetailBusy] = useState(false);
   const [saved, setSaved] = useState([]);
-  const [savedOnly, setSavedOnly] = useState(false);
+  const [savedOnly, setSavedOnly] = useState(false);\n  const videoRef = useRef(null);
 
   useEffect(() => {
     try { setSaved(JSON.parse(localStorage.getItem("dbweb_stream_saved") || "[]")); } catch {}
@@ -147,7 +147,7 @@ export default function StreamingPage() {
           {detailBusy && <p className="streamHint"><LoaderCircle className="streamSpin" size={15}/> Checking rights and preparing player…</p>}
           {selected.episodes?.length > 1 && <label className="streamHint">Choose episode <select value={episodeChoice || selected.selectedEpisodeId || selected.episodes[0].id} onChange={e => changeEpisode(selected, e.target.value)}>{selected.episodes.map((episode, index) => <option key={episode.id} value={episode.id}>{episode.title || ("Episode " + (index + 1))}</option>)}</select></label>}
           {selected.streams?.length > 1 && <label className="streamHint">Choose source <select value={streamChoice || selected.streams[0].url} onChange={e => setStreamChoice(e.target.value)}>{selected.streams.map((stream, index) => <option key={stream.url} value={stream.url}>{stream.name || stream.title || ("Source " + (index + 1))}</option>)}</select></label>}
-          {(selected.videoUrl || streamChoice) && <div className="streamArchivePlayer"><video key={streamChoice || selected.videoUrl} controls playsInline preload="metadata" src={streamChoice || selected.videoUrl} poster={selected.poster || undefined}>Your browser does not support HTML video.</video></div>}
+          {(selected.videoUrl || streamChoice) && <div className="streamArchivePlayer"><video ref={videoRef} key={streamChoice || selected.videoUrl} controls playsInline preload="metadata" src={isHlsSource ? undefined : playerSource} poster={selected.poster || undefined}>Your browser does not support HTML video.</video></div>}
           {selected.playerError && <p className="streamError" role="alert">{selected.playerError}</p>}
           {selected.licenseurl && <a className="streamOfficialLink" href={selected.licenseurl} target="_blank" rel="noopener noreferrer"><ExternalLink size={16}/> View this film's license <ArrowLeft size={14} className="streamExternalArrow"/></a>}
           <p className="streamHint"><Info size={15}/> If playback fails, the archive item may be unavailable or its video format may not be supported by your browser.</p>
