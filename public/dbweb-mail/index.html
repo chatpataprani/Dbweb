@@ -350,7 +350,12 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     if (e.status === 502 && /Dbweb Mail could not connect/i.test(e.apiMessage || e.message || "")) {
       return "Dbweb's server could not reach Mail.gw (" + (e.code || "network error") + "). Open /api/dbweb-mail/domains on this same site to check the proxy response.";
     }
-    if (e.status >= 500) return "The mail provider is having a temporary problem. Try again in a little while.";
+    if (e.status >= 500) {
+      var detail = e.apiMessage || e.message || "";
+      if (e.detail) detail += (detail ? " — " : "") + e.detail;
+      if (e.code) detail += (detail ? " [" : "[") + e.code + "]";
+      return "Mail provider returned HTTP " + e.status + (detail ? ": " + detail.slice(0, 220) : ".") + " Try again shortly.";
+    }
     if (/failed to fetch|networkerror|load failed|network request failed/i.test(e.message || "")) return "The browser could not reach the mail service. This can happen if the provider is down or blocks browser requests. Try again shortly, or open Dbweb Mail in another browser/network.";
     if (/timed out|too long to respond/i.test(e.message || "")) return "The mail provider did not respond in time. Please try again.";
     return e.apiMessage || e.message || "Something went wrong. Please try again.";
@@ -430,7 +435,8 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     var lastErr = null, firstErr = null, taken = false, i = 0;
     function next(){
       if (i >= attempts.length) {
-        var usefulErr = firstErr || lastErr;
+        // Prefer a proxy/network diagnostic or the most recent provider response over a generic first error.
+        var usefulErr = lastErr || firstErr;
         showErr("err1", taken ? "That name is already in use. Choose another name, or leave it blank for a random address." : "We could not create your inbox. " + netHint(usefulErr));
         $("newBtn").disabled = false; return;
       }
