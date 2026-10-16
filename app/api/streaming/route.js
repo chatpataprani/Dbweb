@@ -261,7 +261,7 @@ export async function GET(request) {
       addonCount: addonUrls().length,
       addonWarning: addonUrls().length && !addons.length ? "Configured addons did not return searchable catalog results. Check their manifest and search support." : "",
       sourceStatus: { internetArchive: archiveResults.status === "fulfilled", wikimediaCommons: commonsResults.status === "fulfilled", configuredAddons: addonResults.status === "fulfilled" },
-      licensedOnly: true,
+      rightsPolicy: "Built-in catalogs filter for reusable licenses; configured add-on streams are not independently rights-verified.",
     }, { headers: CACHE_HEADERS });
   } catch (error) {
     return NextResponse.json({ error: error.message || "Could not load films." }, { status: 502 });
