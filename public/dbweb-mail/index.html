@@ -103,6 +103,34 @@ option{background:var(--bg);color:var(--fg)}
 .provider-pill{font:700 .66rem var(--mono);padding:5px 9px;border-radius:999px;box-shadow:var(--in-sm);white-space:nowrap;color:var(--accent)}
 .provider-card .btn{align-self:flex-start;margin-top:3px}
 .phone-note{font-size:.82rem;color:var(--muted);padding:14px 16px;border-radius:16px;box-shadow:var(--in-sm);margin-top:16px}
+.sms-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;margin-bottom:12px}
+.sms-controls select{width:100%}
+.sms-status{font-size:.82rem;color:var(--muted);padding:11px 14px;border-radius:14px;box-shadow:var(--in-sm);margin-bottom:14px}
+.sms-number-list{display:flex;flex-direction:column;gap:12px}
+.sms-number{padding:15px;border-radius:18px;box-shadow:var(--r-sm);display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
+.sms-number-main{min-width:0}
+.sms-number-value{font:700 .92rem var(--mono);overflow-wrap:anywhere;margin:0 0 4px}
+.sms-number-meta{font-size:.72rem;color:var(--muted);margin:0}
+.sms-number-actions{display:flex;flex-wrap:wrap;gap:8px;flex:none}
+.sms-number-actions .btn{padding:9px 12px;font-size:.78rem}
+.sms-inbox{margin-top:20px;padding-top:18px;border-top:1px solid var(--sd)}
+.sms-inbox-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sms-inbox-head h3{font:700 1rem var(--mono);overflow-wrap:anywhere;margin:0}
+.sms-inbox-head .label{margin-bottom:5px}
+.sms-inbox-actions{align-items:center;margin:14px 0}
+.sms-updated{font-size:.72rem;color:var(--muted)}
+.sms-messages{display:flex;flex-direction:column;gap:10px}
+.sms-message{padding:14px;border-radius:16px;box-shadow:var(--in-sm);overflow-wrap:anywhere}
+.sms-message-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}
+.sms-message-top strong{font:700 .75rem var(--mono);color:var(--accent)}
+.sms-message time{font-size:.7rem;color:var(--muted)}
+.sms-message p{margin:0;font-size:.88rem;white-space:pre-wrap}
+.sms-empty{font-size:.84rem;color:var(--muted);padding:14px 4px;margin:0}
+.sms-fallback{margin-top:16px;font-size:.84rem;color:var(--muted)}
+.sms-fallback summary{cursor:pointer;padding:10px 0}
+.sms-fallback-links{display:flex;flex-wrap:wrap;gap:12px}
+.sms-fallback-links a{color:var(--accent)}
+@media(max-width:440px){.sms-controls{grid-template-columns:1fr}.sms-number{align-items:flex-start;flex-direction:column}.sms-number-actions{width:100%}.sms-number-actions .btn{flex:1;text-align:center}.sms-inbox-head{align-items:flex-start;flex-direction:column}}
 .mode-tabs{display:flex;gap:12px;margin:0 0 2px}
 .mode-tabs .btn{flex:1;text-align:center}
 #phoneView{display:none}
@@ -298,30 +326,35 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
 
   <section class="card" id="phoneView" aria-labelledby="phoneTitle">
     <h2 class="ttl" id="phoneTitle">Temporary phone numbers</h2>
-    <p class="sub">Choose a public SMS inbox from one of these providers. Pick a country and number on the provider's site, then read incoming texts there.</p>
-    <div class="provider-grid">
-      <article class="provider-card">
-        <div class="provider-top"><h3>ASMS.ai</h3><span class="provider-pill">FREE SHARED</span></div>
-        <p>Free public numbers from the US, UK, Germany and other countries. Its automated number-ordering API is paid.</p>
-        <a class="btn primary" href="https://asms.ai/" target="_blank" rel="noopener noreferrer">Browse numbers ↗</a>
-      </article>
-      <article class="provider-card">
-        <div class="provider-top"><h3>Instant SMS</h3><span class="provider-pill">100+ COUNTRIES</span></div>
-        <p>Free shared numbers with live public inboxes. Country availability changes over time.</p>
-        <a class="btn primary" href="https://instant-sms.com/" target="_blank" rel="noopener noreferrer">Browse numbers ↗</a>
-      </article>
-      <article class="provider-card">
-        <div class="provider-top"><h3>SMSCove</h3><span class="provider-pill">FREE</span></div>
-        <p>Public numbers across multiple countries, refreshed periodically, with messages shown on each number page.</p>
-        <a class="btn primary" href="https://smscove.com/" target="_blank" rel="noopener noreferrer">Browse numbers ↗</a>
-      </article>
-      <article class="provider-card">
-        <div class="provider-top"><h3>Receive-SMS.CC</h3><span class="provider-pill">FREE</span></div>
-        <p>Browse public numbers by country and open the matching inbox to check incoming SMS.</p>
-        <a class="btn primary" href="https://receive-sms.cc/" target="_blank" rel="noopener noreferrer">Browse numbers ↗</a>
-      </article>
+    <p class="sub">Free public numbers with messages shown right here on Dbweb. Availability changes frequently.</p>
+    <label class="label" for="smsCountry">Choose country</label>
+    <div class="sms-controls">
+      <select id="smsCountry" aria-label="Choose country"><option value="">Loading countries…</option></select>
+      <button class="btn primary" id="smsLoadNumbers" type="button">Find numbers</button>
     </div>
-    <div class="phone-note"><strong>Privacy notice:</strong> These are shared public inboxes. Other people may see the messages and OTPs. Don't use them for banking, private accounts, account recovery, or anything important. Some apps reject temporary numbers. Use them only where allowed by the service.</div>
+    <div class="sms-status" id="smsStatus" role="status" aria-live="polite">Choose a country to load available numbers.</div>
+    <div class="sms-number-list" id="smsNumberList"></div>
+    <section class="sms-inbox" id="smsInbox" hidden>
+      <div class="sms-inbox-head">
+        <div><p class="label">Selected public number</p><h3 id="smsSelectedNumber">—</h3></div>
+        <button class="btn" id="smsCopyNumber" type="button">Copy number</button>
+      </div>
+      <div class="row sms-inbox-actions">
+        <button class="btn primary" id="smsCheckMessages" type="button">Check SMS</button>
+        <span class="sms-updated" id="smsUpdated">Not checked yet</span>
+      </div>
+      <div class="sms-messages" id="smsMessages"><p class="sms-empty">Select a number, then check its inbox.</p></div>
+    </section>
+    <details class="sms-fallback">
+      <summary>Other public SMS sources</summary>
+      <div class="sms-fallback-links">
+        <a href="https://asms.ai/" target="_blank" rel="noopener noreferrer">ASMS.ai</a>
+        <a href="https://instant-sms.com/" target="_blank" rel="noopener noreferrer">Instant SMS</a>
+        <a href="https://smscove.com/" target="_blank" rel="noopener noreferrer">SMSCove</a>
+        <a href="https://receive-sms.cc/" target="_blank" rel="noopener noreferrer">Receive-SMS.CC</a>
+      </div>
+    </details>
+    <div class="phone-note"><strong>Privacy notice:</strong> These are shared public inboxes aggregated from third-party public SMS sources. Anyone may read messages and OTPs. Do not use these numbers for banking, government services, account recovery, private accounts, or anything important. Some services block temporary numbers. Use them only where permitted.</div>
   </section>
   <footer><b>Dbweb</b> · temporary mail &amp; phone tools</footer>
 </main>
@@ -805,7 +838,113 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     if (!phone) render();
   }
   $("modeEmail").addEventListener("click", function(){ setSection(false); });
-  $("modePhone").addEventListener("click", function(){ setSection(true); });
+  $("modePhone").addEventListener("click", function(){ setSection(true); loadSmsCountries(); });
+
+  /* ---------- public SMS directory ---------- */
+  var SMS_API = "https://otp-api.shelex.dev/api";
+  var smsCountriesLoaded = false, smsNumbers = [], smsSelected = null, smsCheckTimer = null, smsBusy = false;
+  var smsEsc = function(v){ return String(v == null ? "" : v).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); };
+  async function smsFetch(url, timeoutMs){
+    var controller = new AbortController(), timer = setTimeout(function(){ controller.abort(); }, timeoutMs || 12000);
+    try {
+      var res = await fetch(url, {signal:controller.signal, headers:{"Accept":"application/json"}});
+      var data = await res.json().catch(function(){ return {}; });
+      if (!res.ok) throw new Error(data.message || data.error || "SMS service is temporarily unavailable.");
+      return data;
+    } finally { clearTimeout(timer); }
+  }
+  async function loadSmsCountries(){
+    if (smsCountriesLoaded) return;
+    var select = $("smsCountry");
+    select.innerHTML = '<option value="">Loading countries…</option>';
+    $("smsStatus").textContent = "Loading available countries…";
+    try {
+      var data = await smsFetch(SMS_API + "/countries", 10000);
+      var list = Array.isArray(data) ? data : (data.countries || []);
+      var unique = Array.from(new Set(list.map(function(x){ return typeof x === "string" ? x : x.country; }).filter(Boolean)));
+      unique.sort(function(a,b){ return (a === "USA" ? -1 : b === "USA" ? 1 : a === "UK" ? -1 : b === "UK" ? 1 : a.localeCompare(b)); });
+      if (!unique.length) throw new Error("No countries are available right now.");
+      select.innerHTML = '<option value="">Select a country</option>' + unique.map(function(c){ return '<option value="' + smsEsc(c) + '">' + smsEsc(c) + '</option>'; }).join("");
+      var preferred = unique.includes("USA") ? "USA" : unique[0];
+      select.value = preferred;
+      smsCountriesLoaded = true;
+      $("smsStatus").textContent = unique.length + " countries available. Choose one and tap Find numbers.";
+      loadSmsNumbers();
+    } catch(e) {
+      select.innerHTML = '<option value="">Could not load countries</option>';
+      $("smsStatus").textContent = "Could not load the free SMS directory. Try again in a moment. " + (e.name === "AbortError" ? "The service took too long to respond." : e.message);
+    }
+  }
+  async function loadSmsNumbers(){
+    var country = $("smsCountry").value;
+    if (!country) { $("smsStatus").textContent = "Choose a country first."; return; }
+    $("smsLoadNumbers").disabled = true;
+    $("smsStatus").textContent = "Finding available numbers for " + country + "…";
+    $("smsNumberList").innerHTML = "";
+    try {
+      var data = await smsFetch(SMS_API + "/list/" + encodeURIComponent(country), 14000);
+      smsNumbers = Array.isArray(data.phones) ? data.phones : [];
+      smsNumbers = smsNumbers.filter(function(p){ return p && (p.value || p.phone) && p.source; });
+      if (!smsNumbers.length) {
+        $("smsStatus").textContent = "No public numbers are available for " + country + " right now. Try another country or refresh later.";
+        return;
+      }
+      $("smsStatus").textContent = smsNumbers.length + " public numbers available for " + country + ". Select one to read its inbox.";
+      $("smsNumberList").innerHTML = smsNumbers.map(function(p,i){
+        var value = String(p.value || p.phone || "");
+        return '<article class="sms-number"><div class="sms-number-main"><p class="sms-number-value">' + smsEsc(value) + '</p><p class="sms-number-meta">' + smsEsc(country) + ' · Public inbox</p></div><div class="sms-number-actions"><button class="btn" type="button" data-sms-copy="' + i + '">Copy</button><button class="btn primary" type="button" data-sms-open="' + i + '">Open inbox</button></div></article>';
+      }).join("");
+    } catch(e) {
+      $("smsStatus").textContent = "The number directory could not be reached. Try again shortly. " + (e.name === "AbortError" ? "Request timed out." : e.message);
+    } finally { $("smsLoadNumbers").disabled = false; }
+  }
+  function chooseSmsNumber(index){
+    var p = smsNumbers[index];
+    if (!p) return;
+    smsSelected = {country:$("smsCountry").value, value:String(p.value || p.phone || ""), source:p.source, since:Date.now()};
+    $("smsSelectedNumber").textContent = smsSelected.value;
+    $("smsInbox").hidden = false;
+    $("smsMessages").innerHTML = '<p class="sms-empty">Checking this public inbox…</p>';
+    $("smsUpdated").textContent = "Checking…";
+    checkSmsMessages();
+    if (smsCheckTimer) clearInterval(smsCheckTimer);
+    smsCheckTimer = setInterval(function(){ if (document.body.classList.contains("phone-mode") && smsSelected) checkSmsMessages(true); }, 20000);
+  }
+  async function checkSmsMessages(silent){
+    if (!smsSelected || smsBusy) return;
+    smsBusy = true;
+    if (!silent) { $("smsCheckMessages").disabled = true; $("smsUpdated").textContent = "Checking…"; }
+    try {
+      var path = SMS_API + "/" + encodeURIComponent(smsSelected.country) + "/" + encodeURIComponent(smsSelected.value.replace(/\D/g,"")) +
+        "?ago=24h&source=" + encodeURIComponent(smsSelected.source);
+      var data = await smsFetch(path, 10000);
+      var results = Array.isArray(data.results) && data.results.length ? data.results : (data.result ? [data.result] : []);
+      results = results.filter(function(m){ return m && (m.message || m.otp) && !m.error; });
+      if (!results.length) {
+        $("smsMessages").innerHTML = '<p class="sms-empty">No messages found yet. Incoming SMS may take time, and some services block public numbers.</p>';
+      } else {
+        $("smsMessages").innerHTML = results.map(function(m){
+          var ago = Number(m.ago);
+          var when = Number.isFinite(ago) && ago > 0 ? new Date(Date.now() - ago * 1000).toLocaleString() : "";
+          return '<article class="sms-message"><div class="sms-message-top"><strong>' + (m.otp ? 'OTP: ' + smsEsc(m.otp) : 'SMS received') + '</strong><time>' + smsEsc(when) + '</time></div><p>' + smsEsc(m.message || "Message text unavailable.") + '</p></article>';
+        }).join("");
+      }
+      $("smsUpdated").textContent = "Updated " + new Date().toLocaleTimeString();
+    } catch(e) {
+      if (!silent) $("smsMessages").innerHTML = '<p class="sms-empty">Could not check this inbox right now. Try again. ' + smsEsc(e.name === "AbortError" ? "The public SMS source timed out." : e.message) + '</p>';
+      $("smsUpdated").textContent = "Refresh failed";
+    } finally { smsBusy = false; $("smsCheckMessages").disabled = false; }
+  }
+  $("smsLoadNumbers").addEventListener("click", loadSmsNumbers);
+  $("smsCountry").addEventListener("change", function(){ smsSelected = null; $("smsInbox").hidden = true; loadSmsNumbers(); });
+  $("smsNumberList").addEventListener("click", function(e){
+    var copyBtn = e.target.closest("[data-sms-copy]");
+    var openBtn = e.target.closest("[data-sms-open]");
+    if (copyBtn) { var p = smsNumbers[Number(copyBtn.dataset.smsCopy)]; if (p) copy(String(p.value || p.phone || ""), copyBtn, "Copied"); }
+    if (openBtn) chooseSmsNumber(Number(openBtn.dataset.smsOpen));
+  });
+  $("smsCopyNumber").addEventListener("click", function(){ if (smsSelected) copy(smsSelected.value, this, "Copied"); });
+  $("smsCheckMessages").addEventListener("click", function(){ checkSmsMessages(); });
 
   /* ---------- wiring ---------- */
   $("newBtn").addEventListener("click", onCreate);
