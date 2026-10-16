@@ -6,6 +6,7 @@ import Link from "next/link";
 import "./bg-remove.css";
 
 const MODEL_ID = "onnx-community/BiRefNet-ONNX";
+const FALLBACK_MODEL_ID = "onnx-community/BiRefNet_lite-ONNX";
 const backgrounds = [
   { name: "Transparent", value: "transparent" },
   { name: "White", value: "#ffffff" },
@@ -21,6 +22,7 @@ export default function BackgroundRemoverPage() {
   const outputCanvasRef = useRef(null);
   const modelRef = useRef(null);
   const processorRef = useRef(null);
+  const fallbackActiveRef = useRef(false);
   const originalUrlRef = useRef("");
   const outputUrlRef = useRef("");
   const [file, setFile] = useState(null);
@@ -33,7 +35,6 @@ export default function BackgroundRemoverPage() {
   const [feather, setFeather] = useState(0.8);
   const [showOriginal, setShowOriginal] = useState(false);
   const [modelReady, setModelReady] = useState(false);
-  const [backend, setBackend] = useState("Automatic");
 
   useEffect(() => () => {
     if (originalUrlRef.current) URL.revokeObjectURL(originalUrlRef.current);
@@ -65,20 +66,64 @@ export default function BackgroundRemoverPage() {
 
   async function loadModel() {
     if (modelRef.current && processorRef.current) return;
-    setProgress("Loading the AI model for the first time…");
+    setProgress("Preparing background removal…");
     const { AutoModel, AutoProcessor, env } = await import("@huggingface/transformers");
     env.allowLocalModels = false;
     env.useBrowserCache = true;
     const hasWebGPU = typeof navigator !== "undefined" && !!navigator.gpu;
-    setBackend(hasWebGPU ? "WebGPU ready" : "CPU / WASM");
-    const dtype = hasWebGPU ? "fp16" : "q8";
-    const [model, processor] = await Promise.all([
-      AutoModel.from_pretrained(MODEL_ID, { dtype, device: hasWebGPU ? "webgpu" : "wasm" }),
-      AutoProcessor.from_pretrained(MODEL_ID),
-    ]);
-    modelRef.current = model;
-    processorRef.current = processor;
-    setModelReady(true);
+    const candidates = [
+      ...(hasWebGPU ? [{ id: MODEL_ID, device: "webgpu", dtype: "fp16", fallback: false }] : []),
+      { id: FALLBACK_MODEL_ID, device: "wasm", dtype: "q8", fallback: true },
+      { id: FALLBACK_MODEL_ID, device: "wasm", dtype: "fp32", fallback: true },
+    ];
+    let lastError;
+    for (const candidate of candidates) {
+      try {
+        setProgress(candidate.fallback ? "Preparing compatibility mode…" : "Preparing image engine…");
+        const [model, processor] = await Promise.all([
+          AutoModel.from_pretrained(candidate.id, { dtype: candidate.dtype, device: candidate.device }),
+          AutoProcessor.from_pretrained(candidate.id),
+        ]);
+        modelRef.current = model;
+        processorRef.current = processor;
+        fallbackActiveRef.current = candidate.fallback;
+        setModelReady(true);
+        return;
+      } catch (err) {
+        lastError = err;
+        modelRef.current = null;
+        processorRef.current = null;
+      }
+    }
+    throw lastError || new Error("This device could not start background removal. Try a smaller image or a newer browser.");
+  }
+
+  async function loadFallbackModel() {
+    const { AutoModel, AutoProcessor, env } = await import("@huggingface/transformers");
+    env.allowLocalModels = false;
+    env.useBrowserCache = true;
+    modelRef.current = null;
+    processorRef.current = null;
+    const attempts = ["q8", "fp32"];
+    let lastError;
+    for (const dtype of attempts) {
+      try {
+        setProgress("Switching to compatibility mode…");
+        const [model, processor] = await Promise.all([
+          AutoModel.from_pretrained(FALLBACK_MODEL_ID, { dtype, device: "wasm" }),
+          AutoProcessor.from_pretrained(FALLBACK_MODEL_ID),
+        ]);
+        modelRef.current = model;
+        processorRef.current = processor;
+        fallbackActiveRef.current = true;
+        return;
+      } catch (err) {
+        lastError = err;
+        modelRef.current = null;
+        processorRef.current = null;
+      }
+    }
+    throw lastError || new Error("This device could not process the image.");
   }
 
   async function removeBackground() {
@@ -96,25 +141,11 @@ export default function BackgroundRemoverPage() {
       try {
         prediction = await modelRef.current({ input_image: pixel_values });
       } catch (firstError) {
-        // Some browsers expose WebGPU but cannot allocate this model. Recreate on WASM once.
-        if (typeof navigator !== "undefined" && !!navigator.gpu) {
-          modelRef.current = null;
-          processorRef.current = null;
-          setProgress("Switching to compatibility mode…");
-          const { AutoModel, AutoProcessor } = await import("@huggingface/transformers");
-          const [model, processor] = await Promise.all([
-            AutoModel.from_pretrained(MODEL_ID, { dtype: "fp32", device: "wasm" }),
-            AutoProcessor.from_pretrained(MODEL_ID),
-          ]);
-          modelRef.current = model;
-          processorRef.current = processor;
-          setBackend("CPU / WASM");
-          const retryImage = await RawImage.fromURL(originalUrl);
-          const retryInput = await processorRef.current(retryImage);
-          prediction = await modelRef.current({ input_image: retryInput.pixel_values });
-        } else {
-          throw firstError;
-        }
+        if (fallbackActiveRef.current) throw firstError;
+        await loadFallbackModel();
+        const retryImage = await RawImage.fromURL(originalUrl);
+        const retryInput = await processorRef.current(retryImage);
+        prediction = await modelRef.current({ input_image: retryInput.pixel_values });
       }
       const mask = await RawImage.fromTensor(
         prediction.output_image[0].sigmoid().mul(255).to("uint8")
@@ -176,7 +207,9 @@ export default function BackgroundRemoverPage() {
       console.error("Dbweb background removal failed", e);
       setError(e?.message?.includes("fetch") || e?.message?.includes("network")
         ? "The AI model could not download. Check your connection and try again."
-        : (e?.message || "Background removal failed. Try a different image or browser."));
+        : (e?.message?.includes("fp16") || e?.message?.includes("WebGPU") || e?.message?.includes("memory") || e?.message?.includes("allocation")
+          ? "This device could not process the image. Try a smaller image or a newer browser."
+          : (e?.message || "Background removal failed. Try a different image or browser.")));
       setStatus("error");
       setProgress("");
     }
@@ -231,8 +264,7 @@ export default function BackgroundRemoverPage() {
         <div className="bgActions">{!outputUrl?<button className="bgPrimary" disabled={!file||status==="processing"} onClick={removeBackground}>{status==="processing"?<><LoaderCircle className="bgSpin" size={17}/> Working…</>:<><Sparkles size={17}/> Remove background</>}</button>:<button className="bgPrimary" onClick={downloadResult}><Download size={17}/> Download transparent PNG</button>}{outputUrl&&<button className="bgSecondary" onClick={reset}>New image</button>}</div>
         {outputUrl&&<div className="bgControls"><div className="bgControlHead"><div><h3>Preview background</h3><p>Background choice changes the preview, not your transparent PNG.</p></div></div><div className="bgSwatches">{backgrounds.map(item=><button key={item.value} className={"bgSwatch "+(background===item.value?"selected":"")} onClick={()=>setBackground(item.value)} aria-label={item.name} title={item.name}><span style={{background:item.value==="transparent"?"repeating-conic-gradient(#cfd2da 0% 25%,#fff 0% 50%) 50% / 10px 10px":item.value}}/>{item.name}</button>)}</div><label className="bgSliderLabel"><span>Edge softness</span><strong>{feather.toFixed(1)} px</strong><input type="range" min="0" max="2.5" step="0.1" value={feather} onChange={e=>setFeather(Number(e.target.value))}/><small>Edge softness applies when you process the image again.</small></label><button className="bgSecondary bgReprocess" onClick={removeBackground} disabled={status==="processing"}><RefreshCw size={15}/> Reprocess with edge setting</button></div>}
       </section>
-      <section className="bgInfoGrid"><article><span>01</span><h3>Fine-detail AI</h3><p>BiRefNet segmentation helps keep detailed contours around hair, fur and object edges.</p></article><article><span>02</span><h3>Private by design</h3><p>Image processing runs locally in your browser after the model is downloaded.</p></article><article><span>03</span><h3>Made for creators</h3><p>Export a transparent PNG without third-party logos or watermarks.</p></article></section>
-      <p className="bgModelNote">AI model: BiRefNet · {backend}. The first download is large and may be slow on phones. Results depend on the image and device.</p>
+      <section className="bgInfoGrid"><article><span>01</span><h3>Fine-detail AI</h3><p>Careful edge detection helps preserve details around hair, fur and object edges.</p></article><article><span>02</span><h3>Private by design</h3><p>Image processing runs locally in your browser after the model is downloaded.</p></article><article><span>03</span><h3>Made for creators</h3><p>Export a transparent PNG without third-party logos or watermarks.</p></article></section>
     </main>
     <footer className="bgFooter">Dbweb Lab <span>·</span> Tools for your creative workflow</footer>
     <canvas ref={outputCanvasRef} hidden/>
