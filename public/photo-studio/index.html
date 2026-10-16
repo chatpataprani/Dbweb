@@ -1530,7 +1530,7 @@ function pRemoveBg(p){
   p.append(
     grp('Remove background',
       el('p',{class:'note'},'Cut out the subject of your current photo and keep editing it in Dbweb Lab. The result keeps transparent areas when you download as PNG.'),
-      btn('Remove background',runBackgroundRemoval,'wideb'),
+      el('button',{type:'button',class:'btn wideb',id:'removeBgRun',onclick:runBackgroundRemoval},'Remove background'),
       el('p',{class:'note'},'This uses the photo currently loaded in the studio. Upload a different image any time to start again.')
     )
   );
