@@ -1,13 +1,14 @@
 'use client';
 
 import { useMemo, useState } from "react";
-import { Search, ArrowUpRight, Wrench, FileText, Instagram, Link2, Fingerprint, Image, Smartphone, Phone, GitCompare, ScanFace, FileSearch, Activity, CreditCard, QrCode, ScanText, ShieldCheck, KeyRound, Globe, Type, CarFront, CalendarDays, Landmark, FileBadge, FileImage, Sparkles, Scissors } from "lucide-react";
+import { Search, ArrowUpRight, Wrench, FileText, Instagram, Link2, Fingerprint, Image, Smartphone, Phone, GitCompare, ScanFace, FileSearch, Activity, CreditCard, QrCode, ScanText, ShieldCheck, KeyRound, Globe, Type, CarFront, CalendarDays, Landmark, FileBadge, FileImage, Sparkles, Scissors, Braces, Code2, CaseSensitive, Regex, Palette } from "lucide-react";
 
 const tools = [
   { name: "Instagram Profile Analyzer", description: "Analyze public profile stats, bio, profile picture and available business details without Instagram login.", href: "/tools/instagram", category: "Social", Icon: Instagram },
   { name: "Short Link Resolver", description: "Expand public shortened links and inspect their redirect path.", href: "/tools/shortlink", category: "Links", Icon: Link2 },
   { name: "Background Remover", description: "Remove image backgrounds and export transparent PNGs with automatic device-to-online fallback.", href: "/tool", category: "Images", Icon: Scissors },
   { name: "General File Tools", description: "Work with PDFs and images: convert, compress, resize, merge, split and more.", href: "/tools/general/index.html", category: "Files", Icon: FileImage },
+  { name: "Image Compressor", description: "Compress images to WebP, JPEG or PNG with adjustable quality, processed in your browser.", href: "/tools/quick-tools?tool=image", category: "Images", Icon: FileImage },
   { name: "Hash Generator", description: "Create file and text hashes using common cryptographic algorithms.", href: "/tools/hash/index.html", category: "Security", Icon: Fingerprint },
   { name: "Image Analysis", description: "Inspect image metadata and look for signs of editing.", href: "/tools/image-forensics/index.html", category: "Files", Icon: Image },
   { name: "IMEI Validator", description: "Check an IMEI format and its checksum.", href: "/tools/imei/index.html", category: "Validation", Icon: Smartphone },
@@ -27,11 +28,18 @@ const tools = [
   { name: "IP Address Tools", description: "Inspect IP address details with the available lookup utility.", href: "/tools/ip/index.html", category: "Network", Icon: Globe },
   { name: "Text Transliterator", description: "Convert supported text between Latin input and another script.", href: "/tools/transliterate/index.html", category: "Text", Icon: Type },
   { name: "Font Converter", description: "Convert text between supported legacy and Unicode font formats.", href: "/tools/font-converter/index.html", category: "Text", Icon: Type },
+  { name: "Text Case Converter", description: "Convert text to uppercase, lowercase, title case, sentence case or reverse it.", href: "/tools/quick-tools?tool=text", category: "Text", Icon: CaseSensitive },
+  { name: "Markdown Preview", description: "Write and preview simple Markdown headings, lists and formatted text.", href: "/tools/quick-tools?tool=markdown", category: "Text", Icon: Type },
   { name: "Vehicle Number Decoder", description: "Parse a vehicle registration number and its code structure.", href: "/tools/vehicle/index.html", category: "Validation", Icon: CarFront },
   { name: "GST Number Validator", description: "Check GSTIN structure and checksum.", href: "/tools/gst/index.html", category: "Validation", Icon: Landmark },
   { name: "PAN Validator", description: "Check the structure of a PAN identifier.", href: "/tools/pan/index.html", category: "Validation", Icon: FileBadge },
   { name: "IFSC Lookup", description: "Look up bank-branch details from an IFSC code.", href: "/tools/ifsc/index.html", category: "Utilities", Icon: Landmark },
   { name: "Age & Date Calculator", description: "Calculate age, date differences and day-of-week values.", href: "/tools/age-calculator/index.html", category: "Utilities", Icon: CalendarDays },
+  { name: "JSON Formatter", description: "Format, minify and validate JSON with readable output.", href: "/tools/quick-tools?tool=json", category: "Developer", Icon: Braces },
+  { name: "Base64 Encoder / Decoder", description: "Encode or decode text without sending it to a server.", href: "/tools/quick-tools?tool=base64", category: "Developer", Icon: Code2 },
+  { name: "URL Inspector", description: "Inspect URL parts, hostname, path, protocol and query parameters.", href: "/tools/quick-tools?tool=url", category: "Web", Icon: Link2 },
+  { name: "Regex Tester", description: "Test JavaScript regular expressions against your own sample text.", href: "/tools/quick-tools?tool=regex", category: "Developer", Icon: Regex },
+  { name: "Color Converter", description: "Convert HEX colors to RGB and HSL with a live color preview.", href: "/tools/quick-tools?tool=color", category: "Design", Icon: Palette },
 ];
 
 const categories = ["All", ...new Set(tools.map((tool) => tool.category))];
