@@ -21,7 +21,7 @@ export default function StreamingPage() {
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState("");
   const [selected, setSelected] = useState(null);
-  const [streamChoice, setStreamChoice] = useState("");
+  const [streamChoice, setStreamChoice] = useState("");\n  const [episodeChoice, setEpisodeChoice] = useState("");
   const [detailBusy, setDetailBusy] = useState(false);
   const [saved, setSaved] = useState([]);
   const [savedOnly, setSavedOnly] = useState(false);
@@ -63,6 +63,24 @@ export default function StreamingPage() {
       setSelected(data);
     } catch (e) {
       setSelected({ ...item, playerError: e.message || "This film cannot be played." });
+    } finally {
+      setDetailBusy(false);
+    }
+  }
+
+  async function changeEpisode(item, episodeId) {
+    setEpisodeChoice(episodeId);
+    setStreamChoice("");
+    setDetailBusy(true);
+    try {
+      const params = new URLSearchParams({ action: "details", id: String(item.id), episode: episodeId });
+      const response = await fetch("/api/streaming?" + params.toString());
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Could not load this episode.");
+      setSelected(data);
+      setEpisodeChoice(data.selectedEpisodeId || episodeId);
+    } catch (e) {
+      setSelected((current) => ({ ...current, playerError: e.message || "Could not load this episode." }));
     } finally {
       setDetailBusy(false);
     }
@@ -127,6 +145,7 @@ export default function StreamingPage() {
         </div>
         <div className="streamModalBody">
           {detailBusy && <p className="streamHint"><LoaderCircle className="streamSpin" size={15}/> Checking rights and preparing player…</p>}
+          {selected.episodes?.length > 1 && <label className="streamHint">Choose episode <select value={episodeChoice || selected.selectedEpisodeId || selected.episodes[0].id} onChange={e => changeEpisode(selected, e.target.value)}>{selected.episodes.map((episode, index) => <option key={episode.id} value={episode.id}>{episode.title || ("Episode " + (index + 1))}</option>)}</select></label>}
           {selected.streams?.length > 1 && <label className="streamHint">Choose source <select value={streamChoice || selected.streams[0].url} onChange={e => setStreamChoice(e.target.value)}>{selected.streams.map((stream, index) => <option key={stream.url} value={stream.url}>{stream.name || stream.title || ("Source " + (index + 1))}</option>)}</select></label>}
           {(selected.videoUrl || streamChoice) && <div className="streamArchivePlayer"><video key={streamChoice || selected.videoUrl} controls playsInline preload="metadata" src={streamChoice || selected.videoUrl} poster={selected.poster || undefined}>Your browser does not support HTML video.</video></div>}
           {selected.playerError && <p className="streamError" role="alert">{selected.playerError}</p>}
