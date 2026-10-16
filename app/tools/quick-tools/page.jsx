@@ -1,5 +1,7 @@
 'use client';
 
+import "./quick-tools.css";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Braces, CaseSensitive, Check, Clipboard, Code2, Download, FileImage, Link2, Palette, Regex, RotateCcw, ShieldCheck, Sparkles, Type, Upload, Wrench } from "lucide-react";
 
