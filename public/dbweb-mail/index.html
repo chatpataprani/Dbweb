@@ -435,8 +435,9 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     var lastErr = null, firstErr = null, taken = false, i = 0;
     function next(){
       if (i >= attempts.length) {
-        // Prefer a proxy/network diagnostic or the most recent provider response over a generic first error.
-        var usefulErr = lastErr || firstErr;
+        // Mail.gw is tried first through our same-origin proxy. Preserve that first error:
+        // the direct Mail.tm browser request may fail due to CORS and hide the useful proxy diagnosis.
+        var usefulErr = firstErr || lastErr;
         showErr("err1", taken ? "That name is already in use. Choose another name, or leave it blank for a random address." : "We could not create your inbox. " + netHint(usefulErr));
         $("newBtn").disabled = false; return;
       }
