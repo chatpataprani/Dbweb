@@ -51,7 +51,7 @@ async function searchAddons(query, category) {
   if (!configured.length) return [];
   const results = await Promise.allSettled(configured.map(async (addonUrl) => {
     const manifest = await fetchJson(addonUrl);
-    const root = addonUrl.replace(/\/$/, "");
+    const root = addonUrl.replace(/\/manifest\.json(?:\?.*)?$/i, "").replace(/\/+$/, "");
     const catalogs = (manifest.catalogs || []).filter((c) => ["movie", "series"].includes(c.type));
     const chosen = query
       ? catalogs.filter((c) => !c.extra || c.extra.some((e) => e.name === "search"))
@@ -60,7 +60,7 @@ async function searchAddons(query, category) {
       const extra = query ? "?search=" + encodeURIComponent(query) : "";
       const data = await fetchJson(`${root}/catalog/${encodeURIComponent(catalog.type)}/${encodeURIComponent(catalog.id)}.json${extra}`);
       return (data.metas || []).map((item) => ({
-        id: encodeAddonItem({ addon: root, type: item.type || catalog.type, itemId: item.id }),
+        id: encodeAddonItem({ addon: addonUrl, type: item.type || catalog.type, itemId: item.id }),
         title: item.name || item.title || item.id,
         year: String(item.releaseInfo || item.year || "").slice(0, 4),
         description: item.description || "",
@@ -140,7 +140,7 @@ async function getArchiveDetails(identifier) {
 async function getAddonDetails(id) {
   const parsed = decodeAddonItem(id);
   if (!parsed || !addonUrls().includes(parsed.addon)) throw new Error("This addon item is invalid or its source is not configured.");
-  const root = parsed.addon.replace(/\/$/, "");
+  const root = parsed.addon.replace(/\/manifest\.json(?:\?.*)?$/i, "").replace(/\/+$/, "");
   const data = await fetchJson(`${root}/stream/${encodeURIComponent(parsed.type)}/${encodeURIComponent(parsed.itemId)}.json`);
   const streams = (data.streams || []).filter(browserPlayable).map((stream) => ({
     name: stream.name || stream.title || "Stream",
