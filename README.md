@@ -1,72 +1,88 @@
 # Dbweb
 
-A responsive web workspace for everyday lookups, image editing, file utilities, and productivity tools.
+A responsive web workspace for image editing, background removal, file utilities, validation tools, and everyday productivity.
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+**Live website:** https://webdd.freeddns.org/
 
-<p align="center">
-  <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1400&q=85" alt="A modern digital workspace" width="100%" />
-</p>
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
-## Overview
+## Website previews
 
-This project brings a collection of browser-based tools together in one responsive interface. It includes a main workspace, image editing, background removal, file utilities, validation tools, and account-related screens.
+These previews are rendered from the project's own UI layout, styling, and tool names in the repository. The live domain could not be captured from the screenshot environment, so these are source-rendered previews rather than claims of a live-browser screenshot. No stock-photo placeholders are used.
 
-The interface is designed to work on desktop and mobile browsers. Some features may require server-side configuration or a compatible device.
+### Main workspace
 
-## Highlights
+![Dbweb main workspace preview](docs/screenshots/workspace.svg)
 
-- Responsive workspace with navigation and theme preferences
-- Photo Studio for image editing and creative effects
-- Background removal with on-device processing when supported and automatic online fallback
-- Image preview and transparent PNG export
-- File utilities for common document and image tasks
-- Text, image, validation, and utility tools
-- Search and category filters for the tools directory
-- Account, plan, payment-review, and history interfaces
-- Server-side handling for private configuration
-- Configurable environment-based settings
+### Tools directory
 
-## Visual Preview
+![Dbweb tools directory preview](docs/screenshots/tools-directory.svg)
 
-### Creative workspace
+### Dbweb Lab — Photo Studio
 
-<p align="center">
-  <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=85" alt="A developer workspace with a laptop" width="100%" />
-</p>
+![Dbweb Lab Photo Studio preview](docs/screenshots/photo-studio.svg)
 
-### Image editing inspiration
+## About
 
-<p align="center">
-  <img src="https://images.unsplash.com/photo-1545235617-9465d2a55698?auto=format&fit=crop&w=1200&q=85" alt="A creative digital design workspace" width="100%" />
-</p>
+Dbweb brings several browser-based tools together in one interface, with responsive layouts for desktop and mobile browsers. Features vary by route and may depend on device support or server-side configuration.
 
-> These photographs are illustrative examples, not screenshots of the application.
+### Main areas
 
-## Main Sections
+- **Main workspace** — lookup interface, plans, payment submission, redeem codes, settings, and history.
+- **Dbweb Lab / Photo Studio** — image editing with creative filters, image adjustments, collage tools, stickers, text, and image export.
+- **Background Remover** — remove image backgrounds and export transparent PNGs. Compatible browsers try on-device processing first, with an automatic online fallback when needed.
+- **Tools directory** — searchable tool cards with category filters.
+- **Mail and file utilities** — supported file, text, and productivity workflows.
+- **Account and administration screens** — plan, payment-review, and settings workflows where configured.
 
-| Section | Purpose |
+## Tools included
+
+The tools directory currently lists the following utilities:
+
+| Category | Tools |
 | --- | --- |
-| Workspace | Main navigation and account-related screens |
-| Photo Studio | Edit images and apply creative effects |
-| Background Remover | Create transparent image cutouts and export PNG files |
-| Tools | Browse and search the available utilities |
-| File utilities | Work with supported image and document formats |
-| Validation tools | Check formats and values for supported identifiers |
-| Account screens | Review plans, history, settings, and submitted payment details |
+| Social | Instagram Profile Analyzer |
+| Links | Short Link Resolver |
+| Images | Background Remover, Image Analysis |
+| Files | General File Tools, File Comparison, Metadata Viewer |
+| Security | Hash Generator, Steganography Utility, Signature Checksum, Password Generator |
+| Device and network | IMEI Validator, MAC Address Lookup, IP Address Tools |
+| Phone and records | Phone Number Tools, Call Record Analysis, IP Record Analysis |
+| Image matching | Fingerprint Comparison |
+| Validation | Aadhaar Validator, Vehicle Number Decoder, GST Number Validator, PAN Validator |
+| Utilities | QR Code Tools, IFSC Lookup, Age & Date Calculator |
+| Text | OCR Text Extractor, Text Transliterator, Font Converter |
 
-## Getting Started
+Tool availability and behavior can change as the project evolves. Use the live website for the latest directory.
+
+## Technology stack
+
+- **JavaScript** for application logic and server-side route handlers
+- **JSX** for component-based interface pages
+- **HTML** for the standalone Photo Studio and static tools
+- **CSS** for responsive layouts, styling, themes, and interaction states
+- **Next.js 15** for the web application and route structure
+- **React 19** for interactive UI components
+- **Lucide icons** for interface icons
+- **Node.js and npm** for local development, dependency management, and builds
+
+## Open Dbweb
+
+- **Live website:** https://webdd.freeddns.org/
+- **Tools directory:** https://webdd.freeddns.org/tools
+- **Photo Studio:** https://webdd.freeddns.org/photo-studio/
+- **Background Remover:** https://webdd.freeddns.org/tool
+
+## Getting started
 
 ### Requirements
 
-- Node.js 20 or a compatible supported Node.js release
+- Node.js 20 or another version supported by the project's dependencies
 - npm
 - A modern browser
-- A network connection for installing dependencies and features that require online processing
+- Internet access for installing dependencies and features that require online processing
 
 ### Install
-
-Clone the repository and install its dependencies:
 
 ```bash
 git clone https://github.com/chatpataprani/Dbweb.git
@@ -74,15 +90,15 @@ cd Dbweb
 npm install
 ```
 
-### Configure the environment
+### Configure environment variables
 
-For local development, copy the example configuration:
+Copy the example configuration for local development:
 
 ```bash
 cp .env.example .env.local
 ```
 
-Fill in only the values required for the features you intend to run. Keep all private values in local environment settings or your hosting provider's secret configuration.
+Fill in only the values required for the features you intend to run. Keep private values in local environment settings or your hosting platform's secret settings.
 
 **Never commit real credentials, private keys, passwords, or populated local environment files.**
 
@@ -92,96 +108,94 @@ Fill in only the values required for the features you intend to run. Keep all pr
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open http://localhost:3000 in your browser.
 
-### Create a production build
+### Build for production
 
 ```bash
 npm run build
 npm start
 ```
 
-## Background Removal
+## Background removal workflow
 
-1. Open the Background Remover from the tools directory.
-2. Select an image or drop it into the upload area.
+1. Open Background Remover from the tools directory.
+2. Select or drop an image into the upload area.
 3. Start background removal.
-4. The application attempts compatible on-device processing first. If that path is unavailable or fails, it automatically attempts online processing.
+4. The application attempts compatible on-device processing first. If that path is unavailable or fails, it attempts online processing.
 5. Preview the result and download the transparent PNG.
 
-On-device processing depends on browser and hardware support. The first run may need to download model assets and can take longer on mobile devices. Online fallback depends on the server's configuration and availability.
+On-device processing depends on browser and hardware support. The first run may need to load model assets and can take longer on mobile devices. Online fallback depends on server configuration and availability.
 
-## Deployment
-
-1. Import the repository into a hosting platform that supports Next.js.
-2. Set the required environment variables in the platform's project settings.
-3. Use the repository's build command: `npm run build`.
-4. Start the production app with `npm start`, or follow the platform's recommended Next.js deployment flow.
-5. Verify the main workspace, image tools, authentication-related screens, and any configured integrations after deployment.
-
-Changes to environment variables may require a new deployment before they take effect.
-
-## Project Structure
+## Project structure
 
 ```text
 Dbweb/
 ├── app/
 │   ├── bg-remove/           # Background removal page and styles
-│   ├── tool/                # Dedicated background removal tool route
-│   ├── tools/               # Tools directory and individual utilities
-│   ├── globals.css          # Global styles
+│   ├── tool/                # Dedicated background removal route
+│   ├── tools/               # Tools directory and tool pages
+│   ├── globals.css          # Global styles and themes
 │   ├── layout.jsx           # Root application layout
 │   └── page.jsx             # Main workspace
 ├── public/
-│   ├── photo-studio/        # Photo Studio assets and interface
-│   └── tools/               # Static tool assets
-├── .env.example             # Environment variable template
+│   ├── photo-studio/        # Photo Studio HTML, scripts, and assets
+│   └── tools/               # Static tool pages and assets
+├── docs/
+│   └── screenshots/         # Source-rendered UI preview images
+├── .env.example             # Environment-variable template
 ├── package.json
 └── README.md
 ```
 
 The exact directory contents may evolve as features are added or reorganized.
 
-## Security and Responsible Use
+## Deployment
 
-- Use the application only for lawful purposes and only access information you are authorized to use.
+1. Connect the repository to a hosting platform that supports Next.js.
+2. Add the required environment variables in the project's secret settings.
+3. Run the build command: `npm run build`.
+4. Deploy using the platform's recommended Next.js workflow.
+5. Check the workspace, Photo Studio, tools directory, and any configured features after deployment.
+
+Changes to environment variables may require a new deployment before they take effect.
+
+## Security and responsible use
+
+- Use the application only for lawful purposes and access only information you are authorized to use.
 - Respect privacy, consent, data-protection requirements, and third-party terms.
-- Do not use tools to harass, stalk, impersonate, defraud, expose, or harm another person.
+- Do not use the tools to harass, stalk, impersonate, defraud, expose, or harm another person.
 - Keep credentials and server-only secrets out of client-side code.
-- Apply suitable access controls, request limits, and monitoring before making sensitive features publicly available.
+- Apply suitable access controls, request limits, and monitoring before exposing sensitive features publicly.
 - Avoid uploading personal or confidential files unless you have the right to process them.
-- Review and test all configuration before production deployment.
+- Review and test configuration before production deployment.
 
 ## Troubleshooting
 
 **The app does not start**
 - Confirm your Node.js and npm versions.
 - Run `npm install` again if dependencies are missing.
-- Review the terminal output for the first build or runtime error.
+- Review the first build or runtime error in the terminal output.
 
 **A feature reports missing configuration**
 - Check the environment settings for the deployment.
-- Confirm that variable names match the example configuration.
+- Confirm variable names match the example configuration.
 - Redeploy after changing hosted environment variables.
 
 **Background removal falls back or fails**
 - Try an up-to-date browser on a compatible device.
 - Use a smaller image if memory is limited.
-- Confirm that online processing is configured and available if on-device processing cannot run.
-
-**An image takes a long time to process**
-- The first on-device run may download model files.
-- Processing time depends on image size, available memory, and device performance.
+- Confirm that online processing is configured if on-device processing cannot run.
 
 ## Contributing
 
 Contributions and bug reports are welcome.
 
-1. Create a fork of the repository.
+1. Fork the repository.
 2. Create a focused branch for your change.
-3. Keep changes scoped and avoid committing secrets or private user data.
+3. Avoid committing secrets or private user data.
 4. Test the affected feature and run `npm run build` where possible.
-5. Open a pull request describing the change and any testing performed.
+5. Open a pull request describing the change and tests performed.
 
 ## License
 
@@ -189,4 +203,4 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for the f
 
 ---
 
-For bugs or feature requests, open an issue in this repository and include the relevant steps to reproduce the problem. Do not include passwords, access tokens, private keys, or personal data in an issue.
+For bugs or feature requests, open an issue in this repository and include the steps needed to reproduce the problem. Do not include passwords, access tokens, private keys, or personal data in an issue.
