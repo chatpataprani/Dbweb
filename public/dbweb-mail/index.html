@@ -135,9 +135,10 @@ option{background:var(--bg);color:var(--fg)}
 .mode-tabs .btn{flex:1;text-align:center}
 #phoneView{display:none}
 body.phone-mode #emailView{display:none}
-body.phone-mode #phoneView{display:block}
+body.phone-mode #phoneView{display:none!important}
 body:not(.phone-mode) #modeEmail{box-shadow:var(--in-sm);color:var(--accent)}
-body.phone-mode #modePhone{box-shadow:var(--in-sm);color:var(--accent)}
+body.phone-mode #modePhone{box-shadow:none;color:var(--muted)}
+#modePhone:disabled{opacity:.55;cursor:not-allowed}
 
 /* inbox */
 .search{margin-bottom:18px}
@@ -238,7 +239,7 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
 
   <nav class="mode-tabs" aria-label="Temporary services">
     <button class="btn" id="modeEmail" type="button" aria-pressed="true">Temp Mail</button>
-    <button class="btn" id="modePhone" type="button" aria-pressed="false">Temp Phone / SMS</button>
+    <button class="btn" id="modePhone" type="button" aria-pressed="false" disabled title="Temporarily unavailable">Temp Phone / SMS — Disabled</button>
   </nav>
   <div id="emailView">
   <div class="tabs" id="tabs" hidden></div>
@@ -838,7 +839,7 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     if (!phone) render();
   }
   $("modeEmail").addEventListener("click", function(){ setSection(false); });
-  $("modePhone").addEventListener("click", function(){ setSection(true); loadSmsCountries(); });
+  $("modePhone").addEventListener("click", function(){ /* Temporarily disabled. */ });
 
   /* ---------- public SMS directory ---------- */
   var SMS_API = "/api/dbweb-sms";
