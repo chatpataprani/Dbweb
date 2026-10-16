@@ -19,7 +19,8 @@ export default function StreamingPage() {
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState("");
-  const [selected, setSelected] = useState(null);\n  const [streamChoice, setStreamChoice] = useState("");
+  const [selected, setSelected] = useState(null);
+  const [streamChoice, setStreamChoice] = useState("");
   const [detailBusy, setDetailBusy] = useState(false);
   const [saved, setSaved] = useState([]);
   const [savedOnly, setSavedOnly] = useState(false);
@@ -50,7 +51,8 @@ export default function StreamingPage() {
   useEffect(() => { load(tab); }, [tab, load]);
 
   async function openDetails(item) {
-    setStreamChoice("");\n    setSelected({ ...item, videoUrl: "" });
+    setStreamChoice("");
+    setSelected({ ...item, videoUrl: "" });
     setDetailBusy(true);
     setError("");
     try {
@@ -114,7 +116,7 @@ export default function StreamingPage() {
       </article>;
     })}</section>}
 
-    <p className="streamLegal">Films are discovered through Internet Archive. Dbweb does not host or proxy the video files. Playback is enabled only when an item exposes a Creative Commons or public-domain rights statement and a browser-compatible MP4. Check the individual item's license for its exact reuse terms.</p>
+    <p className="streamLegal">Results can come from Internet Archive or configured third-party Stremio-compatible addons. Dbweb does not host or proxy videos. Addons may return torrents, external-player links, or unsupported formats; only direct HTTPS streams compatible with the built-in player are offered.</p>
 
     {selected && <div className="streamModalBackdrop" role="presentation" onMouseDown={e => { if (e.target === e.currentTarget) setSelected(null); }}>
       <section className="streamModal" role="dialog" aria-modal="true" aria-label={titleOf(selected) + " player"}>
@@ -124,7 +126,8 @@ export default function StreamingPage() {
         </div>
         <div className="streamModalBody">
           {detailBusy && <p className="streamHint"><LoaderCircle className="streamSpin" size={15}/> Checking rights and preparing player…</p>}
-          {selected.streams?.length > 1 && <label className="streamHint">Choose source <select value={streamChoice || selected.streams[0].url} onChange={e => setStreamChoice(e.target.value)}>{selected.streams.map((stream, index) => <option key={stream.url} value={stream.url}>{stream.name || stream.title || ("Source " + (index + 1))}</option>)}</select></label>}\n          {(selected.videoUrl || streamChoice) && <div className="streamArchivePlayer"><video key={streamChoice || selected.videoUrl} controls playsInline preload="metadata" src={streamChoice || selected.videoUrl} poster={selected.poster || undefined}>Your browser does not support HTML video.</video></div>}
+          {selected.streams?.length > 1 && <label className="streamHint">Choose source <select value={streamChoice || selected.streams[0].url} onChange={e => setStreamChoice(e.target.value)}>{selected.streams.map((stream, index) => <option key={stream.url} value={stream.url}>{stream.name || stream.title || ("Source " + (index + 1))}</option>)}</select></label>}
+          {(selected.videoUrl || streamChoice) && <div className="streamArchivePlayer"><video key={streamChoice || selected.videoUrl} controls playsInline preload="metadata" src={streamChoice || selected.videoUrl} poster={selected.poster || undefined}>Your browser does not support HTML video.</video></div>}
           {selected.playerError && <p className="streamError" role="alert">{selected.playerError}</p>}
           {selected.licenseurl && <a className="streamOfficialLink" href={selected.licenseurl} target="_blank" rel="noopener noreferrer"><ExternalLink size={16}/> View this film's license <ArrowLeft size={14} className="streamExternalArrow"/></a>}
           <p className="streamHint"><Info size={15}/> If playback fails, the archive item may be unavailable or its video format may not be supported by your browser.</p>
