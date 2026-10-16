@@ -206,6 +206,19 @@ input[type=range]::-moz-range-thumb{width:20px;height:26px;background:var(--face
   </div>
 </div>
 
+<div class="overlay" id="stickerBgPrompt" hidden>
+  <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="stickerBgTitle">
+    <div class="titlebar"><span class="t" id="stickerBgTitle">Sticker background</span></div>
+    <div class="inner">
+      <p class="note">Would you like to remove the background from the uploaded sticker(s) before adding them? If the image already has transparency, you can keep the original.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+        <button class="btn" type="button" id="stickerBgKeep">Keep original</button>
+        <button class="btn wideb" type="button" id="stickerBgRemove">Remove background</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 (()=>{
 'use strict';
@@ -1002,19 +1015,40 @@ async function loadMine(){
   }
   if(cur==='stickers')buildPanel();
 }
+function askStickerBackground(){
+  return new Promise(resolve=>{
+    const overlay=$('#stickerBgPrompt'),keep=$('#stickerBgKeep'),remove=$('#stickerBgRemove');
+    const finish=value=>{overlay.hidden=true;keep.removeEventListener('click',onKeep);remove.removeEventListener('click',onRemove);resolve(value);};
+    const onKeep=()=>finish(false),onRemove=()=>finish(true);
+    keep.addEventListener('click',onKeep);remove.addEventListener('click',onRemove);
+    overlay.hidden=false;remove.focus();
+  });
+}
+async function removeStickerBackground(canvas){
+  const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Could not prepare sticker.')),'image/png'));
+  const form=new FormData();form.append('image',blob,'sticker.png');
+  const response=await fetch('/api/bg-remove',{method:'POST',body:form});
+  if(!response.ok)throw new Error('Background removal unavailable');
+  const result=await response.blob();
+  if(!result.type.startsWith('image/'))throw new Error('Invalid background removal result');
+  const bitmap=await createImageBitmap(result);
+  try{return fitCanvas(bitmap,640,true);}finally{if(bitmap.close)bitmap.close();}
+}
 async function addStickerFiles(files){
-  const list=[...files].filter(f=>/^image\//.test(f.type)||/\.(jpe?g|png|webp|gif|bmp|avif|svg)$/i.test(f.name));
+  const list=[...files].filter(f=>/^image\\//.test(f.type)||/\\.(jpe?g|png|webp|gif|bmp|avif|svg)$/i.test(f.name));
   if(!list.length){say('No picture found. Choose a PNG, JPG or WebP file.');return;}
-  say('Loading sticker…');let n=0;
+  const removeBg=await askStickerBackground();
+  say(removeBg?'Removing sticker backgrounds…':'Loading sticker…');let n=0,failedBg=0;
   for(const f of list){
     try{
-      const src=await decodeFile(f),c=fitCanvas(src,640,true);if(src.close)src.close();
+      const src=await decodeFile(f);let c=fitCanvas(src,640,true);if(src.close)src.close();
+      if(removeBg){try{c=await removeStickerBackground(c);}catch(e){failedBg++;}}
       const orig=document.createElement('canvas');orig.width=c.width;orig.height=c.height;orig.getContext('2d').drawImage(c,0,0);
       const st={id:'m'+(++uid),cat:'mine',name:f.name,size:.34,img:c,orig:orig,uri:mkThumb(c),mine:true,tol:40};
       STK.push(st);saveMine(st);P.stk.cat='mine';P.stk.search='';addSticker(st);n++;
     }catch(e){say(failMsg(f));}
   }
-  if(n)say(n+' sticker'+(n>1?'s':'')+' added. Use Cut out background if the picture has a plain backdrop.');
+  if(n)say(n+' sticker'+(n>1?'s':'')+' added.'+(failedBg?' Background removal failed for '+failedBg+'; those sticker'+(failedBg>1?'s were':' was')+' added unchanged.':''));
   if(cur==='stickers')buildPanel();
 }
 const pt=e=>{const r=view.getBoundingClientRect();return {x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height};};
