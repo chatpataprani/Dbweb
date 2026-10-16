@@ -710,9 +710,19 @@ function drawScene(ctx,ui,src,W,H){
   if(P.stamp.on)drawStamp(ctx,W,H);
   if(ui&&cur==='collage'&&CL.sel>=0&&CL.layers[CL.sel])drawHandles(ctx,CL.layers[CL.sel]);
 }
+let restoreAutosaveTimer=0,restoreAutosaveBusy=false;
+function scheduleRestoreAutosave(){
+  if(!$('#welcome').hidden||!effCanvas||comparing)return;
+  clearTimeout(restoreAutosaveTimer);
+  restoreAutosaveTimer=setTimeout(()=>{
+    if(restoreAutosaveBusy||!effCanvas||!$('#welcome').hidden)return;
+    restoreAutosaveBusy=true;
+    try{const c=document.createElement('canvas');c.width=effCanvas.width;c.height=effCanvas.height;drawScene(c.getContext('2d'),false,effCanvas,c.width,c.height);const data=c.toDataURL('image/png');saveRestoreCopy(data).catch(()=>{try{localStorage.setItem('dbweb-lab-last-work',data);}catch(e){}}).finally(()=>{restoreAutosaveBusy=false;});}catch(e){restoreAutosaveBusy=false;}
+  },900);
+}
 function redraw(){
   if(comparing&&original){if(ocFor!==original){ocCanvas=toCanvas(original);ocFor=original;}vctx.clearRect(0,0,W,H);vctx.drawImage(ocCanvas,0,0,W,H);return;}
-  if(effCanvas)drawScene(vctx,true,effCanvas,W,H);
+  if(effCanvas){drawScene(vctx,true,effCanvas,W,H);scheduleRestoreAutosave();}
 }
 function redrawSoon(){if(rdPending)return;rdPending=true;requestAnimationFrame(()=>{rdPending=false;redraw();});}
 
