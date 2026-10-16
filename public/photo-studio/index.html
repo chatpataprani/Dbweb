@@ -19,6 +19,9 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0}
+/* Keep the page behind the welcome screen from scrolling through at the bottom. */
+html:has(.welcome:not([hidden])),body:has(.welcome:not([hidden])){overflow:hidden}
+body:has(.welcome:not([hidden])){height:100dvh}
 /* Dbweb Lab typography: Pixelify Sans for general UI, Jersey 15 for display titles,
    and Jersey 10 for compact controls and labels. */
 .titlebar,.welcome .hero div{font-family:"Jersey 15","Pixelify Sans",sans-serif}
@@ -142,7 +145,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:26px;background:var(--face
 .dlg img{display:block;max-width:100%;max-height:58vh;max-height:58dvh;width:auto;height:auto;margin:0 auto;background:var(--mid)}
 
 /* Welcome: same Win98 window as the editor, on the teal desktop */
-.welcome{position:fixed;inset:0;z-index:40;isolation:isolate;display:flex;align-items:center;justify-content:center;overflow:auto;background:transparent;
+.welcome{position:fixed;inset:0;z-index:40;isolation:isolate;display:flex;align-items:center;justify-content:center;overflow:auto;overscroll-behavior-y:contain;background:transparent;
   padding-block:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .welcome::before{content:"";position:fixed;inset:-8px;z-index:-1;background:linear-gradient(rgba(0,0,0,.12),rgba(0,0,0,.18)),url("https://i.ibb.co/ZpcWX8s6/74a8174f73b53bc4ad1d8708ebc613ff.jpg") center/cover no-repeat;filter:blur(2.5px);transform:scale(1.015);pointer-events:none}
 .welcome[hidden]{display:none!important}
