@@ -136,6 +136,25 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 36px);
   background:var(--bg);color:var(--fg);padding:14px 22px;border-radius:18px;font-size:.9rem;font-weight:600;z-index:20;box-shadow:var(--r-md)}
 
+/* Circular light/dark theme reveal, expanding from the theme button. */
+@supports (view-transition-name: root) {
+  @view-transition { navigation: auto; }
+  ::view-transition-old(root) { animation: theme-fade-out .22s ease both; }
+  ::view-transition-new(root) {
+    animation: theme-reveal .55s cubic-bezier(.2,.75,.2,1) both;
+  }
+  @keyframes theme-reveal {
+    from { clip-path: circle(0 at var(--theme-x, 50%) var(--theme-y, 50%)); }
+    to { clip-path: circle(150vmax at var(--theme-x, 50%) var(--theme-y, 50%)); }
+  }
+  @keyframes theme-fade-out {
+    to { opacity: .72; }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
+}
+
 @media (prefers-reduced-motion:no-preference){
   .card{animation:rise .6s cubic-bezier(.2,.8,.2,1) backwards}
   #inboxCard{animation-delay:.07s} #setCard{animation-delay:.14s}
@@ -671,11 +690,24 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     $("themeBtn").innerHTML = dark ? SUN : MOON;
     $("themeBtn").setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
   }
-  $("themeBtn").addEventListener("click", function(){
-    var n = effTheme() === "dark" ? "light" : "dark";
+  function applyTheme(n){
     document.documentElement.setAttribute("data-theme", n);
     try { localStorage.setItem("dbweb.theme", n); } catch(e){}
     paintTheme();
+  }
+  $("themeBtn").addEventListener("click", function(event){
+    var n = effTheme() === "dark" ? "light" : "dark";
+    var root = document.documentElement;
+    var rect = this.getBoundingClientRect();
+    var x = typeof event.clientX === "number" && event.clientX ? event.clientX : rect.left + rect.width / 2;
+    var y = typeof event.clientY === "number" && event.clientY ? event.clientY : rect.top + rect.height / 2;
+    root.style.setProperty("--theme-x", x + "px");
+    root.style.setProperty("--theme-y", y + "px");
+    if (document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.startViewTransition(function(){ applyTheme(n); });
+    } else {
+      applyTheme(n);
+    }
   });
   if (mq && mq.addEventListener) mq.addEventListener("change", paintTheme);
   paintTheme();
