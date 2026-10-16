@@ -185,7 +185,7 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
       <div class="logo"><svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6a95ff"/><stop offset="1" stop-color="#3558d8"/></linearGradient></defs><rect x="4" y="8" width="24" height="17" rx="5" fill="none" stroke="url(#lg)" stroke-width="2.8"/><path d="M6.5 11.5l9.5 7 9.5-7" fill="none" stroke="url(#lg)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div>
         <h1 class="word">Dbweb<span>mail</span></h1>
-        <p class="tag">Private disposable inboxes</p>
+        <p class="tag">Temporary inboxes for non-sensitive email</p>
       </div>
     </div>
     <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch theme"></button>
@@ -223,8 +223,8 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
       <span class="status"><span class="dot" id="dot"></span><span id="status">No mailbox</span></span>
     </div>
     <div class="screen"><p class="addr" id="addr"></p></div>
-    <p class="label">Password</p>
-    <div class="screen"><p class="pw" id="pw"></p></div>
+    <p class="label" id="pwLabel">Password</p>
+    <div class="screen" id="pwScreen"><p class="pw" id="pw"></p></div>
     <div class="row">
       <button class="btn primary" id="copyBtn" type="button">Copy address</button>
       <button class="btn" id="refreshBtn" type="button">Refresh</button>
@@ -424,8 +424,10 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     return pick.then(function(dom){
       var address = (name || rand("abcdefghijklmnopqrstuvwxyz0123456789", 10)) + "@" + dom;
       if (p === "catchmail" || p === "grabmail") {
-        // These services create an inbox implicitly when mail arrives; no account or password is needed.
-        return {provider:p, address:address, password:"", token:"", id:address, seen:{}};
+        // Verify the provider is reachable before treating this generated public address as created.
+        return call(base, null, "/mailbox?address=" + encodeURIComponent(address)).then(function(){
+          return {provider:p, address:address, password:"", token:"", id:address, seen:{}};
+        });
       }
       var password = rand("abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789", 12);
       return call(base, null, "/accounts", {method:"POST", body:{address:address, password:password}}).then(function(acc){
@@ -627,6 +629,8 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
 
     if (b && !current) {
       $("addr").textContent = b.address; $("pw").textContent = b.password || "No password — public temporary inbox";
+      var publicBox = b.provider === "catchmail" || b.provider === "grabmail";
+      $("pwLabel").hidden = publicBox; $("pwScreen").hidden = publicBox;
       showErr("err2", memOf(b).err);
       drawList(b);
     }
