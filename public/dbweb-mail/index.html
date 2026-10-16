@@ -279,8 +279,9 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
 <script>
 (function(){
   "use strict";
-  var BASES = {"mail.tm":"https://api.mail.tm", "mail.gw":"/api/dbweb-mail"}; // Mail.gw uses a same-origin route to avoid browser CORS/network restrictions
-  var ORDER = ["mail.tm","mail.gw"];
+  var BASES = {"mail.tm":"https://api.mail.tm", "mail.gw":"/api/dbweb-mail", "catchmail":"/api/dbweb-mail-alt/catchmail", "grabmail":"/api/dbweb-mail-alt/grabmail"};
+  // Catchmail and GrabMail use public, passwordless inboxes through a same-origin proxy.
+  var ORDER = ["catchmail","grabmail","mail.tm","mail.gw"];
   var KEY = "tempbox.v2", MAXBOX = 5;
   var $ = function(id){ return document.getElementById(id); };
 
@@ -400,6 +401,15 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
   /* ---------- mailbox creation with fallback ---------- */
   function getDomains(p){
     if (domainCache[p]) return Promise.resolve(domainCache[p]);
+    if (p === "catchmail") { domainCache[p] = ["catchmail.io"]; return Promise.resolve(domainCache[p]); }
+    if (p === "grabmail") {
+      return call(BASES[p], null, "/domains").then(function(r){
+        var raw = r.domains || r["hydra:member"] || [];
+        var d = raw.map(function(x){ return typeof x === "string" ? x : (x.domain || x.name || ""); }).filter(Boolean);
+        if (!d.length) d = ["grabmail.io"];
+        domainCache[p] = d; return d;
+      });
+    }
     return call(BASES[p], null, "/domains").then(function(r){
       var d = (r["hydra:member"] || []).filter(function(x){ return x.isActive !== false; }).map(function(x){ return x.domain; });
       domainCache[p] = d; return d;
@@ -413,12 +423,64 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     });
     return pick.then(function(dom){
       var address = (name || rand("abcdefghijklmnopqrstuvwxyz0123456789", 10)) + "@" + dom;
+      if (p === "catchmail" || p === "grabmail") {
+        // These services create an inbox implicitly when mail arrives; no account or password is needed.
+        return {provider:p, address:address, password:"", token:"", id:address, seen:{}};
+      }
       var password = rand("abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789", 12);
       return call(base, null, "/accounts", {method:"POST", body:{address:address, password:password}}).then(function(acc){
         return call(base, null, "/token", {method:"POST", body:{address:address, password:password}}).then(function(t){
           return {provider:p, address:address, password:password, token:t.token, id:acc.id, seen:{}};
         });
       });
+    });
+  }
+  function normalizePublicMessage(p, x, full){
+    var raw = full || x || {}, from = raw.from;
+    if (typeof from === "string") from = {name:"", address:from};
+    if (!from || typeof from !== "object") from = {name:"", address:"Unknown sender"};
+    var body = raw.body || {};
+    var html = raw.html || body.html || [];
+    if (typeof html === "string") html = html ? [html] : [];
+    return {
+      id:String(raw.id || x.id),
+      from:from,
+      subject:raw.subject || x.subject || "(no subject)",
+      createdAt:raw.date || raw.createdAt || x.date || new Date().toISOString(),
+      text:raw.text || body.text || "",
+      html:html,
+      attachments:raw.attachments || [],
+      seen:!!raw.seen
+    };
+  }
+  function pollPublicBox(b){
+    var p = b.provider, addr = encodeURIComponent(b.address), path;
+    if (p === "catchmail") path = "/mailbox?address=" + addr;
+    else path = "/mailbox?address=" + addr;
+    return call(BASES[p], null, path).then(function(r){
+      var list = r.messages || [], m = memOf(b), fresh = [];
+      return Promise.all(list.map(function(x){
+        var id = String(x.id || "");
+        if (!id || m.msgs[id] || m.gone[id]) return null;
+        var detailPath = p === "catchmail"
+          ? "/message/" + encodeURIComponent(id) + "?mailbox=" + addr
+          : "/message/" + encodeURIComponent(id) + "?mailbox=" + addr;
+        return call(BASES[p], null, detailPath).then(function(full){
+          var normalized = normalizePublicMessage(p, x, full);
+          m.msgs[normalized.id] = normalized; fresh.push(normalized);
+        }).catch(function(){
+          var normalized = normalizePublicMessage(p, x, x);
+          m.msgs[normalized.id] = normalized; fresh.push(normalized);
+        });
+      })).then(function(){
+        var ids = {}; list.forEach(function(x){ if (x.id) ids[String(x.id)] = 1; });
+        Object.keys(m.msgs).forEach(function(id){ if (!ids[id]) delete m.msgs[id]; });
+        m.err = "";
+        if (m.init && fresh.length) notify(b, fresh);
+        m.init = true; render(true);
+      });
+    }).catch(function(e){
+      var m = memOf(b); m.err = "Inbox refresh failed. " + netHint(e); render(true);
     });
   }
   function addBox(b){
@@ -451,7 +513,16 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
   }
   function onRestore(){
     var addr = $("rAddr").value.trim().toLowerCase(), pw = $("rPass").value.trim();
-    if (!addr || !pw) { showErr("err3", "Enter both the address and the password."); return; }
+    if (!addr) { showErr("err3", "Enter the email address."); return; }
+    var publicProvider = /@catchmail\.io$/i.test(addr) ? "catchmail" : (/@grabmail\.io$/i.test(addr) ? "grabmail" : "");
+    if (publicProvider) {
+      if (S.boxes.some(function(b){ return b.address === addr; })) { showErr("err3", "That mailbox is already open."); return; }
+      if (S.boxes.length >= MAXBOX) { showErr("err3", "You can keep up to " + MAXBOX + " mailboxes. Delete one first."); return; }
+      showErr("err3", ""); $("restoreBtn").disabled = true;
+      var pb = {provider:publicProvider, address:addr, password:"", token:"", id:addr, seen:{}};
+      $("rAddr").value = ""; $("rPass").value = ""; $("restoreBtn").disabled = false; addBox(pb); return;
+    }
+    if (!pw) { showErr("err3", "Enter the password for this mailbox."); return; }
     if (S.boxes.some(function(b){ return b.address === addr; })) { showErr("err3", "That mailbox is already open."); return; }
     if (S.boxes.length >= MAXBOX) { showErr("err3", "You can keep up to " + MAXBOX + " mailboxes. Delete one first."); return; }
     showErr("err3", ""); $("restoreBtn").disabled = true;
@@ -492,6 +563,7 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     }
   }
   function pollBox(b){
+    if (b.provider === "catchmail" || b.provider === "grabmail") return pollPublicBox(b);
     var m = memOf(b), base = baseOf(b);
     return call(base, b.token, "/messages").then(function(r){
       var list = r["hydra:member"] || [], fresh = [];
@@ -554,7 +626,7 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     tabs.scrollLeft = sl;
 
     if (b && !current) {
-      $("addr").textContent = b.address; $("pw").textContent = b.password;
+      $("addr").textContent = b.address; $("pw").textContent = b.password || "No password — public temporary inbox";
       showErr("err2", memOf(b).err);
       drawList(b);
     }
@@ -689,7 +761,10 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
   $("vImg").addEventListener("click", function(){ imgs = !imgs; applyMode(); });
   twoTap($("delMsg"), "Delete message", function(){
     var c = current; if (!c) return;
-    call(baseOf(c.box), c.box.token, "/messages/" + c.m.id, {method:"DELETE"}).catch(function(){});
+    if (c.box.provider === "catchmail" || c.box.provider === "grabmail") {
+      var path = "/message/" + encodeURIComponent(c.m.id) + "?mailbox=" + encodeURIComponent(c.box.address);
+      call(baseOf(c.box), null, path, {method:"DELETE"}).catch(function(){});
+    } else call(baseOf(c.box), c.box.token, "/messages/" + c.m.id, {method:"DELETE"}).catch(function(){});
     var mm = memOf(c.box); delete mm.msgs[c.m.id]; mm.gone[c.m.id] = true; closeSheet(); toast("Message deleted");
   });
   $("optSound").addEventListener("change", function(){ S.sound = this.checked; save(); if (this.checked) beep(); });
