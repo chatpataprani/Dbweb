@@ -131,6 +131,25 @@ export default function BackgroundRemoverPage() {
     setStatus("processing");
     setError("");
     try {
+      setProgress("Removing the background…");
+      try {
+        const form = new FormData();
+        form.append("image", file, file.name || "image");
+        const response = await fetch("/api/bg-remove", { method: "POST", body: form });
+        if (response.ok) {
+          const blob = await response.blob();
+          if (!blob.type.startsWith("image/")) throw new Error("Invalid image response");
+          if (outputUrlRef.current) URL.revokeObjectURL(outputUrlRef.current);
+          const nextOutput = URL.createObjectURL(blob);
+          outputUrlRef.current = nextOutput;
+          setOutputUrl(nextOutput);
+          setStatus("done");
+          setProgress("");
+          return;
+        }
+      } catch (onlineError) {
+        console.warn("Online background processing unavailable; trying device processing.");
+      }
       await loadModel();
       setProgress("Preparing image…");
       const { RawImage } = await import("@huggingface/transformers");
@@ -250,7 +269,7 @@ export default function BackgroundRemoverPage() {
         <div className="bgEyebrow"><Sparkles size={14}/> AI IMAGE TOOL <span>•</span> NO WATERMARKS</div>
         <h1>Backgrounds out.<br/><span>Details stay.</span></h1>
         <p>Clean cutouts, fine edges and transparent PNGs — powered by AI, right in your browser.</p>
-        <div className="bgTrust"><span><ShieldCheck size={15}/> Your photos stay on your device</span><span><Check size={15}/> No account or API key</span></div>
+        <div className="bgTrust"><span><ShieldCheck size={15}/> Secure image processing</span><span><Check size={15}/> No account or API key</span></div>
       </section>
       <section className="bgWorkspace">
         <div className="bgWorkspaceHead"><div><span className="bgStep">01</span><div><h2>Choose your image</h2><p>Portraits, products, pets and more</p></div></div>{file&&<button className="bgIconButton" onClick={reset} aria-label="Start over"><RefreshCw size={16}/></button>}</div>
@@ -263,7 +282,7 @@ export default function BackgroundRemoverPage() {
         <div className="bgActions">{!outputUrl?<button className="bgPrimary" disabled={!file||status==="processing"} onClick={removeBackground}>{status==="processing"?<><LoaderCircle className="bgSpin" size={17}/> Working…</>:<><Sparkles size={17}/> Remove background</>}</button>:<button className="bgPrimary" onClick={downloadResult}><Download size={17}/> Download transparent PNG</button>}{outputUrl&&<button className="bgSecondary" onClick={reset}>New image</button>}</div>
         {outputUrl&&<div className="bgControls"><div className="bgControlHead"><div><h3>Preview background</h3><p>Background choice changes the preview, not your transparent PNG.</p></div></div><div className="bgSwatches">{backgrounds.map(item=><button key={item.value} className={"bgSwatch "+(background===item.value?"selected":"")} onClick={()=>setBackground(item.value)} aria-label={item.name} title={item.name}><span style={{background:item.value==="transparent"?"repeating-conic-gradient(#cfd2da 0% 25%,#fff 0% 50%) 50% / 10px 10px":item.value}}/>{item.name}</button>)}</div><label className="bgSliderLabel"><span>Edge softness</span><strong>{feather.toFixed(1)} px</strong><input type="range" min="0" max="2.5" step="0.1" value={feather} onChange={e=>setFeather(Number(e.target.value))}/><small>Edge softness applies when you process the image again.</small></label><button className="bgSecondary bgReprocess" onClick={removeBackground} disabled={status==="processing"}><RefreshCw size={15}/> Reprocess with edge setting</button></div>}
       </section>
-      <section className="bgInfoGrid"><article><span>01</span><h3>Fine-detail AI</h3><p>Careful edge detection helps preserve details around hair, fur and object edges.</p></article><article><span>02</span><h3>Private by design</h3><p>Image processing runs locally in your browser after the model is downloaded.</p></article><article><span>03</span><h3>Made for creators</h3><p>Export a transparent PNG without third-party logos or watermarks.</p></article></section>
+      <section className="bgInfoGrid"><article><span>01</span><h3>Fine-detail AI</h3><p>Careful edge detection helps preserve details around hair, fur and object edges.</p></article><article><span>02</span><h3>Privacy minded</h3><p>Dbweb does not store your uploaded photos or processed results.</p></article><article><span>03</span><h3>Made for creators</h3><p>Export a transparent PNG without third-party logos or watermarks.</p></article></section>
     </main>
     <footer className="bgFooter">Dbweb Lab <span>·</span> Tools for your creative workflow</footer>
     <canvas ref={outputCanvasRef} hidden/>
