@@ -167,7 +167,7 @@ async function getArchiveDetails(identifier) {
   };
 }
 
-async function getAddonDetails(id) {
+async function getAddonDetails(id, requestedEpisode = "") {
   const parsed = decodeAddonItem(id);
   const configured = addonUrls();
   if (!parsed || !configured.includes(parsed.addon)) throw new Error("This addon item is invalid or its source is not configured.");
@@ -204,7 +204,7 @@ export async function GET(request) {
   try {
     if (action === "details") {
       const id = searchParams.get("id") || "";
-      const details = id.startsWith("stremio:") ? await getAddonDetails(id) : await getArchiveDetails(id);
+      const details = id.startsWith("stremio:") ? await getAddonDetails(id, searchParams.get("episode") || "") : await getArchiveDetails(id);
       return NextResponse.json(details, { headers: CACHE_HEADERS });
     }
     const query = safeQuery(searchParams.get("q") || "");
