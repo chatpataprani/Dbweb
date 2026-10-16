@@ -3,8 +3,6 @@
 A responsive web workspace for everyday lookups, image editing, file utilities, and productivity tools.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Framework](https://img.shields.io/badge/framework-Next.js-black)
-![Runtime](https://img.shields.io/badge/runtime-Node.js-green)
 
 <p align="center">
   <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1400&q=85" alt="A modern digital workspace" width="100%" />
@@ -128,7 +126,6 @@ Changes to environment variables may require a new deployment before they take e
 ```text
 Dbweb/
 ├── app/
-│   ├── api/                 # Server-side request handlers
 │   ├── bg-remove/           # Background removal page and styles
 │   ├── tool/                # Dedicated background removal tool route
 │   ├── tools/               # Tools directory and individual utilities
@@ -138,7 +135,6 @@ Dbweb/
 ├── public/
 │   ├── photo-studio/        # Photo Studio assets and interface
 │   └── tools/               # Static tool assets
-├── supabase/                # Database schema files, if configured
 ├── .env.example             # Environment variable template
 ├── package.json
 └── README.md
