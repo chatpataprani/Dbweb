@@ -151,3 +151,18 @@
 .shortHop p{margin-top:4px;font-size:12px;color:var(--mu);overflow-wrap:anywhere;word-break:break-word}
 :root[data-theme="dark"] .shortDestination,:root[data-theme="dark"] .shortHop{background:#141720}
 @media(max-width:560px){.shortResultHead{align-items:flex-start}.shortActions>*{flex:1}.shortDestination{font-size:12px}}
+
+/* Telegram-style circular reveal when switching appearance */
+@supports (view-transition-name: root) {
+  :root{view-transition-name:root}
+  ::view-transition-group(root){animation-duration:.52s}
+  ::view-transition-old(root){animation:none;z-index:1}
+  ::view-transition-new(root){animation:dbweb-theme-reveal .52s cubic-bezier(.2,.75,.25,1) both;z-index:2}
+}
+@keyframes dbweb-theme-reveal{
+  from{clip-path:circle(0 at var(--theme-x,50%) var(--theme-y,50%))}
+  to{clip-path:circle(150vmax at var(--theme-x,50%) var(--theme-y,50%))}
+}
+@media(prefers-reduced-motion:reduce){
+  ::view-transition-group(root),::view-transition-old(root),::view-transition-new(root){animation:none!important}
+}
