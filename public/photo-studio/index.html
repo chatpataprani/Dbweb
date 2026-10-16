@@ -1035,7 +1035,7 @@ async function removeStickerBackground(canvas){
   try{return fitCanvas(bitmap,640,true);}finally{if(bitmap.close)bitmap.close();}
 }
 async function addStickerFiles(files){
-  const list=[...files].filter(f=>/^image\\//.test(f.type)||/\\.(jpe?g|png|webp|gif|bmp|avif|svg)$/i.test(f.name));
+  const list=[...files].filter(f=>/^image\//.test(f.type)||/\.(jpe?g|png|webp|gif|bmp|avif|svg)$/i.test(f.name));
   if(!list.length){say('No picture found. Choose a PNG, JPG or WebP file.');return;}
   const removeBg=await askStickerBackground();
   say(removeBg?'Removing sticker backgrounds…':'Loading sticker…');let n=0,failedBg=0;
