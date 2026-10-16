@@ -66,111 +66,44 @@ export default function BackgroundRemoverPage() {
 
   async function loadModel() {
     if (modelRef.current && processorRef.current) return;
-    setProgress("Preparing background removal…");
+    if (typeof navigator === "undefined" || !navigator.gpu) {
+      throw new Error("WebGPU is not available on this device.");
+    }
+    setProgress("Preparing on-device background removal…");
     const { AutoModel, AutoProcessor, env } = await import("@huggingface/transformers");
     env.allowLocalModels = false;
     env.useBrowserCache = true;
-    const hasWebGPU = typeof navigator !== "undefined" && !!navigator.gpu;
-    const candidates = [
-      ...(hasWebGPU ? [{ id: MODEL_ID, device: "webgpu", dtype: "fp16", fallback: false }] : []),
-      { id: FALLBACK_MODEL_ID, device: "wasm", dtype: "q8", fallback: true },
-      { id: FALLBACK_MODEL_ID, device: "wasm", dtype: "fp32", fallback: true },
-    ];
-    let lastError;
-    for (const candidate of candidates) {
-      try {
-        setProgress(candidate.fallback ? "Preparing compatibility mode…" : "Preparing image engine…");
-        const [model, processor] = await Promise.all([
-          AutoModel.from_pretrained(candidate.id, { dtype: candidate.dtype, device: candidate.device }),
-          AutoProcessor.from_pretrained(candidate.id),
-        ]);
-        modelRef.current = model;
-        processorRef.current = processor;
-        fallbackActiveRef.current = candidate.fallback;
-        setModelReady(true);
-        return;
-      } catch (err) {
-        lastError = err;
-        modelRef.current = null;
-        processorRef.current = null;
-      }
-    }
-    throw lastError || new Error("This device could not start background removal. Try a smaller image or a newer browser.");
-  }
-
-  async function loadFallbackModel() {
-    const { AutoModel, AutoProcessor, env } = await import("@huggingface/transformers");
-    env.allowLocalModels = false;
-    env.useBrowserCache = true;
-    modelRef.current = null;
-    processorRef.current = null;
-    const attempts = ["q8", "fp32"];
-    let lastError;
-    for (const dtype of attempts) {
-      try {
-        setProgress("Switching to compatibility mode…");
-        const [model, processor] = await Promise.all([
-          AutoModel.from_pretrained(FALLBACK_MODEL_ID, { dtype, device: "wasm" }),
-          AutoProcessor.from_pretrained(FALLBACK_MODEL_ID),
-        ]);
-        modelRef.current = model;
-        processorRef.current = processor;
-        fallbackActiveRef.current = true;
-        return;
-      } catch (err) {
-        lastError = err;
-        modelRef.current = null;
-        processorRef.current = null;
-      }
-    }
-    throw lastError || new Error("This device could not process the image.");
+    const [model, processor] = await Promise.all([
+      AutoModel.from_pretrained(MODEL_ID, { dtype: "fp16", device: "webgpu" }),
+      AutoProcessor.from_pretrained(MODEL_ID),
+    ]);
+    modelRef.current = model;
+    processorRef.current = processor;
+    fallbackActiveRef.current = false;
+    setModelReady(true);
   }
 
   async function removeBackground() {
     if (!file || status === "processing") return;
     setStatus("processing");
     setError("");
+    setProgress("Removing the background…");
+
+    // Try WebGPU on the user's device first. Any unsupported device, model-load
+    // issue, or inference failure silently falls through to the online service.
     try {
-      setProgress("Removing the background…");
-      try {
-        const form = new FormData();
-        form.append("image", file, file.name || "image");
-        const response = await fetch("/api/bg-remove", { method: "POST", body: form });
-        if (response.ok) {
-          const blob = await response.blob();
-          if (!blob.type.startsWith("image/")) throw new Error("Invalid image response");
-          if (outputUrlRef.current) URL.revokeObjectURL(outputUrlRef.current);
-          const nextOutput = URL.createObjectURL(blob);
-          outputUrlRef.current = nextOutput;
-          setOutputUrl(nextOutput);
-          setStatus("done");
-          setProgress("");
-          return;
-        }
-      } catch (onlineError) {
-        console.warn("Online background processing unavailable; trying device processing.");
-      }
       await loadModel();
       setProgress("Preparing image…");
       const { RawImage } = await import("@huggingface/transformers");
       const image = await RawImage.fromURL(originalUrl);
       const { pixel_values } = await processorRef.current(image);
       setProgress("Finding fine edges and foreground details…");
-      let prediction;
-      try {
-        prediction = await modelRef.current({ input_image: pixel_values });
-      } catch (firstError) {
-        if (fallbackActiveRef.current) throw firstError;
-        await loadFallbackModel();
-        const retryImage = await RawImage.fromURL(originalUrl);
-        const retryInput = await processorRef.current(retryImage);
-        prediction = await modelRef.current({ input_image: retryInput.pixel_values });
-      }
+      const prediction = await modelRef.current({ input_image: pixel_values });
       const mask = await RawImage.fromTensor(
         prediction.output_image[0].sigmoid().mul(255).to("uint8")
       );
       const resizedMask = mask.resize(image.width, image.height);
-      setProgress("Refining edges and exporting transparent image…");
+      setProgress("Finishing transparent cutout…");
       const sourceImage = new Image();
       sourceImage.src = originalUrl;
       await new Promise((resolve, reject) => {
@@ -214,8 +147,31 @@ export default function BackgroundRemoverPage() {
       outputCanvas.width = width;
       outputCanvas.height = height;
       outputCanvas.getContext("2d").putImageData(sourcePixels, 0, 0);
-      const blob = await new Promise((resolve) => outputCanvas.toBlob(resolve, "image/png"));
-      if (!blob) throw new Error("Could not create the transparent PNG. Please try another image.");
+      const localBlob = await new Promise((resolve) => outputCanvas.toBlob(resolve, "image/png"));
+      if (!localBlob) throw new Error("Could not create transparent PNG.");
+      if (outputUrlRef.current) URL.revokeObjectURL(outputUrlRef.current);
+      const nextOutput = URL.createObjectURL(localBlob);
+      outputUrlRef.current = nextOutput;
+      setOutputUrl(nextOutput);
+      setStatus("done");
+      setProgress("");
+      return;
+    } catch (localError) {
+      // Do not expose WebGPU compatibility errors to the user; use the API next.
+      console.info("On-device background removal unavailable; switching to online processing.");
+    }
+
+    try {
+      setProgress("Finishing your cutout…");
+      const form = new FormData();
+      form.append("image", file, file.name || "image");
+      const response = await fetch("/api/bg-remove", { method: "POST", body: form });
+      if (!response.ok) {
+        const details = await response.json().catch(() => ({}));
+        throw new Error(details.error || "Online background removal is temporarily unavailable.");
+      }
+      const blob = await response.blob();
+      if (!blob.type.startsWith("image/")) throw new Error("The service returned an invalid image.");
       if (outputUrlRef.current) URL.revokeObjectURL(outputUrlRef.current);
       const nextOutput = URL.createObjectURL(blob);
       outputUrlRef.current = nextOutput;
@@ -224,10 +180,7 @@ export default function BackgroundRemoverPage() {
       setProgress("");
     } catch (e) {
       console.error("Dbweb background removal failed", e);
-      const message = String(e?.message || "").toLowerCase();
-      setError(message.includes("fetch") || message.includes("network") || message.includes("download")
-        ? "Could not prepare background removal. Check your connection and try again."
-        : "This image could not be processed on this device. Try a smaller image or a newer browser.");
+      setError(e?.message || "Background removal is temporarily unavailable. Please try again.");
       setStatus("error");
       setProgress("");
     }
@@ -278,7 +231,7 @@ export default function BackgroundRemoverPage() {
         </button> : <div className="bgPreviewWrap"><div className="bgPreview" style={{background:background==="transparent"?"repeating-conic-gradient(#e6e8ee 0% 25%,#fff 0% 50%) 50% / 18px 18px":background}}><img src={showOriginal?originalUrl:outputUrl||originalUrl} alt={showOriginal?"Original image":outputUrl?"Background removed preview":"Image awaiting background removal"}/></div><div className="bgPreviewFooter"><span>{showOriginal?"Original image":outputUrl?"Transparent cutout":"Original preview"}</span>{outputUrl&&<button className="bgTextButton" onClick={()=>setShowOriginal(v=>!v)}>{showOriginal?"View result":"Compare original"}</button>}</div></div>}
         <input ref={inputRef} type="file" accept="image/png,image/jpeg,image/webp,image/avif" hidden onChange={e=>chooseFile(e.target.files?.[0])}/>
         {error&&<div className="bgError"><X size={16}/><span>{error}</span></div>}
-        {progress&&<div className="bgProgress"><LoaderCircle className="bgSpin" size={18}/><div><strong>{progress}</strong><span>{modelReady?"AI model ready": "First run downloads the AI model; this can take a while on mobile data."}</span></div></div>}
+        {progress&&<div className="bgProgress"><LoaderCircle className="bgSpin" size={18}/><div><strong>{progress}</strong><span>{modelReady?"On-device processing ready": "If on-device processing is unavailable, Dbweb switches automatically to online processing."}</span></div></div>}
         <div className="bgActions">{!outputUrl?<button className="bgPrimary" disabled={!file||status==="processing"} onClick={removeBackground}>{status==="processing"?<><LoaderCircle className="bgSpin" size={17}/> Working…</>:<><Sparkles size={17}/> Remove background</>}</button>:<button className="bgPrimary" onClick={downloadResult}><Download size={17}/> Download transparent PNG</button>}{outputUrl&&<button className="bgSecondary" onClick={reset}>New image</button>}</div>
         {outputUrl&&<div className="bgControls"><div className="bgControlHead"><div><h3>Preview background</h3><p>Background choice changes the preview, not your transparent PNG.</p></div></div><div className="bgSwatches">{backgrounds.map(item=><button key={item.value} className={"bgSwatch "+(background===item.value?"selected":"")} onClick={()=>setBackground(item.value)} aria-label={item.name} title={item.name}><span style={{background:item.value==="transparent"?"repeating-conic-gradient(#cfd2da 0% 25%,#fff 0% 50%) 50% / 10px 10px":item.value}}/>{item.name}</button>)}</div><label className="bgSliderLabel"><span>Edge softness</span><strong>{feather.toFixed(1)} px</strong><input type="range" min="0" max="2.5" step="0.1" value={feather} onChange={e=>setFeather(Number(e.target.value))}/><small>Edge softness applies when you process the image again.</small></label><button className="bgSecondary bgReprocess" onClick={removeBackground} disabled={status==="processing"}><RefreshCw size={15}/> Reprocess with edge setting</button></div>}
       </section>
