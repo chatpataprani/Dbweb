@@ -33,7 +33,7 @@ export default function InstagramAnalyzerPage() {
     <section className="igHero">
       <span className="igBadge"><Instagram size={15}/> DBWEB TOOL</span>
       <h1>Instagram Profile Analyzer</h1>
-      <p>View profile metadata when Instagram makes it publicly available. Instagram may limit automated requests.</p>
+      <p>Analyze public profile stats, bio, profile picture and available business details. No Instagram login required; results depend on public data access.</p>
       <form className="igSearch" onSubmit={analyze}>
         <span className="igAt">@</span>
         <input value={username} onChange={e => setUsername(e.target.value)} placeholder="Enter Instagram username" aria-label="Instagram username" autoCapitalize="none" autoCorrect="off" maxLength={31} required />
@@ -54,7 +54,7 @@ export default function InstagramAnalyzerPage() {
         <div><UserRound size={18}/><span>Following</span><strong>{data.following}</strong></div>
         <div><FileText size={18}/><span>Posts</span><strong>{data.posts}</strong></div>
       </div>
-      <div className="igPhotoLink">{data.photoUrl ? <a href={data.photoUrl} target="_blank" rel="noreferrer"><ImageIcon size={16}/> Open profile picture <ExternalLink size={13}/></a> : <span>Profile picture unavailable</span>}</div>{data.note && <p className="igNotice" role="status">{data.note}</p>}{data.limited && <a className="igOpenProfile" href={data.profileUrl} target="_blank" rel="noreferrer">Open @{data.username} on Instagram <ExternalLink size={14}/></a>}
+      {(data.bio || data.category || data.website || data.verified) && <div className="igNotice"><strong>{data.verified ? "Verified account" : data.category || "Public profile details"}</strong>{data.bio && <p style={{whiteSpace:"pre-wrap",margin:"8px 0 0"}}>{data.bio}</p>}{data.website && <p style={{margin:"8px 0 0"}}><a href={data.website} target="_blank" rel="noreferrer">{data.website}</a></p>}</div>}\n      <div className="igPhotoLink">{data.photoUrl ? <a href={data.photoUrl} target="_blank" rel="noreferrer"><ImageIcon size={16}/> Open profile picture <ExternalLink size={13}/></a> : <span>Profile picture unavailable</span>}</div>{data.note && <p className="igNotice" role="status">{data.note}</p>}{data.limited && <a className="igOpenProfile" href={data.profileUrl} target="_blank" rel="noreferrer">Open @{data.username} on Instagram <ExternalLink size={14}/></a>}
     </section>}
   </main>;
 }
