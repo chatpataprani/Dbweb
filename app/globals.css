@@ -189,3 +189,21 @@
   .app > main { box-sizing: border-box !important; display: block !important; position: relative !important; inset: auto !important; align-self: auto !important; justify-self: stretch !important; transform: none !important; float: none !important; margin: 0 auto !important; padding: 64px 15px 24px !important; width: 100% !important; max-width: 1040px !important; }
   .app > main > header { margin-top: 0 !important; }
 }
+
+
+/* Keep idle Lookup fixed in the viewport; enable scrolling when results exist. */
+@media (max-width: 760px) {
+  body:has(.app.lookupIdle) {
+    overflow: hidden !important;
+    height: 100dvh !important;
+  }
+  .app.lookupIdle {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    overflow: hidden !important;
+  }
+  .app.lookupIdle > main {
+    height: 100dvh !important;
+    overflow: hidden !important;
+  }
+}
