@@ -94,6 +94,23 @@ option{background:var(--bg);color:var(--fg)}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
 .dot.live{background:#22c58b;box-shadow:0 0 9px #22c58b}
 
+/* phone OTP provider directory */
+.provider-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:18px}
+.provider-card{padding:18px;border-radius:22px;box-shadow:var(--r-sm);display:flex;flex-direction:column;gap:9px;min-width:0}
+.provider-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.provider-card h3{font:700 1rem/1.3 var(--display);margin:0}
+.provider-card p{font-size:.88rem;color:var(--muted);margin:0}
+.provider-pill{font:700 .66rem var(--mono);padding:5px 9px;border-radius:999px;box-shadow:var(--in-sm);white-space:nowrap;color:var(--accent)}
+.provider-card .btn{align-self:flex-start;margin-top:3px}
+.phone-note{font-size:.82rem;color:var(--muted);padding:14px 16px;border-radius:16px;box-shadow:var(--in-sm);margin-top:16px}
+.mode-tabs{display:flex;gap:12px;margin:0 0 2px}
+.mode-tabs .btn{flex:1;text-align:center}
+#phoneView{display:none}
+body.phone-mode #emailView{display:none}
+body.phone-mode #phoneView{display:block}
+body.phone-mode #modeEmail{box-shadow:var(--in-sm);color:var(--accent)}
+body:not(.phone-mode) #modePhone{box-shadow:var(--in-sm);color:var(--accent)}
+
 /* inbox */
 .search{margin-bottom:18px}
 .empty{display:flex;flex-direction:column;align-items:center;text-align:center;color:var(--muted);padding:18px 8px 8px;gap:14px}
@@ -191,6 +208,11 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch theme"></button>
   </header>
 
+  <nav class="mode-tabs" aria-label="Temporary services">
+    <button class="btn" id="modeEmail" type="button" aria-pressed="true">Temp Mail</button>
+    <button class="btn" id="modePhone" type="button" aria-pressed="false">Temp Phone / SMS</button>
+  </nav>
+  <div id="emailView">
   <div class="tabs" id="tabs" hidden></div>
 
   <section class="card" id="createCard" hidden>
@@ -272,7 +294,36 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     <ul class="atts" id="sAtts"></ul>
     <ul class="links" id="sLinks"></ul>
   </section>
-  <footer><b>Dbweb mail</b> · temporary inboxes</footer>
+  </div><!-- /emailView -->
+
+  <section class="card" id="phoneView" aria-labelledby="phoneTitle">
+    <h2 class="ttl" id="phoneTitle">Temporary phone numbers</h2>
+    <p class="sub">Choose a public SMS inbox from one of these providers. Pick a country and number on the provider's site, then read incoming texts there.</p>
+    <div class="provider-grid">
+      <article class="provider-card">
+        <div class="provider-top"><h3>ASMS.ai</h3><span class="provider-pill">FREE SHARED</span></div>
+        <p>Free public numbers from the US, UK, Germany and other countries. Its automated number-ordering API is paid.</p>
+        <a class="btn primary" href="https://asms.ai/" target="_blank" rel="noopener noreferrer">Browse numbers ↗</a>
+      </article>
+      <article class="provider-card">
+        <div class="provider-top"><h3>Instant SMS</h3><span class="provider-pill">100+ COUNTRIES</span></div>
+        <p>Free shared numbers with live public inboxes. Country availability changes over time.</p>
+        <a class="btn primary" href="https://instant-sms.com/" target="_blank" rel="noopener noreferrer">Browse numbers ↗</a>
+      </article>
+      <article class="provider-card">
+        <div class="provider-top"><h3>SMSCove</h3><span class="provider-pill">FREE</span></div>
+        <p>Public numbers across multiple countries, refreshed periodically, with messages shown on each number page.</p>
+        <a class="btn primary" href="https://smscove.com/" target="_blank" rel="noopener noreferrer">Browse numbers ↗</a>
+      </article>
+      <article class="provider-card">
+        <div class="provider-top"><h3>Receive-SMS.CC</h3><span class="provider-pill">FREE</span></div>
+        <p>Browse public numbers by country and open the matching inbox to check incoming SMS.</p>
+        <a class="btn primary" href="https://receive-sms.cc/" target="_blank" rel="noopener noreferrer">Browse numbers ↗</a>
+      </article>
+    </div>
+    <div class="phone-note"><strong>Privacy notice:</strong> These are shared public inboxes. Other people may see the messages and OTPs. Don't use them for banking, private accounts, account recovery, or anything important. Some apps reject temporary numbers. Use them only where allowed by the service.</div>
+  </section>
+  <footer><b>Dbweb</b> · temporary mail &amp; phone tools</footer>
 </main>
 <div class="toast" id="toast" hidden></div>
 
@@ -745,6 +796,16 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
       } else { clearTimeout(t); armed = false; btn.textContent = idle; action(); }
     });
   }
+
+  /* ---------- section switcher ---------- */
+  function setSection(phone){
+    document.body.classList.toggle("phone-mode", phone);
+    $("modePhone").setAttribute("aria-pressed", phone ? "true" : "false");
+    $("modeEmail").setAttribute("aria-pressed", phone ? "false" : "true");
+    if (!phone) render();
+  }
+  $("modeEmail").addEventListener("click", function(){ setSection(false); });
+  $("modePhone").addEventListener("click", function(){ setSection(true); });
 
   /* ---------- wiring ---------- */
   $("newBtn").addEventListener("click", onCreate);
