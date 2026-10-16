@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";\nimport Hls from "hls.js";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Hls from "hls.js";
 import { ArrowLeft, Search, Play, Film, Sparkles, X, LoaderCircle, Bookmark, BookmarkCheck, ExternalLink, ShieldCheck, Info, Tv } from "lucide-react";
 
 const kinds = [
@@ -21,10 +22,12 @@ export default function StreamingPage() {
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState("");
   const [selected, setSelected] = useState(null);
-  const [streamChoice, setStreamChoice] = useState("");\n  const [episodeChoice, setEpisodeChoice] = useState("");
+  const [streamChoice, setStreamChoice] = useState("");
+  const [episodeChoice, setEpisodeChoice] = useState("");
   const [detailBusy, setDetailBusy] = useState(false);
   const [saved, setSaved] = useState([]);
-  const [savedOnly, setSavedOnly] = useState(false);\n  const videoRef = useRef(null);
+  const [savedOnly, setSavedOnly] = useState(false);
+  const videoRef = useRef(null);
 
   useEffect(() => {
     try { setSaved(JSON.parse(localStorage.getItem("dbweb_stream_saved") || "[]")); } catch {}
