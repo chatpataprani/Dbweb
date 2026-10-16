@@ -189,3 +189,21 @@
   .app > main { box-sizing: border-box !important; display: block !important; position: relative !important; inset: auto !important; align-self: auto !important; justify-self: stretch !important; transform: none !important; float: none !important; margin: 0 auto !important; padding: 64px 15px 24px !important; width: 100% !important; max-width: 1040px !important; }
   .app > main > header { margin-top: 0 !important; }
 }
+
+
+/* Keep the Lookup content at the top on mobile without locking scrolling. */
+@media (max-width: 760px) {
+  .app > main {
+    padding-top: 12px !important;
+    margin-top: 0 !important;
+    top: 0 !important;
+    transform: none !important;
+  }
+  .app > main > header {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+  .app > main > header + * {
+    margin-top: 0 !important;
+  }
+}
