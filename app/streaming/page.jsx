@@ -97,6 +97,35 @@ export default function StreamingPage() {
 
   const shown = savedOnly ? saved : items;
 
+  const playerSource = selected ? (streamChoice || selected.videoUrl || "") : "";
+  const isHlsSource = /\\.m3u8(?:[?#]|$)/i.test(playerSource);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !playerSource || !isHlsSource) return undefined;
+
+    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = playerSource;
+      return () => { video.removeAttribute("src"); video.load(); };
+    }
+
+    if (!Hls.isSupported()) {
+      setSelected((current) => current ? { ...current, playerError: "This browser cannot play HLS streams. Try another source in Dbweb." } : current);
+      return undefined;
+    }
+
+    const hls = new Hls({ enableWorker: true, backBufferLength: 30 });
+    hls.loadSource(playerSource);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.ERROR, (_event, data) => {
+      if (data.fatal) {
+        setSelected((current) => current ? { ...current, playerError: "This HLS stream failed to load. Try another source if available." } : current);
+        hls.destroy();
+      }
+    });
+    return () => hls.destroy();
+  }, [playerSource, isHlsSource]);
+
   return <main className="streamPage">
     <a className="streamBack" href="/"><ArrowLeft size={16}/> Back to Dbweb</a>
     <section className="streamHero">
