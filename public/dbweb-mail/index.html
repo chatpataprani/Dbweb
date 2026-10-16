@@ -275,14 +275,23 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     opts = opts || {};
     var h = {"Content-Type":"application/json"};
     if (token) h.Authorization = "Bearer " + token;
-    return fetch(base + path, {method: opts.method || "GET", headers: h, body: opts.body ? JSON.stringify(opts.body) : undefined})
+    var controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+    var timer = controller ? setTimeout(function(){ controller.abort(); }, 12000) : null;
+    return fetch(base + path, {method: opts.method || "GET", headers: h, body: opts.body ? JSON.stringify(opts.body) : undefined, signal: controller ? controller.signal : undefined})
       .then(function(r){
         if (r.status === 204) return {};
         return r.json().catch(function(){ return {}; }).then(function(j){
-          if (!r.ok) { var e = new Error(j.message || j["hydra:description"] || ("HTTP " + r.status)); e.status = r.status; throw e; }
+          if (!r.ok) {
+            var e = new Error(j.message || j["hydra:description"] || ("HTTP " + r.status));
+            e.status = r.status; e.apiMessage = j.message || j["hydra:description"] || "";
+            throw e;
+          }
           return j;
         });
-      });
+      }).catch(function(e){
+        if (e.name === "AbortError") throw new Error("The mail service took too long to respond. Please try again.");
+        throw e;
+      }).finally(function(){ if (timer) clearTimeout(timer); });
   }
   function baseOf(b){ return BASES[b.provider]; }
   function active(){ return S.boxes[S.active] || null; }
@@ -298,9 +307,15 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.hidden = true; }, 3000);
   }
   function netHint(e){
-    return /failed to fetch|networkerror|load failed/i.test(e.message)
-      ? "Cannot reach the mail service. Open this page in a normal browser tab (not inside an app preview) and check your connection."
-      : e.message;
+    if (!e) return "An unexpected error occurred. Please try again.";
+    if (e.status === 401 || e.status === 403) return "The address or password was rejected, or this mailbox session has expired.";
+    if (e.status === 404) return "This mailbox or message could not be found. It may have expired or been deleted.";
+    if (e.status === 409 || e.status === 422) return "That email name is unavailable. Try a different name.";
+    if (e.status === 429) return "The mail service is receiving too many requests. Wait a moment and try again.";
+    if (e.status >= 500) return "The mail provider is having a temporary problem. Try again in a little while.";
+    if (/failed to fetch|networkerror|load failed|network request failed/i.test(e.message || "")) return "Could not connect to the mail provider. Check your internet connection, then try again. If this continues, the provider may be temporarily unavailable.";
+    if (/timed out|too long to respond/i.test(e.message || "")) return "The mail provider did not respond in time. Please try again.";
+    return e.apiMessage || e.message || "Something went wrong. Please try again.";
   }
   function copy(text, btn, done){
     function ok(){ if (btn) { var old = btn.textContent; btn.textContent = done; setTimeout(function(){ btn.textContent = old; }, 1500); } }
@@ -377,14 +392,14 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     var lastErr = null, taken = false, i = 0;
     function next(){
       if (i >= attempts.length) {
-        showErr("err1", taken ? "That name is taken. Try another one." : "Could not create the email: " + netHint(lastErr || new Error("unknown error")));
+        showErr("err1", taken ? "That name is already in use. Choose another name, or leave it blank for a random address." : "We could not create your inbox. " + netHint(lastErr));
         $("newBtn").disabled = false; return;
       }
       var a = attempts[i++];
       createOn(a[0], name, a[1]).then(function(b){
         $("nameIn").value = ""; $("newBtn").disabled = false; addBox(b);
         if (i > 1) toast("Main service was unavailable, created on " + a[0]);
-      }).catch(function(e){ lastErr = e; if (e.status === 422) taken = true; next(); });
+      }).catch(function(e){ lastErr = e; if (e.status === 422 || e.status === 409) taken = true; next(); });
     }
     next();
   }
@@ -396,7 +411,7 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     showErr("err3", ""); $("restoreBtn").disabled = true;
     var i = 0, lastErr = null;
     function next(){
-      if (i >= ORDER.length) { showErr("err3", "Could not sign in: " + netHint(lastErr || new Error("Wrong address or password"))); $("restoreBtn").disabled = false; return; }
+      if (i >= ORDER.length) { showErr("err3", /failed to fetch|networkerror|load failed|network request failed|too long to respond|timed out/i.test((lastErr && lastErr.message) || "") || (lastErr && lastErr.status >= 500) ? "Could not reach either mail provider. " + netHint(lastErr) : "Could not restore this mailbox. Check that the address and password are correct, then try again."); $("restoreBtn").disabled = false; return; }
       var p = ORDER[i++];
       call(BASES[p], null, "/token", {method:"POST", body:{address:addr, password:pw}}).then(function(t){
         return call(BASES[p], t.token, "/me").then(function(me){
@@ -446,7 +461,7 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
         render(true);
       });
     }).catch(function(e){
-      m.err = (e.status === 401) ? "This mailbox session is no longer valid. Delete it and restore it with the password." : "Could not check the inbox: " + netHint(e);
+      m.err = (e.status === 401 || e.status === 403) ? "Your mailbox session has expired. Restore this inbox with its address and password." : "Inbox refresh failed. " + netHint(e);
       render(true);
     });
   }
@@ -595,7 +610,7 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
       var u = URL.createObjectURL(blob), l = document.createElement("a");
       l.href = u; l.download = a.filename || "attachment"; document.body.appendChild(l); l.click(); l.remove();
       setTimeout(function(){ URL.revokeObjectURL(u); }, 4000);
-    }).catch(function(){ toast("Could not download the attachment"); }).then(function(){ btn.disabled = false; });
+    }).catch(function(e){ toast("Attachment download failed. " + netHint(e)); }).then(function(){ btn.disabled = false; });
   }
 
   /* ---------- two-tap confirm ---------- */
