@@ -8,7 +8,7 @@ const TIMEOUT_MS = 9000;
 // HTTPS manifest URLs in STREMIO_ADDON_URLS (comma-separated) in Vercel.
 function addonUrls() {
   return (process.env.STREMIO_ADDON_URLS || "")
-    .split(",").map((value) => value.trim().replace(/\\/+$/, "")).filter(Boolean)
+    .split(",").map((value) => value.trim().replace(/\/+$/, "")).filter(Boolean)
     .filter((value) => {
       try { return new URL(value).protocol === "https:"; } catch { return false; }
     }).slice(0, 8);
@@ -21,7 +21,7 @@ async function fetchJson(url) {
 }
 
 function safeQuery(value) {
-  return value.replace(/[^\\p{L}\\p{N}\\s'-]/gu, " ").replace(/\\s+/g, " ").trim().slice(0, 100);
+  return value.replace(/[^\p{L}\p{N}\s'-]/gu, " ").replace(/\s+/g, " ").trim().slice(0, 100);
 }
 function first(value) { return Array.isArray(value) ? value[0] : value; }
 function encodeAddonItem(payload) { return "stremio:" + Buffer.from(JSON.stringify(payload)).toString("base64url"); }
@@ -43,7 +43,7 @@ function browserPlayable(stream) {
   const url = safeMediaUrl(stream.url || "");
   if (!url) return false;
   const type = String(stream.behaviorHints?.filename || stream.name || url).toLowerCase();
-  return /\\.(mp4|webm|m3u8)(?:[?#]|$)/i.test(type) || ["video/mp4", "video/webm", "application/vnd.apple.mpegurl", "application/x-mpegurl"].includes(String(stream.type || "").toLowerCase());
+  return /\.(mp4|webm|m3u8)(?:[?#]|$)/i.test(type) || ["video/mp4", "video/webm", "application/vnd.apple.mpegurl", "application/x-mpegurl"].includes(String(stream.type || "").toLowerCase());
 }
 
 async function searchAddons(query, category) {
@@ -51,7 +51,7 @@ async function searchAddons(query, category) {
   if (!configured.length) return [];
   const results = await Promise.allSettled(configured.map(async (addonUrl) => {
     const manifest = await fetchJson(addonUrl);
-    const root = addonUrl.replace(/\\/$/, "");
+    const root = addonUrl.replace(/\/$/, "");
     const catalogs = (manifest.catalogs || []).filter((c) => ["movie", "series"].includes(c.type));
     const chosen = query
       ? catalogs.filter((c) => !c.extra || c.extra.some((e) => e.name === "search"))
@@ -140,7 +140,7 @@ async function getArchiveDetails(identifier) {
 async function getAddonDetails(id) {
   const parsed = decodeAddonItem(id);
   if (!parsed || !addonUrls().includes(parsed.addon)) throw new Error("This addon item is invalid or its source is not configured.");
-  const root = parsed.addon.replace(/\\/$/, "");
+  const root = parsed.addon.replace(/\/$/, "");
   const data = await fetchJson(`${root}/stream/${encodeURIComponent(parsed.type)}/${encodeURIComponent(parsed.itemId)}.json`);
   const streams = (data.streams || []).filter(browserPlayable).map((stream) => ({
     name: stream.name || stream.title || "Stream",
