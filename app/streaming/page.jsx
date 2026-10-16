@@ -131,7 +131,7 @@ export default function StreamingPage() {
     <section className="streamHero">
       <div className="streamEyebrow"><Sparkles size={14}/> DBWEB ENTERTAINMENT</div>
       <h1>Press play. <span>For free.</span></h1>
-      <p>Search Internet Archive and configured third-party Stremio-compatible scraper addons. Compatible direct streams can play right here on Dbweb.</p>
+      <p>Search Internet Archive, Wikimedia Commons, and configured Stremio-compatible addons. Supported streams play right here on Dbweb.</p>
       <form className="streamSearch" onSubmit={e => { e.preventDefault(); setSavedOnly(false); load(tab, query); }}>
         <Search size={19}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search movies and series…" aria-label="Search movies and series"/>
         {query && <button type="button" className="streamClear" onClick={() => { setQuery(""); setSavedOnly(false); load(tab, ""); }} aria-label="Clear search"><X size={16}/></button>}
@@ -164,13 +164,13 @@ export default function StreamingPage() {
       </article>;
     })}</section>}
 
-    <p className="streamLegal">Results can come from Internet Archive or configured third-party Stremio-compatible addons. Dbweb does not host or proxy videos. Addons may return torrents, external-player links, or unsupported formats; only direct HTTPS streams compatible with the built-in player are offered.</p>
+    <p className="streamLegal">Results can come from Internet Archive, Wikimedia Commons, or configured Stremio-compatible addons. Dbweb does not host or proxy videos. Addons may return torrents, external-player links, or unsupported formats; only direct HTTPS streams compatible with the built-in player are offered.</p>
 
     {selected && <div className="streamModalBackdrop" role="presentation" onMouseDown={e => { if (e.target === e.currentTarget) setSelected(null); }}>
       <section className="streamModal" role="dialog" aria-modal="true" aria-label={titleOf(selected) + " player"}>
         <button className="streamModalClose" onClick={() => setSelected(null)} aria-label="Close player"><X size={19}/></button>
         <div className="streamDetailHero" style={selected.poster ? { backgroundImage: "linear-gradient(90deg,var(--stream-modal-bg),rgba(10,12,18,.4)),url(" + selected.poster + ")" } : {}}>
-          <div className="streamDetailText"><span className="streamDetailBadge">{selected.id?.startsWith("stremio:") ? (selected.source || "THIRD-PARTY SOURCE").toUpperCase() : "FREE-LICENSED ARCHIVE FILM"}</span><h2>{titleOf(selected)}</h2><p>{yearOf(selected)}{selected.creator ? " · " + selected.creator : ""}</p><p className="streamOverview">{selected.description || "No description supplied by the archive."}</p><button className="streamDetailSave" onClick={() => toggleSaved(selected)}><Bookmark size={15}/> {saved.some(x => x.id === selected.id) ? "Saved to My list" : "Add to My list"}</button></div>
+          <div className="streamDetailText"><span className="streamDetailBadge">{selected.id?.startsWith("stremio:") ? (selected.source || "THIRD-PARTY SOURCE").toUpperCase() : selected.id?.startsWith("commons:") ? "WIKIMEDIA COMMONS" : "FREE-LICENSED ARCHIVE FILM"}</span><h2>{titleOf(selected)}</h2><p>{yearOf(selected)}{selected.creator ? " · " + selected.creator : ""}</p><p className="streamOverview">{selected.description || "No description supplied by this source."}</p><button className="streamDetailSave" onClick={() => toggleSaved(selected)}><Bookmark size={15}/> {saved.some(x => x.id === selected.id) ? "Saved to My list" : "Add to My list"}</button></div>
         </div>
         <div className="streamModalBody">
           {detailBusy && <p className="streamHint"><LoaderCircle className="streamSpin" size={15}/> Checking rights and preparing player…</p>}
@@ -180,7 +180,7 @@ export default function StreamingPage() {
           {selected.playerError && <p className="streamError" role="alert">{selected.playerError}</p>}
           {selected.licenseurl && <a className="streamOfficialLink" href={selected.licenseurl} target="_blank" rel="noopener noreferrer"><ExternalLink size={16}/> View this film's license <ArrowLeft size={14} className="streamExternalArrow"/></a>}
           <p className="streamHint"><Info size={15}/> If playback fails, the archive item may be unavailable or its video format may not be supported by your browser.</p>
-          {selected.id?.startsWith("stremio:") ? <p className="streamHint"><Info size={15}/> Source: {selected.source || "Third-party addon"}</p> : <a className="streamOfficialLink" href={"https://archive.org/details/" + encodeURIComponent(selected.id)} target="_blank" rel="noopener noreferrer"><ExternalLink size={16}/> View item on Internet Archive <ArrowLeft size={14} className="streamExternalArrow"/></a>}
+          {selected.id?.startsWith("stremio:") ? <p className="streamHint"><Info size={15}/> Source: {selected.source || "Third-party addon"}</p> : selected.id?.startsWith("commons:") ? <a className="streamOfficialLink" href={"https://commons.wikimedia.org/wiki/" + encodeURIComponent("File:" + titleOf(selected))} target="_blank" rel="noopener noreferrer"><ExternalLink size={16}/> View item on Wikimedia Commons <ArrowLeft size={14} className="streamExternalArrow"/></a> : <a className="streamOfficialLink" href={"https://archive.org/details/" + encodeURIComponent(selected.id)} target="_blank" rel="noopener noreferrer"><ExternalLink size={16}/> View item on Internet Archive <ArrowLeft size={14} className="streamExternalArrow"/></a>}
         </div>
       </section>
     </div>}
