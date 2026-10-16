@@ -19,7 +19,7 @@ export default function StreamingPage() {
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState("");
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState(null);\n  const [streamChoice, setStreamChoice] = useState("");
   const [detailBusy, setDetailBusy] = useState(false);
   const [saved, setSaved] = useState([]);
   const [savedOnly, setSavedOnly] = useState(false);
@@ -50,7 +50,7 @@ export default function StreamingPage() {
   useEffect(() => { load(tab); }, [tab, load]);
 
   async function openDetails(item) {
-    setSelected({ ...item, videoUrl: "" });
+    setStreamChoice("");\n    setSelected({ ...item, videoUrl: "" });
     setDetailBusy(true);
     setError("");
     try {
@@ -81,13 +81,13 @@ export default function StreamingPage() {
     <section className="streamHero">
       <div className="streamEyebrow"><Sparkles size={14}/> DBWEB ENTERTAINMENT</div>
       <h1>Press play. <span>For free.</span></h1>
-      <p>Discover and watch freely licensed films directly on Dbweb. No account, paid subscription, or movie API key required.</p>
+      <p>Search Internet Archive and configured third-party Stremio-compatible scraper addons. Compatible direct streams can play right here on Dbweb.</p>
       <form className="streamSearch" onSubmit={e => { e.preventDefault(); setSavedOnly(false); load(tab, query); }}>
         <Search size={19}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search free films by title…" aria-label="Search free films"/>
         {query && <button type="button" className="streamClear" onClick={() => { setQuery(""); setSavedOnly(false); load(tab, ""); }} aria-label="Clear search"><X size={16}/></button>}
         <button className="streamSearchButton" type="submit">Search</button>
       </form>
-      <div className="streamStats"><span><Play size={14}/> In-page video player</span><span><ShieldCheck size={14}/> Free-license catalogue</span><span><Bookmark size={14}/> Saved list</span><span>No API key</span></div>
+      <div className="streamStats"><span><Play size={14}/> In-page video player</span><span><ShieldCheck size={14}/> Multiple sources</span><span><Bookmark size={14}/> Saved list</span><span>No API key</span></div>
     </section>
 
     <div className="streamToolbar">
@@ -104,7 +104,7 @@ export default function StreamingPage() {
         <button className="streamPosterButton" onClick={() => openDetails(item)} aria-label={"Watch " + titleOf(item)}>
           {item.poster ? <img src={item.poster} alt={titleOf(item) + " poster"} loading="lazy" onError={e => { e.currentTarget.style.display = "none"; }}/> : <div className="streamNoPoster"><Film size={26}/></div>}
           <span className="streamPlay"><Play size={17} fill="currentColor"/></span>
-          <span className="streamType">FREE FILM</span>
+          <span className="streamType">{item.source || "FREE FILM"}</span>
         </button>
         <div className="streamCardInfo">
           <button className="streamTitle" onClick={() => openDetails(item)}>{titleOf(item)}</button>
@@ -124,11 +124,11 @@ export default function StreamingPage() {
         </div>
         <div className="streamModalBody">
           {detailBusy && <p className="streamHint"><LoaderCircle className="streamSpin" size={15}/> Checking rights and preparing player…</p>}
-          {selected.videoUrl && <div className="streamArchivePlayer"><video controls playsInline preload="metadata" src={selected.videoUrl} poster={selected.poster || undefined}>Your browser does not support HTML video.</video></div>}
+          {selected.streams?.length > 1 && <label className="streamHint">Choose source <select value={streamChoice || selected.streams[0].url} onChange={e => setStreamChoice(e.target.value)}>{selected.streams.map((stream, index) => <option key={stream.url} value={stream.url}>{stream.name || stream.title || ("Source " + (index + 1))}</option>)}</select></label>}\n          {(selected.videoUrl || streamChoice) && <div className="streamArchivePlayer"><video key={streamChoice || selected.videoUrl} controls playsInline preload="metadata" src={streamChoice || selected.videoUrl} poster={selected.poster || undefined}>Your browser does not support HTML video.</video></div>}
           {selected.playerError && <p className="streamError" role="alert">{selected.playerError}</p>}
           {selected.licenseurl && <a className="streamOfficialLink" href={selected.licenseurl} target="_blank" rel="noopener noreferrer"><ExternalLink size={16}/> View this film's license <ArrowLeft size={14} className="streamExternalArrow"/></a>}
           <p className="streamHint"><Info size={15}/> If playback fails, the archive item may be unavailable or its video format may not be supported by your browser.</p>
-          <a className="streamOfficialLink" href={"https://archive.org/details/" + encodeURIComponent(selected.id)} target="_blank" rel="noopener noreferrer"><ExternalLink size={16}/> View item on Internet Archive <ArrowLeft size={14} className="streamExternalArrow"/></a>
+          {selected.id?.startsWith("stremio:") ? <p className="streamHint"><Info size={15}/> Source: {selected.source || "Third-party addon"}</p> : <a className="streamOfficialLink" href={"https://archive.org/details/" + encodeURIComponent(selected.id)} target="_blank" rel="noopener noreferrer"><ExternalLink size={16}/> View item on Internet Archive <ArrowLeft size={14} className="streamExternalArrow"/></a>}
         </div>
       </section>
     </div>}
