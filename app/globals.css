@@ -173,3 +173,6 @@
 .instagramCornerLink svg{flex-shrink:0}
 .instagramCornerLink:hover{color:var(--tx)}
 @media(max-width:760px){.app aside{min-height:100dvh}.instagramCornerLink{left:12px;bottom:12px}}
+
+/* Force the main Lookup content to start at the top of the app grid */
+.app>main{align-self:start!important;justify-self:stretch!important;margin-top:0!important;transform:none!important}
