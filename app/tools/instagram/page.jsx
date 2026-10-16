@@ -46,7 +46,7 @@ export default function InstagramAnalyzerPage() {
 
     {data && <section className="card igResult">
       <div className="igProfileHead">
-        <div className="igAvatar">{data.photoUrl ? <img src={data.photoUrl} alt={data.username + " profile picture"} referrerPolicy="no-referrer"/> : <UserRound size={36}/>}</div>
+        <div className="igAvatar">{data.photoUrl ? <img src={"/api/instagram/avatar?url=" + encodeURIComponent(data.photoUrl)} alt={data.username + " profile picture"} referrerPolicy="no-referrer"/> : <UserRound size={36}/>}</div>
         <div className="igProfileIdentity"><span>INSTAGRAM PROFILE</span><h2>{data.fullName}</h2><p>@{data.username}</p><a href={data.profileUrl} target="_blank" rel="noreferrer">Open profile <ExternalLink size={14}/></a></div>
       </div>
       <div className="igStats">
