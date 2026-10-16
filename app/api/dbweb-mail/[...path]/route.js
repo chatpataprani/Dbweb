@@ -33,7 +33,6 @@ async function handler(request, { params }) {
     method: request.method,
     headers,
     cache: "no-store",
-    redirect: "error"
   };
 
   if (request.method !== "GET" && request.method !== "HEAD") {
@@ -59,9 +58,20 @@ async function handler(request, { params }) {
       status: upstream.status,
       headers: responseHeaders
     });
-  } catch {
+  } catch (error) {
+    const reason = error && typeof error.message === "string" ? error.message : "Unknown network error";
+    const code = error && error.cause && error.cause.code ? String(error.cause.code) : (error && error.name ? String(error.name) : "FetchError");
+    console.error("[Dbweb Mail] Upstream request failed", {
+      path: pathname,
+      code,
+      reason
+    });
     return Response.json(
-      { message: "The mail provider could not be reached from the server. Please try again shortly." },
+      {
+        message: "Dbweb Mail could not connect to the Mail.gw API.",
+        code,
+        detail: reason
+      },
       { status: 502, headers: { "cache-control": "no-store" } }
     );
   }
