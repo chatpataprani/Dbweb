@@ -10,7 +10,7 @@ function licensedQuery(extra = "") {
 }
 
 function safeQuery(value) {
-  return value.replace(/[\\{}[\]^"~*?:/]/g, " ").replace(/\s+/g, " ").trim().slice(0, 100);
+  return value.replace(/[^\p{L}\p{N}\s'-]/gu, " ").replace(/\s+/g, " ").trim().slice(0, 100);
 }
 
 async function searchArchive({ query = "", category = "trending" }) {
