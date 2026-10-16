@@ -136,19 +136,30 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 36px);
   background:var(--bg);color:var(--fg);padding:14px 22px;border-radius:18px;font-size:.9rem;font-weight:600;z-index:20;box-shadow:var(--r-md)}
 
-/* Circular light/dark theme reveal, expanding from the theme button. */
+/* Smooth, low-cost theme transition: cross-fade plus gentle surface-colour changes. */
+@media (prefers-reduced-motion: no-preference) {
+  body, .card, .screen, .btn, .iconbtn, input, select, .chip, .status,
+  .empty .ico, .msg, .toast, .logo {
+    transition:
+      background-color .68s cubic-bezier(.22,1,.36,1),
+      color .55s ease,
+      box-shadow .68s cubic-bezier(.22,1,.36,1),
+      border-color .55s ease;
+  }
+}
 @supports (view-transition-name: root) {
-  @view-transition { navigation: auto; }
-  ::view-transition-old(root) { animation: theme-fade-out .22s ease both; }
+  ::view-transition-old(root) {
+    animation: theme-old-soft .42s ease both;
+  }
   ::view-transition-new(root) {
-    animation: theme-reveal .55s cubic-bezier(.2,.75,.2,1) both;
+    animation: theme-new-soft .78s cubic-bezier(.22,1,.36,1) both;
   }
-  @keyframes theme-reveal {
-    from { clip-path: circle(0 at var(--theme-x, 50%) var(--theme-y, 50%)); }
-    to { clip-path: circle(150vmax at var(--theme-x, 50%) var(--theme-y, 50%)); }
+  @keyframes theme-old-soft {
+    to { opacity: .18; }
   }
-  @keyframes theme-fade-out {
-    to { opacity: .72; }
+  @keyframes theme-new-soft {
+    from { opacity: .35; }
+    to { opacity: 1; }
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -304,6 +315,7 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
           if (!r.ok) {
             var e = new Error(j.message || j["hydra:description"] || ("HTTP " + r.status));
             e.status = r.status; e.apiMessage = j.message || j["hydra:description"] || "";
+            e.code = j.code || ""; e.detail = j.detail || "";
             throw e;
           }
           return j;
@@ -332,6 +344,9 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     if (e.status === 404) return "This mailbox or message could not be found. It may have expired or been deleted.";
     if (e.status === 409 || e.status === 422) return "That email name is unavailable. Try a different name.";
     if (e.status === 429) return "The mail service is receiving too many requests. Wait a moment and try again.";
+    if (e.status === 502 && /Dbweb Mail could not connect/i.test(e.apiMessage || e.message || "")) {
+      return "Dbweb's server could not reach Mail.gw (" + (e.code || "network error") + "). Open /api/dbweb-mail/domains on this same site to check the proxy response.";
+    }
     if (e.status >= 500) return "The mail provider is having a temporary problem. Try again in a little while.";
     if (/failed to fetch|networkerror|load failed|network request failed/i.test(e.message || "")) return "The browser could not reach the mail service. This can happen if the provider is down or blocks browser requests. Try again shortly, or open Dbweb Mail in another browser/network.";
     if (/timed out|too long to respond/i.test(e.message || "")) return "The mail provider did not respond in time. Please try again.";
@@ -409,17 +424,18 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     if (sel) { var parts = sel.split("|"); attempts = [[parts[0], parts[1]]]; }
     else attempts = ORDER.map(function(p){ return [p, ""]; });
     $("newBtn").disabled = true; showErr("err1", "");
-    var lastErr = null, taken = false, i = 0;
+    var lastErr = null, firstErr = null, taken = false, i = 0;
     function next(){
       if (i >= attempts.length) {
-        showErr("err1", taken ? "That name is already in use. Choose another name, or leave it blank for a random address." : "We could not create your inbox. " + netHint(lastErr));
+        var usefulErr = firstErr || lastErr;
+        showErr("err1", taken ? "That name is already in use. Choose another name, or leave it blank for a random address." : "We could not create your inbox. " + netHint(usefulErr));
         $("newBtn").disabled = false; return;
       }
       var a = attempts[i++];
       createOn(a[0], name, a[1]).then(function(b){
         $("nameIn").value = ""; $("newBtn").disabled = false; addBox(b);
         if (i > 1) toast("Main service was unavailable, created on " + a[0]);
-      }).catch(function(e){ lastErr = e; if (e.status === 422 || e.status === 409) taken = true; next(); });
+      }).catch(function(e){ lastErr = e; if (!firstErr) firstErr = e; if (e.status === 422 || e.status === 409) taken = true; next(); });
     }
     next();
   }
@@ -698,11 +714,6 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
   $("themeBtn").addEventListener("click", function(event){
     var n = effTheme() === "dark" ? "light" : "dark";
     var root = document.documentElement;
-    var rect = this.getBoundingClientRect();
-    var x = typeof event.clientX === "number" && event.clientX ? event.clientX : rect.left + rect.width / 2;
-    var y = typeof event.clientY === "number" && event.clientY ? event.clientY : rect.top + rect.height / 2;
-    root.style.setProperty("--theme-x", x + "px");
-    root.style.setProperty("--theme-y", y + "px");
     if (document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       document.startViewTransition(function(){ applyTheme(n); });
     } else {
