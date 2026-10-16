@@ -97,13 +97,13 @@ export default function BackgroundRemoverPage() {
         prediction = await modelRef.current({ input_image: pixel_values });
       } catch (firstError) {
         // Some browsers expose WebGPU but cannot allocate this model. Recreate on WASM once.
-        if (backend === "WebGPU ready") {
+        if (typeof navigator !== "undefined" && !!navigator.gpu) {
           modelRef.current = null;
           processorRef.current = null;
           setProgress("Switching to compatibility mode…");
           const { AutoModel, AutoProcessor } = await import("@huggingface/transformers");
           const [model, processor] = await Promise.all([
-            AutoModel.from_pretrained(MODEL_ID, { dtype: "q8", device: "wasm" }),
+            AutoModel.from_pretrained(MODEL_ID, { dtype: "fp32", device: "wasm" }),
             AutoProcessor.from_pretrained(MODEL_ID),
           ]);
           modelRef.current = model;
