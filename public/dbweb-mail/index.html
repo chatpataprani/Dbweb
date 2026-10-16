@@ -136,31 +136,34 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 36px);
   background:var(--bg);color:var(--fg);padding:14px 22px;border-radius:18px;font-size:.9rem;font-weight:600;z-index:20;box-shadow:var(--r-md)}
 
-/* Smooth, low-cost theme transition: cross-fade plus gentle surface-colour changes. */
+/* Smooth circular reveal for light/dark mode, centred on the theme button. */
 @media (prefers-reduced-motion: no-preference) {
   body, .card, .screen, .btn, .iconbtn, input, select, .chip, .status,
   .empty .ico, .msg, .toast, .logo {
     transition:
-      background-color .68s cubic-bezier(.22,1,.36,1),
-      color .55s ease,
-      box-shadow .68s cubic-bezier(.22,1,.36,1),
-      border-color .55s ease;
+      background-color .85s cubic-bezier(.22,1,.36,1),
+      color .7s ease,
+      box-shadow .85s cubic-bezier(.22,1,.36,1),
+      border-color .7s ease;
   }
 }
 @supports (view-transition-name: root) {
   ::view-transition-old(root) {
-    animation: theme-old-soft .42s ease both;
+    animation: theme-old-soft .35s ease both;
   }
   ::view-transition-new(root) {
-    animation: theme-new-soft .78s cubic-bezier(.22,1,.36,1) both;
+    animation: theme-circular-reveal 1.05s cubic-bezier(.16,1,.3,1) both;
+  }
+  @keyframes theme-circular-reveal {
+    from { clip-path: circle(0 at var(--theme-x, calc(100% - 42px)) var(--theme-y, 50px)); }
+    to { clip-path: circle(160vmax at var(--theme-x, calc(100% - 42px)) var(--theme-y, 50px)); }
   }
   @keyframes theme-old-soft {
-    to { opacity: .18; }
+    to { opacity: .2; }
   }
-  @keyframes theme-new-soft {
-    from { opacity: .35; }
-    to { opacity: 1; }
-  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
 }
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
@@ -714,6 +717,11 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
   $("themeBtn").addEventListener("click", function(event){
     var n = effTheme() === "dark" ? "light" : "dark";
     var root = document.documentElement;
+    var rect = this.getBoundingClientRect();
+    var x = typeof event.clientX === "number" && event.clientX ? event.clientX : rect.left + rect.width / 2;
+    var y = typeof event.clientY === "number" && event.clientY ? event.clientY : rect.top + rect.height / 2;
+    root.style.setProperty("--theme-x", x + "px");
+    root.style.setProperty("--theme-y", y + "px");
     if (document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       document.startViewTransition(function(){ applyTheme(n); });
     } else {
