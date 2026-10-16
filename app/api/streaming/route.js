@@ -1,62 +1,98 @@
 import { NextResponse } from "next/server";
 
-const API = "https://api.themoviedb.org/3";
-const headers = () => {
-  const token = process.env.TMDB_READ_ACCESS_TOKEN;
-  if (!token) throw new Error("TMDB_READ_ACCESS_TOKEN is not configured in Vercel.");
-  return { Authorization: `Bearer ${token}`, accept: "application/json" };
-};
+const SEARCH_API = "https://archive.org/advancedsearch.php";
+const CACHE_HEADERS = { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=1800" };
+
+// This catalogue is limited to Internet Archive movie items marked with a
+// Creative Commons license. Dbweb does not proxy, store, or re-host video files.
+function licensedQuery(extra = "") {
+  return ["mediatype:movies", "licenseurl:*creativecommons.org*", extra].filter(Boolean).join(" AND ");
+}
+
+function safeQuery(value) {
+  return value.replace(/[^\p{L}\p{N}\s'-]/gu, " ").replace(/\s+/g, " ").trim().slice(0, 100);
+}
+
+async function searchArchive({ query = "", category = "trending" }) {
+  let extra = "";
+  if (query) extra = `title:(${safeQuery(query)})`;
+  else if (category === "animation") extra = "(subject:animation OR subject:cartoons OR subject:anime)";
+  else if (category === "shorts") extra = "(subject:short films OR subject:shorts)";
+  const params = new URLSearchParams({
+    q: licensedQuery(extra),
+    fl: "identifier,title,year,description,creator,licenseurl,collection,downloads,publicdate,subject",
+    rows: "36",
+    page: "1",
+    output: "json",
+    sort: "downloads desc"
+  });
+  const response = await fetch(`${SEARCH_API}?${params}`, { next: { revalidate: 600 } });
+  if (!response.ok) throw new Error("The free movie catalogue is temporarily unavailable.");
+  const data = await response.json();
+  return (data.response?.docs || []).map((item) => ({
+    id: item.identifier,
+    title: Array.isArray(item.title) ? item.title[0] : item.title || item.identifier,
+    year: String(item.year || "").slice(0, 4),
+    description: Array.isArray(item.description) ? item.description[0] : item.description || "",
+    creator: Array.isArray(item.creator) ? item.creator[0] : item.creator || "",
+    licenseurl: Array.isArray(item.licenseurl) ? item.licenseurl[0] : item.licenseurl || "",
+    collection: item.collection || [],
+    downloads: Number(item.downloads || 0),
+    poster: `https://archive.org/services/img/${encodeURIComponent(item.identifier)}`,
+    media_type: "movie"
+  }));
+}
+
+async function getDetails(identifier) {
+  if (!/^[a-zA-Z0-9._-]{1,180}$/.test(identifier)) {
+    throw new Error("Invalid archive item.");
+  }
+  const response = await fetch(`https://archive.org/metadata/${encodeURIComponent(identifier)}`, { next: { revalidate: 600 } });
+  if (!response.ok) throw new Error("Could not load this film.");
+  const data = await response.json();
+  const metadata = data.metadata || {};
+  const license = String(metadata.licenseurl || metadata.license || "").toLowerCase();
+  const rights = String(metadata.rights || metadata.description || "").toLowerCase();
+  const explicitlyLicensed = license.includes("creativecommons.org") ||
+    rights.includes("creative commons") || rights.includes("public domain");
+  if (!explicitlyLicensed) throw new Error("This item does not provide clear free-use licensing, so playback is unavailable.");
+
+  const files = (data.files || []).filter((file) => {
+    const name = String(file.name || "");
+    const format = String(file.format || "").toLowerCase();
+    return !file.private && (name.toLowerCase().endsWith(".mp4") || format.includes("mpeg4")) &&
+      Number(file.size || 0) > 0 && !name.startsWith("__ia_thumb");
+  }).sort((a, b) => Number(b.size || 0) - Number(a.size || 0));
+  const video = files[0];
+  if (!video) throw new Error("No browser-compatible MP4 file was found for this film.");
+  return {
+    id: identifier,
+    title: Array.isArray(metadata.title) ? metadata.title[0] : metadata.title || identifier,
+    year: String(metadata.year || metadata.date || "").slice(0, 4),
+    description: Array.isArray(metadata.description) ? metadata.description.join("\n\n") : metadata.description || "",
+    creator: Array.isArray(metadata.creator) ? metadata.creator.join(", ") : metadata.creator || "",
+    licenseurl: metadata.licenseurl || metadata.license || "",
+    poster: `https://archive.org/services/img/${encodeURIComponent(identifier)}`,
+    videoUrl: `https://archive.org/download/${encodeURIComponent(identifier)}/${encodeURIComponent(video.name)}`,
+    videoName: video.name,
+    media_type: "movie"
+  };
+}
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const action = searchParams.get("action") || "trending";
-  const query = (searchParams.get("q") || "").trim().slice(0, 100);
-  const type = searchParams.get("type") || "all";
-  const id = searchParams.get("id");
-  const media = type === "movie" || type === "tv" ? type : "all";
-
   try {
-    let path;
-    const params = new URLSearchParams({ language: "en-US", page: "1" });
-
-    if (action === "search") {
-      if (!query) return NextResponse.json({ results: [] });
-      if (media === "all") {
-        const [movies, shows] = await Promise.all([
-          fetch(`${API}/search/movie?${new URLSearchParams({ ...Object.fromEntries(params), query })}`, { headers: headers(), next: { revalidate: 300 } }),
-          fetch(`${API}/search/tv?${new URLSearchParams({ ...Object.fromEntries(params), query })}`, { headers: headers(), next: { revalidate: 300 } })
-        ]);
-        if (!movies.ok || !shows.ok) throw new Error("TMDB search request failed.");
-        const [m, t] = await Promise.all([movies.json(), shows.json()]);
-        return NextResponse.json({ results: [...(m.results || []).map(x => ({ ...x, media_type: "movie" })), ...(t.results || []).map(x => ({ ...x, media_type: "tv" }))].sort((a,b) => (b.popularity||0)-(a.popularity||0)).slice(0, 30) });
-      }
-      path = `/search/${media}?${new URLSearchParams({ ...Object.fromEntries(params), query })}`;
-    } else if (action === "details" && id && (type === "movie" || type === "tv")) {
-      path = `/${type}/${encodeURIComponent(id)}?${new URLSearchParams({ language: "en-US", append_to_response: "videos,watch/providers,credits" })}`;
-    } else if (action === "anime") {
-      const animeParams = new URLSearchParams({ ...Object.fromEntries(params), with_genres: "16", with_original_language: "ja", sort_by: "popularity.desc" });
-      const [seriesResponse, moviesResponse] = await Promise.all([
-        fetch(`${API}/discover/tv?${animeParams}`, { headers: headers(), next: { revalidate: 300 } }),
-        fetch(`${API}/discover/movie?${animeParams}`, { headers: headers(), next: { revalidate: 300 } })
-      ]);
-      if (!seriesResponse.ok || !moviesResponse.ok) throw new Error("TMDB anime catalogue request failed.");
-      const [series, movies] = await Promise.all([seriesResponse.json(), moviesResponse.json()]);
-      return NextResponse.json({ results: [
-        ...(series.results || []).map(x => ({ ...x, media_type: "tv" })),
-        ...(movies.results || []).map(x => ({ ...x, media_type: "movie" }))
-      ].sort((a,b) => (b.popularity || 0) - (a.popularity || 0)).slice(0, 40) }, { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" } });
-    } else {
-      const category = searchParams.get("category") || "trending";
-      if (category === "movies") path = `/movie/popular?${params}`;
-      else if (category === "shows") path = `/tv/popular?${params}`;
-      else if (category === "anime-movies") path = `/discover/movie?${new URLSearchParams({ ...Object.fromEntries(params), with_genres: "16", with_original_language: "ja", sort_by: "popularity.desc" })}`;
-      else path = `/trending/all/week?${params}`;
+    if (action === "details") {
+      const id = searchParams.get("id") || "";
+      const details = await getDetails(id);
+      return NextResponse.json(details, { headers: CACHE_HEADERS });
     }
-
-    const response = await fetch(API + path, { headers: headers(), next: { revalidate: 300 } });
-    if (!response.ok) return NextResponse.json({ error: "TMDB request failed. Check the token and try again." }, { status: response.status });
-    return NextResponse.json(await response.json(), { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" } });
+    const query = safeQuery(searchParams.get("q") || "");
+    const category = searchParams.get("category") || "trending";
+    const results = await searchArchive({ query, category });
+    return NextResponse.json({ results, source: "Internet Archive", licensedOnly: true }, { headers: CACHE_HEADERS });
   } catch (error) {
-    return NextResponse.json({ error: error.message || "Could not load streaming catalogue." }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Could not load free films." }, { status: 502 });
   }
 }
