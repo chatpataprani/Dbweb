@@ -98,7 +98,7 @@ export default function StreamingPage() {
   const shown = savedOnly ? saved : items;
 
   const playerSource = selected ? (streamChoice || selected.videoUrl || "") : "";
-  const isHlsSource = /\\.m3u8(?:[?#]|$)/i.test(playerSource);
+  const isHlsSource = /\.m3u8(?:[?#]|$)/i.test(playerSource);
 
   useEffect(() => {
     const video = videoRef.current;
