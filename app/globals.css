@@ -173,3 +173,9 @@
 .instagramCornerLink svg{flex-shrink:0}
 .instagramCornerLink:hover{color:var(--tx)}
 @media(max-width:760px){.app aside{min-height:100dvh}.instagramCornerLink{left:12px;bottom:12px}}
+
+
+/* Fix mobile Lookup content being vertically displaced */
+.app{align-items:start;align-content:start}
+.app>main{align-self:start;position:relative;top:0;transform:none;margin-top:0}
+@media(max-width:760px){html,body{min-height:100%;scroll-padding-top:0}body{overflow-anchor:none}.app{display:block;min-height:100dvh;align-items:initial;align-content:initial}.app>main{display:block;width:100%;max-width:1040px;margin:0 auto!important;padding:64px 15px 24px!important;position:relative!important;top:0!important;transform:none!important;align-self:auto!important}}
