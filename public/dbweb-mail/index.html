@@ -247,7 +247,7 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
 (function(){
   "use strict";
   var BASES = {"mail.tm":"https://api.mail.tm", "mail.gw":"https://api.mail.gw"}; // same API, two independent services
-  var ORDER = ["mail.tm","mail.gw"];
+  var ORDER = ["mail.gw","mail.tm"];
   var KEY = "tempbox.v2", MAXBOX = 5;
   var $ = function(id){ return document.getElementById(id); };
 
@@ -273,7 +273,8 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
   }
   function call(base, token, path, opts){
     opts = opts || {};
-    var h = {"Content-Type":"application/json"};
+    var h = {};
+    if (opts.body) h["Content-Type"] = "application/json";
     if (token) h.Authorization = "Bearer " + token;
     var controller = typeof AbortController !== "undefined" ? new AbortController() : null;
     var timer = controller ? setTimeout(function(){ controller.abort(); }, 12000) : null;
@@ -313,7 +314,7 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     if (e.status === 409 || e.status === 422) return "That email name is unavailable. Try a different name.";
     if (e.status === 429) return "The mail service is receiving too many requests. Wait a moment and try again.";
     if (e.status >= 500) return "The mail provider is having a temporary problem. Try again in a little while.";
-    if (/failed to fetch|networkerror|load failed|network request failed/i.test(e.message || "")) return "Could not connect to the mail provider. Check your internet connection, then try again. If this continues, the provider may be temporarily unavailable.";
+    if (/failed to fetch|networkerror|load failed|network request failed/i.test(e.message || "")) return "The browser could not reach the mail service. This can happen if the provider is down or blocks browser requests. Try again shortly, or open Dbweb Mail in another browser/network.";
     if (/timed out|too long to respond/i.test(e.message || "")) return "The mail provider did not respond in time. Please try again.";
     return e.apiMessage || e.message || "Something went wrong. Please try again.";
   }
