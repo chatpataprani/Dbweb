@@ -151,6 +151,57 @@ export default function InstagramAnalyzerPage() {
     downloadBlob(new Blob([JSON.stringify(exported, null, 2)], { type: "application/json;charset=utf-8" }), "instagram-" + cleanHandle(data.username) + "-info" + suffix + ".json");
   }
 
+  function createPdfReport() {
+    if (!data) return;
+    const reportWindow = window.open("", "_blank");
+    if (!reportWindow) {
+      setError("Your browser blocked the report window. Allow pop-ups for this site and try again.");
+      return;
+    }
+    const esc = value => String(value ?? "Unavailable").replace(/[&<>"']/g, char => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[char]));
+    const capturedAt = data.dataCapturedAt ? new Date(data.dataCapturedAt).toLocaleString() : new Date().toLocaleString();
+    const timestampRow = includeTimestamp ? `<p class="timestamp"><b>Data captured:</b> ${esc(capturedAt)}</p>` : "";
+    const avatar = data.photoUrl
+      ? `<img class="avatar" src="${esc(window.location.origin + "/api/instagram/avatar?url=" + encodeURIComponent(data.photoUrl))}" alt="Instagram profile picture" />`
+      : `<div class="avatar placeholder">No profile picture available</div>`;
+    const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Instagram report - ${esc(data.username)}</title>
+      <style>
+        *{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#172033;margin:0;padding:32px;background:#f4f6fa}
+        .sheet{max-width:760px;margin:0 auto;background:white;padding:34px;border-radius:18px;box-shadow:0 8px 35px #17203312}
+        .top{display:flex;align-items:center;gap:22px;border-bottom:1px solid #e5e7eb;padding-bottom:24px}
+        .avatar{width:116px;height:116px;border-radius:50%;object-fit:cover;background:#f1f5f9;border:1px solid #e5e7eb;flex-shrink:0}
+        .placeholder{display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px}
+        .eyebrow{font-size:11px;letter-spacing:1.5px;color:#64748b;font-weight:bold}
+        h1{font-size:26px;margin:8px 0 5px;overflow-wrap:anywhere}a{color:#4f46e5;overflow-wrap:anywhere}.handle{color:#64748b;margin:0 0 12px}
+        .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0}
+        .stat{border:1px solid #e5e7eb;border-radius:12px;padding:15px}.stat span{display:block;color:#64748b;font-size:12px;margin-bottom:7px}.stat strong{font-size:20px;overflow-wrap:anywhere}
+        h2{font-size:16px;margin:24px 0 8px}.field{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6;margin:0}
+        .meta{display:grid;grid-template-columns:150px 1fr;gap:10px;border-top:1px solid #eef0f4;padding:11px 0;font-size:13px}
+        .meta b{color:#64748b}.timestamp{font-size:12px;color:#64748b;margin-top:20px}.foot{margin-top:28px;padding-top:14px;border-top:1px solid #e5e7eb;color:#64748b;font-size:11px}
+        .actions{max-width:760px;margin:0 auto 16px;display:flex;gap:10px}.actions button{border:0;border-radius:9px;padding:12px 16px;background:#4338ca;color:white;font-weight:bold;cursor:pointer}
+        @media print{body{padding:0;background:white}.sheet{box-shadow:none;border-radius:0;padding:10px;max-width:none}.actions{display:none}@page{size:auto;margin:14mm}}
+        @media(max-width:520px){body{padding:12px}.sheet{padding:18px}.top{align-items:flex-start;gap:14px}.avatar{width:82px;height:82px}h1{font-size:21px}.stats{gap:6px}.stat{padding:9px}.stat strong{font-size:15px}.meta{grid-template-columns:110px 1fr}}
+      </style></head><body>
+      <div class="actions"><button onclick="window.print()">Print / Save as PDF</button><button onclick="window.close()">Close</button></div>
+      <article class="sheet"><header class="top">${avatar}<div><div class="eyebrow">DBWEB · INSTAGRAM PROFILE REPORT</div><h1>${esc(data.fullName)}</h1><p class="handle">@${esc(data.username)}</p><a href="${esc(data.profileUrl)}">${esc(data.profileUrl)}</a></div></header>
+      <section class="stats"><div class="stat"><span>Followers</span><strong>${esc(data.followers)}</strong></div><div class="stat"><span>Following</span><strong>${esc(data.following)}</strong></div><div class="stat"><span>Posts</span><strong>${esc(data.posts)}</strong></div></section>
+      <h2>Profile information</h2>
+      <div class="meta"><b>Full name</b><span>${esc(data.fullName)}</span></div>
+      <div class="meta"><b>Username</b><span>@${esc(data.username)}</span></div>
+      <div class="meta"><b>Verified</b><span>${data.verified ? "Yes" : "No / unavailable"}</span></div>
+      <div class="meta"><b>Category</b><span>${esc(data.category || "Unavailable")}</span></div>
+      <div class="meta"><b>Website</b><span>${data.website ? `<a href="${esc(data.website)}">${esc(data.website)}</a>` : "Unavailable"}</span></div>
+      <h2>Bio</h2><p class="field">${esc(data.bio || "Unavailable")}</p>
+      ${timestampRow}<footer class="foot">Generated by Dbweb Instagram Profile Analyzer. Public data may be incomplete or change over time. This report reflects the information available when analyzed.</footer></article>
+      <script>const img=document.querySelector(".avatar[src]");if(img){img.onload=()=>setTimeout(()=>window.print(),250);img.onerror=()=>setTimeout(()=>window.print(),500);setTimeout(()=>{if(!img.complete)window.print()},2500)}else{setTimeout(()=>window.print(),250)}</script>
+      </body></html>`;
+    reportWindow.document.open();
+    reportWindow.document.write(html);
+    reportWindow.document.close();
+  }
+
   async function downloadProfilePicture() {
     if (!data?.photoUrl) return;
     setDownloadBusy(true);
@@ -200,15 +251,18 @@ export default function InstagramAnalyzerPage() {
       {data.limited && <a className="igOpenProfile" href={data.profileUrl} target="_blank" rel="noreferrer">Open @{data.username} on Instagram <ExternalLink size={14}/></a>}
 
       <div style={{marginTop:20,borderTop:"1px solid var(--border, #e5e7eb)",paddingTop:18}}>
-        <h3 style={{margin:"0 0 10px",fontSize:17}}>Downloads</h3>
+        <h3 style={{margin:"0 0 6px",fontSize:17}}>Download options</h3>
+        <p style={{fontSize:13,lineHeight:1.5,margin:"0 0 13px",opacity:.8}}>Choose a format. JSON contains data only; the PDF report includes the profile picture and readable profile details.</p>
         <label style={{display:"flex",alignItems:"center",gap:9,fontSize:13,marginBottom:13,cursor:"pointer"}}>
           <input type="checkbox" checked={includeTimestamp} onChange={e => setIncludeTimestamp(e.target.checked)}/>
-          Include date and time of data capture in the full-info file
+          Include data capture date & time
         </label>
         <div style={{display:"flex",flexWrap:"wrap",gap:9}}>
-          <button type="button" className="primary" onClick={downloadFullInfo}><Download size={16}/> Download full info (.json)</button>
-          <button type="button" className="primary" onClick={downloadProfilePicture} disabled={!data.photoUrl || downloadBusy}><ImageIcon size={16}/> {downloadBusy ? "Preparing picture…" : "Download PFP"}</button>
+          <button type="button" className="primary" onClick={downloadFullInfo}><Download size={16}/> Download JSON (data only)</button>
+          <button type="button" className="primary" onClick={createPdfReport}><FileText size={16}/> Create PDF report (with PFP)</button>
+          <button type="button" className="primary" onClick={downloadProfilePicture} disabled={!data.photoUrl || downloadBusy}><ImageIcon size={16}/> {downloadBusy ? "Preparing picture…" : "Download PFP only"}</button>
         </div>
+        <p style={{fontSize:12,lineHeight:1.5,margin:"10px 0 0",opacity:.7}}>For PDF: in the print screen, choose “Save as PDF” as the destination. Date & time is included in the report only when the checkbox above is selected.</p>
       </div>
 
       <div style={{marginTop:22,borderTop:"1px solid var(--border, #e5e7eb)",paddingTop:18}}>
