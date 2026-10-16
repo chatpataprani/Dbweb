@@ -36,7 +36,7 @@ function snapshotOf(profile) {
     category: profile.category,
     verified: profile.verified,
     photoUrl: profile.photoUrl || null,
-    capturedAt: new Date().toISOString()
+    capturedAt: profile.dataCapturedAt || new Date().toISOString()
   };
 }
 
@@ -96,14 +96,15 @@ export default function InstagramAnalyzerPage() {
       const response = await fetch("/api/instagram?username=" + encodeURIComponent(clean), { cache: "no-store" });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Could not load this profile.");
-      setData(result);
-      const handle = cleanHandle(result.username || clean);
+      const resultWithTimestamp = { ...result, dataCapturedAt: new Date().toISOString() };
+      setData(resultWithTimestamp);
+      const handle = cleanHandle(resultWithTimestamp.username || clean);
       const isTracking = window.localStorage.getItem(TRACK_PREFIX + handle) === "1";
       setTracking(isTracking);
       if (isTracking) {
         const key = SNAPSHOT_PREFIX + handle;
         const previous = JSON.parse(window.localStorage.getItem(key) || "null");
-        const current = snapshotOf(result);
+        const current = snapshotOf(resultWithTimestamp);
         if (previous) {
           setChanges(compareSnapshots(previous, current));
           setTrackMessage("Compared with your previous saved check. The latest check is now saved.");
@@ -144,9 +145,9 @@ export default function InstagramAnalyzerPage() {
   function downloadFullInfo() {
     if (!data) return;
     const exported = { ...data };
-    if (includeTimestamp) exported.dataCapturedAt = new Date().toISOString();
+    if (includeTimestamp) exported.dataCapturedAt = data.dataCapturedAt || new Date().toISOString();
     else delete exported.dataCapturedAt;
-    const suffix = includeTimestamp ? "-" + new Date().toISOString().replace(/[:.]/g, "-") : "";
+    const suffix = includeTimestamp ? "-" + (data.dataCapturedAt || new Date().toISOString()).replace(/[:.]/g, "-") : "";
     downloadBlob(new Blob([JSON.stringify(exported, null, 2)], { type: "application/json;charset=utf-8" }), "instagram-" + cleanHandle(data.username) + "-info" + suffix + ".json");
   }
 
