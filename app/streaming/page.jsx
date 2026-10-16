@@ -5,7 +5,8 @@ import { ArrowLeft, Search, Play, Film, Sparkles, X, LoaderCircle, Bookmark, Boo
 
 const kinds = [
   { id: "trending", label: "Discover", icon: Sparkles },
-  { id: "movies", label: "Movies", icon: Film },\n  { id: "series", label: "Series", icon: Tv },
+  { id: "movies", label: "Movies", icon: Film },
+  { id: "series", label: "Series", icon: Tv },
   { id: "animation", label: "Animation", icon: Play },
   { id: "shorts", label: "Short films", icon: Info },
 ];
