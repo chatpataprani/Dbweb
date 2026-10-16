@@ -31,7 +31,7 @@ Dbweb brings several browser-based tools together in one interface, with respons
 - **Main workspace** — lookup interface, plans, payment submission, redeem codes, settings, and history.
 - **Dbweb Lab / Photo Studio** — image editing with creative filters, image adjustments, collage tools, stickers, text, and image export.
 - **Background Remover** — remove image backgrounds and export transparent PNGs. Compatible browsers try on-device processing first, with an automatic online fallback when needed.
-- **Tools directory** — searchable tool cards with category filters.
+- **Tools directory** — searchable tool cards with category filters, plus a Quick Tools Studio for JSON formatting, Base64 conversion, URL inspection, text case conversion, regex testing, Markdown preview, color conversion, and browser-based image compression.
 - **Mail and file utilities** — supported file, text, and productivity workflows.
 - **Account and administration screens** — plan, payment-review, and settings workflows where configured.
 
@@ -42,6 +42,11 @@ The tools directory currently lists the following utilities:
 | Category | Tools |
 | --- | --- |
 | Social | Instagram Profile Analyzer |
+| Images | Image Compressor |
+| Developer | JSON Formatter, Base64 Encoder / Decoder, Regex Tester |
+| Web | URL Inspector |
+| Text | Text Case Converter, Markdown Preview |
+| Design | Color Converter |
 | Links | Short Link Resolver |
 | Images | Background Remover, Image Analysis |
 | Files | General File Tools, File Comparison, Metadata Viewer |
@@ -134,7 +139,8 @@ Dbweb/
 ├── app/
 │   ├── bg-remove/           # Background removal page and styles
 │   ├── tool/                # Dedicated background removal route
-│   ├── tools/               # Tools directory and tool pages
+│   │   └── tools/           # Tools directory and tool pages
+│       └── quick-tools/ # Browser-based Quick Tools Studio
 │   ├── globals.css          # Global styles and themes
 │   ├── layout.jsx           # Root application layout
 │   └── page.jsx             # Main workspace
