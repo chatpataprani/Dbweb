@@ -1,11 +1,12 @@
 'use client';
 
 import { useMemo, useState } from "react";
-import { Search, ArrowUpRight, Wrench, FileText, Instagram, Link2, Fingerprint, Image, Smartphone, Phone, GitCompare, ScanFace, FileSearch, Activity, CreditCard, QrCode, ScanText, ShieldCheck, KeyRound, Globe, Type, CarFront, CalendarDays, Landmark, FileBadge, FileImage, Sparkles } from "lucide-react";
+import { Search, ArrowUpRight, Wrench, FileText, Instagram, Link2, Fingerprint, Image, Smartphone, Phone, GitCompare, ScanFace, FileSearch, Activity, CreditCard, QrCode, ScanText, ShieldCheck, KeyRound, Globe, Type, CarFront, CalendarDays, Landmark, FileBadge, FileImage, Sparkles, Scissors } from "lucide-react";
 
 const tools = [
   { name: "Instagram Profile Analyzer", description: "Analyze public profile stats, bio, profile picture and available business details without Instagram login.", href: "/tools/instagram", category: "Social", Icon: Instagram },
   { name: "Short Link Resolver", description: "Expand public shortened links and inspect their redirect path.", href: "/tools/shortlink", category: "Links", Icon: Link2 },
+  { name: "Background Remover", description: "Remove image backgrounds and export transparent PNGs with automatic device-to-online fallback.", href: "/tool", category: "Images", Icon: Scissors },
   { name: "General File Tools", description: "Work with PDFs and images: convert, compress, resize, merge, split and more.", href: "/tools/general/index.html", category: "Files", Icon: FileImage },
   { name: "Hash Generator", description: "Create file and text hashes using common cryptographic algorithms.", href: "/tools/hash/index.html", category: "Security", Icon: Fingerprint },
   { name: "Image Analysis", description: "Inspect image metadata and look for signs of editing.", href: "/tools/image-forensics/index.html", category: "Files", Icon: Image },
