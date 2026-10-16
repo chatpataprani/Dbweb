@@ -207,3 +207,19 @@
     margin-top: 0 !important;
   }
 }
+
+
+/* Mobile sidebar must be out of document flow so it cannot push Lookup down. */
+@media (max-width: 760px) {
+  .app aside {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+  }
+  .app > main {
+    padding-top: 64px !important;
+  }
+}
