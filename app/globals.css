@@ -176,3 +176,14 @@
 
 /* Force the main Lookup content to start at the top of the app grid */
 .app>main{align-self:start!important;justify-self:stretch!important;margin-top:0!important;transform:none!important}
+
+/* Hard reset: sidebar-only layout must never move the Lookup search card down */
+html,body{min-height:100%;height:auto}
+body{display:block!important}
+.app{display:grid!important;grid-template-columns:224px minmax(0,1fr)!important;align-items:start!important;align-content:start!important;min-height:100vh;height:auto!important}
+.app>main{display:block!important;position:relative!important;top:0!important;align-self:start!important;justify-self:stretch!important;margin:0 auto!important;transform:none!important;padding-top:30px!important}
+.app>aside{align-self:stretch!important}
+@media(max-width:760px){
+ .app{display:block!important;min-height:100vh;height:auto!important}
+ .app>main{padding-top:64px!important;margin:0!important}
+}
