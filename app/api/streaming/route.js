@@ -8,7 +8,7 @@ const TIMEOUT_MS = 9000;
 // HTTPS manifest URLs in STREMIO_ADDON_URLS (comma-separated) in Vercel.
 function addonUrls() {
   return (process.env.STREMIO_ADDON_URLS || "")
-    .split(",").map((value) => value.trim()).filter(Boolean)
+    .split(",").map((value) => value.trim().replace(/\\/+$/, "")).filter(Boolean)
     .filter((value) => {
       try { return new URL(value).protocol === "https:"; } catch { return false; }
     }).slice(0, 8);
