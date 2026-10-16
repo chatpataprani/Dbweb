@@ -246,7 +246,7 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
 <script>
 (function(){
   "use strict";
-  var BASES = {"mail.tm":"https://api.mail.tm", "mail.gw":"https://api.mail.gw"}; // same API, two independent services
+  var BASES = {"mail.tm":"https://api.mail.tm", "mail.gw":"/api/dbweb-mail"}; // Mail.gw uses a same-origin route to avoid browser CORS/network restrictions
   var ORDER = ["mail.gw","mail.tm"];
   var KEY = "tempbox.v2", MAXBOX = 5;
   var $ = function(id){ return document.getElementById(id); };
