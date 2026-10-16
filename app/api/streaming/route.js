@@ -177,6 +177,7 @@ async function getAddonDetails(id, requestedEpisode = "") {
   let description = "Provided by a configured third-party Stremio-compatible addon.";
   let year = "";
   let videoId = parsed.itemId;
+  let episodes = [];
   if (parsed.type === "series") {
     const meta = await fetchJson(`${root}/meta/series/${encodeURIComponent(parsed.itemId)}.json`);
     const item = meta.meta || {};
@@ -184,16 +185,20 @@ async function getAddonDetails(id, requestedEpisode = "") {
     poster = item.poster || item.background || "";
     description = item.description || description;
     year = String(item.releaseInfo || item.year || "").slice(0, 4);
-    const firstVideo = (item.videos || []).find((video) => video?.id);
-    if (!firstVideo) throw new Error("This addon did not provide episode IDs for this series.");
-    videoId = firstVideo.id;
+    episodes = (item.videos || []).filter((video) => video?.id).map((video) => ({
+      id: video.id, title: video.title || video.name || video.episode || video.id, released: video.released || "",
+    }));
+    if (!episodes.length) throw new Error("This addon did not provide episode IDs for this series.");
+    const chosenEpisode = episodes.find((episode) => episode.id === requestedEpisode) || episodes[0];
+    videoId = chosenEpisode.id;
+    title = title + " — " + chosenEpisode.title;
   }
   const data = await fetchJson(`${root}/stream/${encodeURIComponent(parsed.type)}/${encodeURIComponent(videoId)}.json`);
   const streams = playableStreams(data.streams);
   if (!streams.length) throw new Error("This addon returned no direct HTTPS MP4, WebM, or HLS streams supported by Dbweb. Torrent and external-player links cannot play in the built-in player.");
   return {
     id, title, year, description, creator: "Third-party addon", poster,
-    media_type: parsed.type, source: "Third-party addon",
+    media_type: parsed.type, source: "Third-party addon", episodes, selectedEpisodeId: videoId,
     streams, videoUrl: streams[0].url, streamName: streams[0].name,
   };
 }
