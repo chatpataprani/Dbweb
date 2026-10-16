@@ -1498,7 +1498,44 @@ function makeCatfish(){
  const id=x.getImageData(0,0,outW,outH);setBaseData(id);lastResult=null;resetCollage();clearMask();suppress=true;render();
  say('Catfish collage created: '+Math.round(leftW/outW*100)+'% original, '+(100-Math.round(leftW/outW*100))+'% catfish.');
 }
-const TABS=[['jpeg','JPEG',pJpeg],['filters','Filters',pFilters],['effects','Effects FX',pEffects],['text','Text & Symbols',pText],['collage','Collage',pCollage],['catfish','Catfish',pCatfish],['blur','Blur/Pixelate',pBlur],['ccd','CCD',pCCD],['nokia','Nokia',pAuto],['quarter','1/4"',pAuto],['g3','iPhone 3GS',pG3],['stickers','Stickers',pStickers],['photobooth','Photo Booth',pBooth],['pfp','PFP Border',pPfp]];
+async function runBackgroundRemoval(){
+  if(!base){say('Upload a photo first, then remove its background.');return;}
+  const button=$('#removeBgRun');if(button)button.disabled=true;
+  say('Removing background…');
+  try{
+    const source=baseCanvas();
+    const blob=await new Promise((resolve,reject)=>source.toBlob(b=>b?resolve(b):reject(new Error('Could not prepare this photo.')),'image/png'));
+    const form=new FormData();form.append('image',blob,'dbweb-photo.png');
+    const response=await fetch('/api/bg-remove',{method:'POST',body:form});
+    if(!response.ok){
+      let detail={};try{detail=await response.json();}catch{}
+      if(response.status===503)say('Background removal is not ready yet. Please try again in a moment.');
+      else if(response.status===429)say('Too many requests right now. Please wait a little and try again.');
+      else say(detail.error||'Could not remove the background. Please try again.');
+      return;
+    }
+    const resultBlob=await response.blob();
+    if(!resultBlob.type.startsWith('image/'))throw new Error('The result was not a valid image.');
+    const bitmap=await createImageBitmap(resultBlob);
+    const result=fitCanvas(bitmap,MAXD,true);if(bitmap.close)bitmap.close();
+    setBase(result,'background-removed.png');
+    say('Background removed. Keep editing, add stickers or text, or download as PNG.');
+    buildPanel();
+  }catch(err){
+    console.error('Dbweb Lab background removal failed',err);
+    say('Could not remove the background. Check your connection and try again.');
+  }finally{if(button)button.disabled=false;}
+}
+function pRemoveBg(p){
+  p.append(
+    grp('Remove background',
+      el('p',{class:'note'},'Cut out the subject of your current photo and keep editing it in Dbweb Lab. The result keeps transparent areas when you download as PNG.'),
+      btn('Remove background',runBackgroundRemoval,'wideb'),
+      el('p',{class:'note'},'This uses the photo currently loaded in the studio. Upload a different image any time to start again.')
+    )
+  );
+}
+const TABS=[['jpeg','JPEG',pJpeg],['filters','Filters',pFilters],['effects','Effects FX',pEffects],['text','Text & Symbols',pText],['collage','Collage',pCollage],['catfish','Catfish',pCatfish],['blur','Blur/Pixelate',pBlur],['removebg','Remove BG',pRemoveBg],['ccd','CCD',pCCD],['nokia','Nokia',pAuto],['quarter','1/4\"',pAuto],['g3','iPhone 3GS',pG3],['stickers','Stickers',pStickers],['photobooth','Photo Booth',pBooth],['pfp','PFP Border',pPfp]];
 function buildPanel(){
   const p=$('#panel');p.replaceChildren();syncs=[];
   TABS.find(t=>t[0]===cur)[2](p);
