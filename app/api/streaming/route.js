@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 const SEARCH_API = "https://archive.org/advancedsearch.php";
+const COMMONS_API = "https://commons.wikimedia.org/w/api.php";
 const CACHE_HEADERS = { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=900" };
 const TIMEOUT_MS = 9000;
 const ALLOWED_TYPES = new Set(["movie", "series"]);
@@ -31,6 +32,10 @@ function safeQuery(value) {
   return String(value || "").replace(/[^\p{L}\p{N}\s'-]/gu, " ").replace(/\s+/g, " ").trim().slice(0, 100);
 }
 function first(value) { return Array.isArray(value) ? value[0] : value; }
+function reusableLicense(value) { return /^(public domain|cc0|cc by(?:-sa)?(?:\s+\d+(?:\.\d+)?)?)$/i.test(String(value || "").trim()); }
+function plainText(value) { return String(value || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim(); }
+function encodeCommonsItem(title) { return "commons:" + Buffer.from(title).toString("base64url"); }
+function decodeCommonsItem(id) { try { return Buffer.from(id.slice(8), "base64url").toString("utf8"); } catch { return ""; } }
 function encodeAddonItem(payload) { return "stremio:" + Buffer.from(JSON.stringify(payload)).toString("base64url"); }
 function decodeAddonItem(id) {
   if (!String(id).startsWith("stremio:")) return null;
@@ -137,6 +142,32 @@ async function searchArchive({ query = "", category = "trending" }) {
   }));
 }
 
+async function searchWikimedia(query) {
+  const params = new URLSearchParams({ action: "query", generator: "search", gsrsearch: ["filetype:video", query].filter(Boolean).join(" "), gsrnamespace: "6", gsrlimit: "40", prop: "imageinfo", iiprop: "url|mime|extmetadata", iiurlwidth: "420", format: "json", formatversion: "2" });
+  const data = await fetchJson(`${COMMONS_API}?${params}`);
+  return (data.query?.pages || []).map((page) => {
+    const info = page.imageinfo?.[0];
+    const ext = info?.extmetadata || {};
+    const license = plainText(ext.LicenseShortName?.value || "");
+    if (!info || !/^video\/(mp4|webm)$/i.test(info.mime || "") || !reusableLicense(license)) return null;
+    return { id: encodeCommonsItem(page.title), title: page.title.replace(/^File:/i, ""), year: String(ext.DateTimeOriginal?.value || ext.DateTime?.value || "").slice(0, 4), description: plainText(ext.ImageDescription?.value || ""), creator: plainText(ext.Artist?.value || "") || "Wikimedia Commons contributor", licenseurl: ext.LicenseUrl?.value || "", poster: info.thumburl || "", media_type: "movie", source: "Wikimedia Commons" };
+  }).filter(Boolean).slice(0, 24);
+}
+
+async function getCommonsDetails(id) {
+  const title = decodeCommonsItem(id);
+  if (!title || !title.startsWith("File:")) throw new Error("Invalid Wikimedia Commons item.");
+  const params = new URLSearchParams({ action: "query", titles: title, prop: "imageinfo", iiprop: "url|mime|extmetadata", iiurlwidth: "640", format: "json", formatversion: "2" });
+  const data = await fetchJson(`${COMMONS_API}?${params}`);
+  const page = data.query?.pages?.[0];
+  const info = page?.imageinfo?.[0];
+  const ext = info?.extmetadata || {};
+  const license = plainText(ext.LicenseShortName?.value || "");
+  if (!info || !/^video\/(mp4|webm)$/i.test(info.mime || "") || !reusableLicense(license)) throw new Error("This Commons file is not a supported MP4/WebM video with a reusable license.");
+  const videoUrl = safeMediaUrl(info.url || "");
+  if (!videoUrl) throw new Error("This Commons video does not provide a secure HTTPS stream.");
+  return { id, title: (page.title || title).replace(/^File:/i, ""), year: String(ext.DateTimeOriginal?.value || ext.DateTime?.value || "").slice(0, 4), description: plainText(ext.ImageDescription?.value || ""), creator: plainText(ext.Artist?.value || "") || "Wikimedia Commons contributor", licenseurl: ext.LicenseUrl?.value || "", poster: info.thumburl || "", videoUrl, media_type: "movie", source: "Wikimedia Commons" };
+}
 async function getArchiveDetails(identifier) {
   if (!/^[a-zA-Z0-9._-]{1,180}$/.test(identifier)) throw new Error("Invalid archive item.");
   const response = await fetch(`https://archive.org/metadata/${encodeURIComponent(identifier)}`, { signal: AbortSignal.timeout(TIMEOUT_MS), next: { revalidate: 600 } });
@@ -209,24 +240,27 @@ export async function GET(request) {
   try {
     if (action === "details") {
       const id = searchParams.get("id") || "";
-      const details = id.startsWith("stremio:") ? await getAddonDetails(id, searchParams.get("episode") || "") : await getArchiveDetails(id);
+      const details = id.startsWith("stremio:") ? await getAddonDetails(id, searchParams.get("episode") || "") : id.startsWith("commons:") ? await getCommonsDetails(id) : await getArchiveDetails(id);
       return NextResponse.json(details, { headers: CACHE_HEADERS });
     }
     const query = safeQuery(searchParams.get("q") || "");
     const category = searchParams.get("category") || "trending";
-    const [archiveResults, addonResults] = await Promise.allSettled([
+    const [archiveResults, commonsResults, addonResults] = await Promise.allSettled([
       searchArchive({ query, category }),
+      searchWikimedia(query),
       searchAddons(query, category),
     ]);
     const archive = archiveResults.status === "fulfilled" ? archiveResults.value : [];
+    const commons = commonsResults.status === "fulfilled" ? commonsResults.value : [];
     const addons = addonResults.status === "fulfilled" ? addonResults.value : [];
-    const results = [...addons, ...archive].slice(0, 48);
-    if (!results.length && archiveResults.status === "rejected") throw archiveResults.reason;
+    const results = [...addons, ...archive, ...commons].slice(0, 60);
+    if (!results.length && archiveResults.status === "rejected" && commonsResults.status === "rejected") throw archiveResults.reason;
     return NextResponse.json({
       results,
-      source: "Internet Archive + configured Stremio-compatible addons",
+      source: "Internet Archive + Wikimedia Commons + configured Stremio-compatible addons",
       addonCount: addonUrls().length,
       addonWarning: addonUrls().length && !addons.length ? "Configured addons did not return searchable catalog results. Check their manifest and search support." : "",
+      sourceStatus: { internetArchive: archiveResults.status === "fulfilled", wikimediaCommons: commonsResults.status === "fulfilled", configuredAddons: addonResults.status === "fulfilled" },
       licensedOnly: true,
     }, { headers: CACHE_HEADERS });
   } catch (error) {
