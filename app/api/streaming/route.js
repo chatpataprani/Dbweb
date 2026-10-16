@@ -34,7 +34,17 @@ export async function GET(request) {
     } else if (action === "details" && id && (type === "movie" || type === "tv")) {
       path = `/${type}/${encodeURIComponent(id)}?${new URLSearchParams({ language: "en-US", append_to_response: "videos,watch/providers,credits" })}`;
     } else if (action === "anime") {
-      path = `/discover/tv?${new URLSearchParams({ ...Object.fromEntries(params), with_genres: "16", with_original_language: "ja", sort_by: "popularity.desc" })}`;
+      const animeParams = new URLSearchParams({ ...Object.fromEntries(params), with_genres: "16", with_original_language: "ja", sort_by: "popularity.desc" });
+      const [seriesResponse, moviesResponse] = await Promise.all([
+        fetch(`${API}/discover/tv?${animeParams}`, { headers: headers(), next: { revalidate: 300 } }),
+        fetch(`${API}/discover/movie?${animeParams}`, { headers: headers(), next: { revalidate: 300 } })
+      ]);
+      if (!seriesResponse.ok || !moviesResponse.ok) throw new Error("TMDB anime catalogue request failed.");
+      const [series, movies] = await Promise.all([seriesResponse.json(), moviesResponse.json()]);
+      return NextResponse.json({ results: [
+        ...(series.results || []).map(x => ({ ...x, media_type: "tv" })),
+        ...(movies.results || []).map(x => ({ ...x, media_type: "movie" }))
+      ].sort((a,b) => (b.popularity || 0) - (a.popularity || 0)).slice(0, 40) }, { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" } });
     } else {
       const category = searchParams.get("category") || "trending";
       if (category === "movies") path = `/movie/popular?${params}`;
