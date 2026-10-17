@@ -67,7 +67,7 @@ export default function SocialDownloaderPage() {
         </div>
         <p className="socialDlHelp">Selected: {selected.label}. Availability depends on the platform and its current public access rules.</p>
       </form>
-      {error && <div className="socialDlError" role="alert">{error}</div>}
+      {error && <div className="socialDlError" role="alert"><p>{error}</p>{platform === "youtube" && /^https?:\\/\\/(www\\.)?(youtube\\.com|youtu\\.be|music\\.youtube\\.com)\\//i.test(url.trim()) && <a className="socialDlOpenOriginal" href={url.trim()} target="_blank" rel="noopener noreferrer"><ExternalLink size={15}/> Open original on YouTube</a>}</div>}
       {loading && <div className="socialDlLoading"><LoaderCircle size={20} className="socialDlSpin"/> Checking the public link…</div>}
       {result && <section className="socialDlResults" aria-live="polite">
         <div className="socialDlResultHeader"><div><small>RESULT</small><h2>{result.title || selected.label + " media"}</h2>{result.author && <p>By {result.author}</p>}</div>{result.thumbnail && <img src={result.thumbnail} alt="" loading="lazy"/>}</div>
@@ -101,7 +101,7 @@ export default function SocialDownloaderPage() {
       .socialDlInputRow button{display:inline-flex;justify-content:center;align-items:center;gap:8px;border:0;border-radius:13px;padding:0 17px;background:var(--foreground,#171717);color:var(--background,#fff);font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
       .socialDlInputRow button:disabled{opacity:.6;cursor:wait}
       .socialDlHelp{font-size:12px;opacity:.65;margin:10px 0 0;line-height:1.5}
-      .socialDlError{margin-top:17px;padding:13px 15px;border-radius:12px;background:rgba(220,60,60,.09);border:1px solid rgba(220,60,60,.25);font-size:13px;line-height:1.5}
+      .socialDlError{margin-top:17px;padding:13px 15px;border-radius:12px;background:rgba(220,60,60,.09);border:1px solid rgba(220,60,60,.25);font-size:13px;line-height:1.5}\n      .socialDlError p{margin:0}\n      .socialDlOpenOriginal{display:inline-flex;align-items:center;gap:7px;margin-top:11px;padding:9px 11px;border:1px solid var(--border,rgba(128,128,128,.3));border-radius:10px;color:inherit;text-decoration:none;font-size:12px;font-weight:650}
       .socialDlLoading{display:flex;align-items:center;gap:10px;padding:20px 0;font-size:13px;opacity:.8}
       .socialDlSpin{animation:socialDlSpin 1s linear infinite}
       @keyframes socialDlSpin{to{transform:rotate(360deg)}}
