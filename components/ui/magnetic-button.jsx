@@ -2,14 +2,17 @@
 
 import { useRef } from "react";
 
-export default function MagneticButton({ children, className = "", onClick, type = "button", active = false, ...props }) {
+/* Aceternity UI Magnetic Button interaction, implemented without a new runtime dependency. */
+export default function MagneticButton({ children, className = "", onClick, type = "button", active = false, strength = 0.16, maxDistance = 7, ...props }) {
   const ref = useRef(null);
   function move(event) {
     if (!ref.current || event.pointerType === "touch" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const rect = ref.current.getBoundingClientRect();
     const dx = event.clientX - rect.left - rect.width / 2;
     const dy = event.clientY - rect.top - rect.height / 2;
-    ref.current.style.transform = `translate(${dx * 0.055}px, ${dy * 0.12}px)`;
+    const distance = Math.hypot(dx, dy) || 1;
+    const scale = Math.min(1, maxDistance / distance);
+    ref.current.style.transform = `translate(${dx * strength * scale}px, ${dy * strength * scale}px)`;
   }
   function reset() {
     if (ref.current) ref.current.style.transform = "";
