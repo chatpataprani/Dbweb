@@ -67,7 +67,7 @@ export default function SocialDownloaderPage() {
         </div>
         <p className="socialDlHelp">Selected: {selected.label}. Availability depends on the platform and its current public access rules.</p>
       </form>
-      {error && <div className="socialDlError" role="alert"><p>{error}</p>{platform === "youtube" && /^https?:\\/\\/(www\\.)?(youtube\\.com|youtu\\.be|music\\.youtube\\.com)\\//i.test(url.trim()) && <a className="socialDlOpenOriginal" href={url.trim()} target="_blank" rel="noopener noreferrer"><ExternalLink size={15}/> Open original on YouTube</a>}</div>}
+      {error && <div className="socialDlError" role="alert"><p>{error}</p>{platform === "youtube" && (() => { try { const host = new URL(url.trim()).hostname.toLowerCase(); return ["youtube.com", "www.youtube.com", "m.youtube.com", "music.youtube.com", "youtu.be"].includes(host); } catch { return false; } })() && <a className="socialDlOpenOriginal" href={url.trim()} target="_blank" rel="noopener noreferrer"><ExternalLink size={15}/> Open original on YouTube</a>}</div>}
       {loading && <div className="socialDlLoading"><LoaderCircle size={20} className="socialDlSpin"/> Checking the public link…</div>}
       {result && <section className="socialDlResults" aria-live="polite">
         <div className="socialDlResultHeader"><div><small>RESULT</small><h2>{result.title || selected.label + " media"}</h2>{result.author && <p>By {result.author}</p>}</div>{result.thumbnail && <img src={result.thumbnail} alt="" loading="lazy"/>}</div>
