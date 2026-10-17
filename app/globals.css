@@ -610,3 +610,63 @@
   .steamPage .steamGrid{column-gap:10px!important}
   .steamPage .steamGrid .steamCoverCard{margin-bottom:10px!important}
 }
+
+
+/* Steam card interactions adapted from Aceternity UI Card Spotlight and
+   Skiper UI hover treatments: pointer-following glow, layered depth and sheen. */
+.steamPage .steamSpotlightCard{
+  position:relative;
+  isolation:isolate;
+  transform:translateY(0);
+  transition:transform .28s cubic-bezier(.2,.75,.25,1),border-color .25s ease,box-shadow .28s ease;
+}
+.steamPage .steamSpotlightCard::before{
+  content:"";
+  position:absolute;
+  z-index:2;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  opacity:0;
+  background:radial-gradient(220px circle at var(--spot-x,50%) var(--spot-y,50%),color-mix(in srgb,var(--ac) 23%,transparent),transparent 72%);
+  transition:opacity .25s ease;
+}
+.steamPage .steamSpotlightCard::after{
+  content:"";
+  position:absolute;
+  z-index:2;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  opacity:0;
+  background:linear-gradient(135deg,#ffffff16,transparent 38%,#00000008 75%,#ffffff0a);
+  transition:opacity .25s ease;
+}
+.steamPage .steamSpotlightCard:hover,
+.steamPage .steamSpotlightCard:focus-visible{
+  transform:translateY(-5px) scale(1.012);
+  border-color:color-mix(in srgb,var(--ac) 75%,var(--bd))!important;
+  box-shadow:0 14px 32px #00000018,0 0 0 1px color-mix(in srgb,var(--ac) 16%,transparent)!important;
+}
+.steamPage .steamSpotlightCard:hover::before,
+.steamPage .steamSpotlightCard:hover::after,
+.steamPage .steamSpotlightCard:focus-visible::before,
+.steamPage .steamSpotlightCard:focus-visible::after{opacity:1}
+.steamPage .steamSpotlightCard .steamGameImage{transition:transform .35s cubic-bezier(.2,.75,.25,1),filter .3s ease}
+.steamPage .steamSpotlightCard:hover .steamGameImage{transform:scale(1.025);filter:saturate(1.12) contrast(1.02)}
+.steamPage .steamSpotlightCard .steamCoverTitle,
+.steamPage .steamSpotlightCard .steamCoverHint{position:relative;z-index:3}
+.steamPage .steamPromo a,.steamPage .steamRefresh,.steamPage .steamSearchClear{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.steamPage .steamPromo a:hover,.steamPage .steamRefresh:hover,.steamPage .steamSearchClear:hover{transform:translateY(-2px)}
+@media(hover:none){
+  .steamPage .steamSpotlightCard::before,.steamPage .steamSpotlightCard::after{display:none}
+  .steamPage .steamSpotlightCard:hover{transform:none}
+  .steamPage .steamSpotlightCard:hover .steamGameImage{transform:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .steamPage .steamSpotlightCard,.steamPage .steamSpotlightCard::before,.steamPage .steamSpotlightCard::after,
+  .steamPage .steamSpotlightCard .steamGameImage,.steamPage .steamPromo a,.steamPage .steamRefresh,.steamPage .steamSearchClear{transition:none!important}
+  .steamPage .steamSpotlightCard:hover,.steamPage .steamSpotlightCard:focus-visible,
+  .steamPage .steamPromo a:hover,.steamPage .steamRefresh:hover,.steamPage .steamSearchClear:hover{transform:none}
+  .steamPage .steamSpotlightCard:hover .steamGameImage{transform:none}
+}
