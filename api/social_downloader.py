@@ -122,11 +122,11 @@ def instagram(url):
                     video = source.get("src") or (source.find("source").get("src") if source.find("source") else None)
             # Instagram embed HTML sometimes contains JSON-escaped media URLs rather than tags.
             if not video:
-                match_video = re.search(r'"video_url"\\s*:\\s*"([^"]+)"', html)
+                match_video = re.search(r'"video_url"\s*:\s*"([^"]+)"', html)
                 if match_video:
                     video = match_video.group(1).replace("\\u0026", "&").replace("\\/", "/").replace("\\u003D", "=")
             if not thumbnail:
-                match_image = re.search(r'"display_url"\\s*:\\s*"([^"]+)"', html)
+                match_image = re.search(r'"display_url"\s*:\s*"([^"]+)"', html)
                 if match_image:
                     thumbnail = match_image.group(1).replace("\\u0026", "&").replace("\\/", "/").replace("\\u003D", "=")
             if video and video.startswith("https://"):
