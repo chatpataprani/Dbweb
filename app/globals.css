@@ -524,3 +524,18 @@
 .steamPage .steamGrid .steamCoverHint{padding:4px 10px 10px}
 .steamPage .steamGrid{background:var(--s1);border:1px solid var(--bd);overflow:hidden}
 @media(max-width:760px){.steamPage .steamGrid{column-gap:0!important}}
+
+
+/* Scroll-triggered reveals and refined UI for the Steam gallery only. */
+.steamPage .steamCoverCard,.steamPage .steamPromo,.steamPage .steamEmpty{opacity:0;transform:translateY(22px) scale(.985);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.75,.25,1);transition-delay:var(--steam-reveal-delay,0ms)}
+.steamPage .steamCoverCard.steamRevealed,.steamPage .steamPromo.steamRevealed,.steamPage .steamEmpty.steamRevealed{opacity:1;transform:translateY(0) scale(1)}
+.steamPage .steamCoverCard{transition:opacity .55s ease,transform .55s cubic-bezier(.2,.75,.25,1),box-shadow .2s ease}
+.steamPage .steamCoverCard:hover{transform:translateY(-3px) scale(1.01)}
+.steamPage .steamCoverCard .steamGameImage{transition:filter .25s ease}
+.steamPage .steamCoverCard:hover .steamGameImage{filter:saturate(1.08)}
+.steamPage .steamSearch{position:sticky;top:10px;z-index:10;backdrop-filter:blur(16px);box-shadow:0 8px 24px #00000008}
+.steamPage .steamPromo{border-radius:18px;transition:opacity .55s ease,transform .55s cubic-bezier(.2,.75,.25,1),border-color .2s ease}
+.steamPage .steamPromo:hover{border-color:var(--ac)}
+.steamPage .steamHeader .steamMark{animation:steamMarkFloat 4s ease-in-out infinite}
+@keyframes steamMarkFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@media(prefers-reduced-motion:reduce){.steamPage .steamCoverCard,.steamPage .steamPromo,.steamPage .steamEmpty,.steamPage .steamHeader .steamMark{opacity:1;transform:none;animation:none!important;transition:none!important}}
