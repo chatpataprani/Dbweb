@@ -472,3 +472,27 @@
 .steamCardBody h2{white-space:pre-line;overflow-wrap:anywhere;word-break:normal;line-height:1.4}
 .adminForm .steamTitleInput{width:100%;min-height:112px;resize:vertical;border:1px solid var(--bd);border-radius:7px;background:var(--bg);padding:11px 12px;color:var(--tx);font:inherit;line-height:1.6;outline:none}
 .adminForm .steamTitleInput:focus{border-color:var(--ac);box-shadow:0 0 0 2px var(--acs)}
+
+
+/* Steam gallery redesign: clean cover grid; details live in an on-click modal. */
+.steamPage .steamGrid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:18px}
+.steamPage .steamCoverCard{display:flex;flex-direction:column;align-items:stretch;text-align:left;overflow:hidden;padding:0;border:1px solid var(--bd);background:var(--s1);color:var(--tx);cursor:pointer;min-width:0}
+.steamPage .steamCoverCard:hover{transform:translateY(-4px);box-shadow:0 16px 36px #00000012;border-color:var(--ac)}
+.steamPage .steamCoverCard:focus-visible{outline:3px solid var(--ac);outline-offset:3px}
+.steamPage .steamCoverCard .steamGameImage{aspect-ratio:3/4;object-fit:contain;background:var(--s2);padding:0;border:0}
+.steamCoverTitle{display:block;padding:12px 12px 4px;font-weight:700;font-size:14px;line-height:1.4;white-space:pre-line;overflow-wrap:anywhere;min-height:54px}
+.steamCoverHint{display:flex;align-items:center;gap:5px;padding:4px 12px 12px;color:var(--mu);font-size:11px}
+.steamModalBackdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:18px;background:rgba(15,18,26,.68);backdrop-filter:blur(7px);overflow-y:auto}
+.steamDetailsModal{position:relative;width:min(760px,100%);max-height:min(90dvh,900px);overflow:auto;display:grid;grid-template-columns:minmax(180px,.8fr) minmax(0,1.2fr);background:var(--s1);color:var(--tx);border:1px solid var(--bd);border-radius:20px;box-shadow:0 28px 90px #0004;animation:steamModalIn .2s ease-out both}
+.steamModalClose{position:absolute;right:12px;top:12px;z-index:2;width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--bd);border-radius:50%;background:var(--s1);color:var(--tx);cursor:pointer}
+.steamModalImage{width:100%;height:100%;min-height:300px;max-height:570px;object-fit:contain;background:var(--s2)}
+.steamModalContent{padding:28px 24px;min-width:0;align-self:center}
+.steamModalContent h2{font-size:22px;line-height:1.35;white-space:pre-line;overflow-wrap:anywhere;margin:5px 42px 20px 0}
+.steamModalContent .steamCredential{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:center;padding:12px;margin:10px 0;border:1px solid var(--bd);border-radius:10px;background:var(--bg);min-width:0}
+.steamModalContent .steamCredential span{grid-column:1/-1;color:var(--mu);font-size:12px}
+.steamModalContent .steamCredential code{min-width:0;overflow-wrap:anywhere;word-break:break-word;font-size:13px}
+.steamModalContent .steamNotice{margin-top:12px}
+@keyframes steamModalIn{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:620px){.steamPage .steamGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.steamCoverTitle{padding:10px 9px 3px;font-size:13px}.steamCoverHint{padding:4px 9px 10px;font-size:10px}.steamModalBackdrop{padding:10px;align-items:center}.steamDetailsModal{grid-template-columns:1fr;width:min(440px,100%);max-height:94dvh;border-radius:16px}.steamModalImage{height:230px;min-height:0;max-height:260px}.steamModalContent{padding:18px}.steamModalContent h2{font-size:19px;margin-bottom:14px}.steamModalClose{right:9px;top:9px}}
+@media(max-width:360px){.steamPage .steamGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.steamCoverTitle{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.steamDetailsModal,.steamPage .steamCoverCard{animation:none!important;transition:none!important}.steamPage .steamCoverCard:hover{transform:none}}
