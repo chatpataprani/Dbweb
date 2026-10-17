@@ -1,6 +1,8 @@
 'use client';
 
 import { useMemo, useState } from "react";
+import TiltCard from "../../components/ui/tilt-card";
+import AmbientBackdrop from "../../components/ui/ambient-backdrop";
 import { Search, ArrowUpRight, Wrench, FileText, Instagram, Link2, Fingerprint, Image, Smartphone, Phone, GitCompare, ScanFace, FileSearch, Activity, CreditCard, QrCode, ScanText, ShieldCheck, KeyRound, Globe, Type, CarFront, CalendarDays, Landmark, FileBadge, FileImage, Sparkles, Scissors, Braces, Code2, CaseSensitive, Regex, Palette } from "lucide-react";
 
 const tools = [
@@ -55,6 +57,7 @@ export default function ToolsPage() {
 
   return <div className="toolHub">
     <div className="toolHubHero">
+      <AmbientBackdrop />
       <div className="toolHubEyebrow"><Sparkles size={14}/> YOUR WORKSPACE</div>
       <h1>Tools, all in one place.</h1>
       <p>A clean workspace for everyday file utilities, validators and analysis tools.</p>
@@ -64,10 +67,10 @@ export default function ToolsPage() {
       {categories.map((item) => <button key={item} className={category === item ? "active" : ""} onClick={() => setCategory(item)}>{item}</button>)}
     </div>
     <div className="toolHubCount">{filtered.length} {filtered.length === 1 ? "tool" : "tools"}</div>
-    {filtered.length ? <div className="toolHubGrid">{filtered.map(({name, description, href, Icon, category: group}) => <a className="toolHubCard" href={href} key={name}>
+    {filtered.length ? <div className="toolHubGrid">{filtered.map(({name, description, href, Icon, category: group}) => <TiltCard className="toolHubCard" href={href} key={name}>
       <span className="toolHubIcon"><Icon size={20}/></span>
       <span className="toolHubCardText"><small>{group}</small><strong>{name}</strong><span>{description}</span></span>
       <ArrowUpRight className="toolHubArrow" size={17}/>
-    </a>)}</div> : <div className="card toolHubEmpty"><Wrench size={24}/><strong>No matching tools</strong><span>Try another search or category.</span></div>}
+    </TiltCard>)}</div> : <div className="card toolHubEmpty"><Wrench size={24}/><strong>No matching tools</strong><span>Try another search or category.</span></div>}
   </div>;
 }

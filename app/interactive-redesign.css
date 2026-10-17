@@ -95,3 +95,12 @@
 @media(max-width:1050px){.toolHub .toolHubGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.app{grid-template-columns:230px minmax(0,1fr)}}
 @media(max-width:760px){.app{display:block}.app aside{background:rgba(9,15,29,.98);padding:22px 15px}.app main{padding:72px 15px 28px}.app main>header{align-items:flex-start;flex-direction:column;gap:14px}.app main>header h1{font-size:29px}.app .card{border-radius:17px;padding:18px}.app .lookupForm{flex-direction:column}.app .lookupForm .primary{width:100%}.app .resultHead{align-items:flex-start;gap:12px;flex-wrap:wrap}.app .grid3,.app .paymentGrid{grid-template-columns:1fr}.app .termsModal{width:min(100% - 24px,560px);max-height:90vh;overflow:auto}.toolHub{padding:16px}.toolHub .toolHubHero{padding:25px 20px;border-radius:22px;min-height:0}.toolHub .toolHubHero h1{font-size:clamp(36px,11vw,54px);margin-top:19px}.toolHub .toolHubSearch{height:54px;margin-top:22px}.toolHub .toolHubGrid{grid-template-columns:1fr;gap:10px}.toolHub .toolHubCard{min-height:0;padding:17px 15px;border-radius:16px}.toolHub .toolHubFilters{gap:7px;margin-top:18px}.toolHub .toolHubFilters button{padding:8px 11px}.toolHub .toolHubCardText strong{font-size:14px}}
 @media(prefers-reduced-motion:reduce){.app main>*{animation:none!important}.toolHubGrid .toolHubCard{animation:none!important}.toolHub .toolHubHero:before{animation:none!important}.toolHub .toolHubCard,.app .primary,.app .secondary,.app .nav{transition:none!important}}
+
+/* Decorative layers used by the real hero component. */
+.toolHub .toolHubHero{isolation:isolate}
+.toolHub .dbwAmbientBackdrop{position:absolute;inset:0;overflow:hidden;z-index:-1;pointer-events:none}
+.toolHub .dbwAmbientBackdrop span{position:absolute;display:block;width:34vw;height:34vw;min-width:240px;min-height:240px;border-radius:50%;filter:blur(55px);opacity:.2;animation:dbw-aurora 16s ease-in-out infinite}
+.toolHub .dbwAmbientBackdrop span:nth-child(1){right:-8%;top:-50%;background:#6778ff}
+.toolHub .dbwAmbientBackdrop span:nth-child(2){right:22%;bottom:-68%;background:#20bdc4;animation-delay:-5s}
+.toolHub .dbwAmbientBackdrop span:nth-child(3){left:18%;top:-90%;background:#4f5dd1;animation-delay:-10s}
+@media(prefers-reduced-motion:reduce){.toolHub .dbwAmbientBackdrop span{animation:none}}
