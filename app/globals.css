@@ -514,3 +514,13 @@
 .steamPage .steamGrid .steamCoverHint{padding:4px 12px 12px}
 @media(max-width:760px){.steamPage .steamGrid{columns:3 145px;column-gap:12px}.steamPage .steamGrid .steamCoverCard{margin-bottom:12px}}
 @media(max-width:480px){.steamPage .steamGrid{columns:2 125px;column-gap:10px}.steamPage .steamGrid .steamCoverCard{margin-bottom:10px}.steamPage .steamGrid .steamCoverTitle{padding:9px 9px 3px}.steamPage .steamGrid .steamCoverHint{padding:4px 9px 10px}}
+
+
+/* Tight Pinterest masonry: remove visible gutters and let cards fill each column. */
+.steamPage .steamGrid{column-gap:0!important}
+.steamPage .steamGrid .steamCoverCard{margin:0!important;border-radius:0!important;border-left:0!important;border-right:0!important;border-top:0!important;box-shadow:none!important}
+.steamPage .steamGrid .steamCoverCard .steamGameImage{display:block;width:100%;margin:0;background:transparent!important}
+.steamPage .steamGrid .steamCoverTitle{padding:10px 10px 3px}
+.steamPage .steamGrid .steamCoverHint{padding:4px 10px 10px}
+.steamPage .steamGrid{background:var(--s1);border:1px solid var(--bd);overflow:hidden}
+@media(max-width:760px){.steamPage .steamGrid{column-gap:0!important}}
