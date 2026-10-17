@@ -2,7 +2,8 @@
    Scoped to Dbweb app routes; Photo Studio / Dbweb Lab is intentionally excluded. */
 @keyframes dbw-enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes dbw-orbit{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(14px,-10px,0) scale(1.06)}}
-@property --dbw-border-angle{syntax:"<angle>";inherits:false;initial-value:0deg}\n@keyframes dbw-border-run{from{--dbw-border-angle:0deg}to{--dbw-border-angle:360deg}}
+@property --dbw-border-angle{syntax:"<angle>";inherits:false;initial-value:0deg}
+@keyframes dbw-border-run{from{--dbw-border-angle:0deg}to{--dbw-border-angle:360deg}}
 @keyframes dbw-sheen{0%{transform:translateX(-130%)}100%{transform:translateX(180%)}}
 @media(prefers-reduced-motion:no-preference){
   .app main>*{animation:dbw-enter .42s both}
@@ -57,14 +58,21 @@
 .toolHub .toolHubCardText>span{line-height:1.6}
 .toolHub .toolHubArrow{transition:transform .2s,color .2s}
 .toolHub .toolHubCard:hover .toolHubArrow{transform:translate(2px,-2px);color:var(--ac)}
-.dbwAmbientBackdrop{position:absolute;inset:0;overflow:hidden;z-index:0;pointer-events:none}\n.toolHub .toolHubHero>*:not(.dbwAmbientBackdrop){position:relative;z-index:1}
+.dbwAmbientBackdrop{position:absolute;inset:0;overflow:hidden;z-index:0;pointer-events:none}
+.toolHub .toolHubHero>*:not(.dbwAmbientBackdrop){position:relative;z-index:1}
 .dbwAmbientBackdrop span{position:absolute;display:block;width:clamp(110px,18vw,230px);aspect-ratio:1;border-radius:50%;filter:blur(30px);opacity:.32;animation:dbw-orbit 11s ease-in-out infinite;background:color-mix(in srgb,var(--ac) 24%,transparent)}
 .dbwAmbientBackdrop span:nth-child(1){right:8%;top:-35%;width:clamp(180px,28vw,340px)}
 .dbwAmbientBackdrop span:nth-child(2){right:25%;bottom:-55%;animation-delay:-3.5s;background:color-mix(in srgb,#54b8ad 24%,transparent)}
 .dbwAmbientBackdrop span:nth-child(3){right:48%;top:10%;width:100px;animation-delay:-7s;background:color-mix(in srgb,#d7a34a 15%,transparent)}
-.dbwBorderTrail{position:relative;isolation:isolate;border-radius:inherit}
-.dbwBorderTrail__beam{position:absolute;inset:-45%;z-index:-1;pointer-events:none;background:conic-gradient(from 0deg,transparent 0deg,transparent 285deg,color-mix(in srgb,var(--ac) 75%,white) 320deg,color-mix(in srgb,#54b8ad 65%,white) 340deg,transparent 360deg);animation:dbw-border-run 7s linear infinite}
-.dbwBorderTrail__inner{position:relative;z-index:1;height:100%;border-radius:inherit}
+.dbwBorderTrail{position:relative;isolation:isolate;overflow:hidden;border-radius:inherit;padding:1px}
+.dbwBorderTrail__beam{position:absolute;inset:-45%;z-index:0;pointer-events:none;background:conic-gradient(from var(--dbw-border-angle),transparent 0 78%,var(--ac) 91%,#55b8ad 97%,transparent 100%);animation:dbw-border-run 8s linear infinite}
+.dbwBorderTrail__inner{position:relative;z-index:1;height:100%;border-radius:inherit;overflow:hidden}
+.skiperLink{display:inline-flex;align-items:center;gap:5px;width:fit-content;color:var(--mu);text-decoration:none;font-size:12px;font-weight:650;transition:color .2s,transform .2s}
+.skiperLink span{position:relative}
+.skiperLink span:after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .22s ease}
+.skiperLink:hover{color:var(--ac);transform:translateX(2px)}
+.skiperLink:hover span:after,.skiperLink:focus-visible span:after{transform:scaleX(1)}
+.toolHubHomeLink{margin:0 0 15px 2px}
 .dbwMagneticButton{position:relative;isolation:isolate;will-change:transform;transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .18s,border-color .18s}
 .dbwMagneticButton:after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;background:linear-gradient(110deg,transparent 25%,color-mix(in srgb,var(--ac) 9%,transparent) 48%,transparent 70%);transform:translateX(-130%);opacity:0}
 .dbwMagneticButton:hover:after{opacity:1;animation:dbw-sheen .7s ease}
