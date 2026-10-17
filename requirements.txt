@@ -1,4 +1,4 @@
 requests>=2.32.0
 beautifulsoup4>=4.12.0
 user-agent>=0.1.10
-yt-dlp>=2025.9.26
+yt-dlp>=2026.8.19
