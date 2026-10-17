@@ -336,3 +336,99 @@
 @media(max-width:760px){.app{grid-template-columns:1fr}.app>aside{position:relative;top:auto;height:auto;max-height:none;border-right:0;border-bottom:1px solid var(--bd);padding:10px 12px}.app main{padding:22px 16px 40px}.app header{align-items:flex-start}.app .card{padding:15px}}
 @media(max-width:420px){.app main{padding:18px 12px 32px}.app header{gap:10px}.app header h1{font-size:22px}.app .lookupForm{flex-direction:column}.app .lookupForm .primary{width:100%}}
 @media(prefers-reduced-motion:reduce){.app .nav,.app .card,.app .primary,.app .secondary,.app .plan,.app .historyRow{transition:none!important}.app .nav:hover,.app .primary:hover:not(:disabled),.app .secondary:hover:not(:disabled),.app .plan:hover{transform:none}}
+
+
+/* Route-specific polish for Dbweb pages outside Dbweb Lab / Photo Studio.
+   Keep selectors page-prefixed so the editor remains visually untouched. */
+.adminDashboard{max-width:1180px;margin-inline:auto}
+.adminDashboard .adminTopActions{gap:10px;flex-wrap:wrap}
+.adminDashboard .adminStats{gap:12px}
+.adminDashboard .adminStats>*{border-radius:15px;box-shadow:0 6px 22px #00000006}
+.adminDashboard .adminTabs{gap:7px;overflow-x:auto;padding:3px 1px 8px;scrollbar-width:thin}
+.adminDashboard .adminTabs>*{flex:0 0 auto;border-radius:10px;transition:background .18s,border-color .18s,transform .18s}
+.adminDashboard .adminTabs>*:hover{transform:translateY(-1px)}
+.adminDashboard .adminSectionHead{gap:14px;flex-wrap:wrap}
+.adminDashboard .adminFilters{gap:10px;flex-wrap:wrap}
+.adminDashboard .adminSearch{min-width:0;border-radius:11px}
+.adminDashboard .adminList{gap:10px}
+.adminDashboard .adminItem,.adminDashboard .adminDevice,.adminDashboard .adminPaymentInfo{border-radius:13px;transition:border-color .18s,box-shadow .18s,background .18s}
+.adminDashboard .adminItem:hover,.adminDashboard .adminDevice:hover{border-color:color-mix(in srgb,var(--ac) 38%,var(--bd));box-shadow:0 7px 20px #00000007}
+.adminDashboard .adminForm{gap:12px}
+.adminDashboard .adminForm input,.adminDashboard .adminForm select,.adminDashboard .adminForm textarea,.adminDashboard .adminSearch input{min-width:0;border-radius:10px}
+.adminDashboard .adminTwoCol{gap:16px}
+.adminDashboard .adminNotice{border-radius:12px}
+@media(max-width:640px){.adminDashboard .adminTopActions>*{flex:1 1 auto}.adminDashboard .adminTwoCol{grid-template-columns:minmax(0,1fr)}.adminDashboard .adminSectionHead{align-items:flex-start}.adminDashboard .adminItem{overflow-wrap:anywhere}}
+
+.bgRemovePage{--bg-accent:var(--ac);max-width:1180px;margin-inline:auto}
+.bgRemovePage .bgTopbar{backdrop-filter:blur(14px)}
+.bgRemovePage .bgHero{border-radius:24px;overflow:hidden}
+.bgRemovePage .bgWorkspace{border-radius:20px;box-shadow:0 12px 36px #00000008}
+.bgRemovePage .bgDropzone{border-radius:17px;transition:border-color .2s,background .2s,transform .2s}
+.bgRemovePage .bgDropzone:hover{transform:translateY(-1px);border-color:var(--ac);background:color-mix(in srgb,var(--acs) 22%,var(--s1))}
+.bgRemovePage .bgPreviewWrap{border-radius:16px;overflow:hidden}
+.bgRemovePage .bgPrimary,.bgRemovePage .bgSecondary,.bgRemovePage .bgChooseButton{border-radius:11px;transition:transform .16s,box-shadow .16s}
+.bgRemovePage .bgPrimary:hover,.bgRemovePage .bgSecondary:hover,.bgRemovePage .bgChooseButton:hover{transform:translateY(-1px)}
+.bgRemovePage .bgInfoGrid{gap:12px}
+.bgRemovePage .bgInfoGrid>*{border-radius:14px}
+.bgRemovePage .bgFooter{line-height:1.75}
+
+.streamPage{max-width:1240px;margin-inline:auto}
+.streamPage .streamHero{position:relative;isolation:isolate;overflow:hidden;border-radius:24px;background-image:radial-gradient(ellipse at 85% 0%,color-mix(in srgb,var(--ac) 15%,transparent),transparent 45%)}
+.streamPage .streamSearch{border-radius:15px;box-shadow:0 7px 25px #00000007;transition:border-color .18s,box-shadow .18s}
+.streamPage .streamSearch:focus-within{box-shadow:0 0 0 3px var(--acs),0 10px 28px #00000008}
+.streamPage .streamTabs{gap:7px;overflow-x:auto;scrollbar-width:thin}
+.streamPage .streamTabs button{border-radius:10px;white-space:nowrap;transition:background .18s,color .18s,transform .18s}
+.streamPage .streamTabs button:hover{transform:translateY(-1px)}
+.streamPage .streamGrid{gap:15px}
+.streamPage .streamCard{border-radius:17px;box-shadow:0 8px 26px #00000007;transition:transform .2s,border-color .2s,box-shadow .2s}
+.streamPage .streamCard:hover{transform:translateY(-4px);box-shadow:0 15px 36px #00000012}
+.streamPage .streamPosterButton{overflow:hidden}
+.streamPage .streamPosterButton img{transition:transform .35s ease}
+.streamPage .streamCard:hover .streamPosterButton img{transform:scale(1.035)}
+.streamPage .streamModal{border-radius:22px;box-shadow:0 24px 90px #00000035}
+.streamPage .streamModalClose{border-radius:10px}
+@media(prefers-reduced-motion:reduce){.streamPage .streamCard,.streamPage .streamPosterButton img,.streamPage .streamTabs button{transition:none!important}.streamPage .streamCard:hover,.streamPage .streamTabs button:hover{transform:none}}
+
+.steamPage .steamMark{box-shadow:0 7px 22px #00000008}
+.steamPage .steamCard{border-radius:18px;box-shadow:0 8px 30px #00000008;transition:transform .2s,box-shadow .2s,border-color .2s}
+.steamPage .steamCard:hover{transform:translateY(-3px);box-shadow:0 15px 38px #00000012;border-color:var(--ac)}
+.steamPage .steamGameImage{transition:transform .25s}
+.steamPage .steamCard:hover .steamGameImage{transform:scale(1.015)}
+.steamPage .steamCredential{gap:10px}
+.steamPage .steamPremiumGate{border-radius:16px}
+.steamPage .steamBuyButton,.steamPage .steamPromo>a{border-radius:11px;transition:transform .16s,box-shadow .16s}
+.steamPage .steamBuyButton:hover,.steamPage .steamPromo>a:hover{transform:translateY(-1px);box-shadow:0 8px 20px color-mix(in srgb,var(--ac) 20%,transparent)}
+@media(prefers-reduced-motion:reduce){.steamPage .steamCard,.steamPage .steamGameImage,.steamPage .steamBuyButton,.steamPage .steamPromo>a{transition:none!important}.steamPage .steamCard:hover,.steamPage .steamBuyButton:hover,.steamPage .steamPromo>a:hover{transform:none}}
+
+.igPage{max-width:1100px;margin-inline:auto}
+.igPage .igHero{border-radius:22px;overflow:hidden;background-image:radial-gradient(ellipse at 90% 0%,color-mix(in srgb,var(--ac) 13%,transparent),transparent 48%)}
+.igPage .igSearch{border-radius:14px;transition:border-color .18s,box-shadow .18s}
+.igPage .igSearch:focus-within{box-shadow:0 0 0 3px var(--acs)}
+.igPage .igProfileHead{gap:18px;flex-wrap:wrap}
+.igPage .igAvatar{box-shadow:0 7px 22px #00000012}
+.igPage .igStats{gap:10px}
+.igPage .igStats>*{border-radius:13px}
+.igPage .igPhotoLink,.igPage .igOpenProfile{border-radius:10px;transition:transform .16s,box-shadow .16s}
+.igPage .igPhotoLink:hover,.igPage .igOpenProfile:hover{transform:translateY(-1px)}
+.igPage .shortDestination{overflow-wrap:anywhere}
+.igPage .shortChain{gap:10px}
+.igPage .shortHop{overflow-wrap:anywhere;border-radius:11px}
+@media(max-width:560px){.igPage .igProfileHead{align-items:flex-start}.igPage .igStats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.quickToolsPage{max-width:1180px;margin-inline:auto}
+.quickToolsPage .qtHero{border-radius:22px;overflow:hidden;background-image:radial-gradient(ellipse at 90% 0%,color-mix(in srgb,var(--ac) 13%,transparent),transparent 48%)}
+.quickToolsPage .qtLayout{gap:16px}
+.quickToolsPage .qtSidebar,.quickToolsPage .qtWorkspace{border-radius:17px}
+.quickToolsPage .qtSidebar{position:sticky;top:14px;align-self:start}
+.quickToolsPage .qtWorkspace{box-shadow:0 9px 30px #00000006}
+.quickToolsPage .qtInput,.quickToolsPage .qtTextarea,.quickToolsPage .qtPreview{border-radius:11px}
+.quickToolsPage .qtTextarea{line-height:1.7;resize:vertical}
+.quickToolsPage .qtPrimary,.quickToolsPage .qtSecondary{border-radius:10px;transition:transform .16s,box-shadow .16s}
+.quickToolsPage .qtPrimary:hover,.quickToolsPage .qtSecondary:hover{transform:translateY(-1px)}
+.quickToolsPage .qtBottomGrid{gap:12px}
+.quickToolsPage .qtSuggestion{border-radius:13px;transition:transform .18s,border-color .18s,box-shadow .18s}
+.quickToolsPage .qtSuggestion:hover{transform:translateY(-2px);border-color:var(--ac);box-shadow:0 8px 22px #00000008}
+@media(max-width:760px){.quickToolsPage .qtSidebar{position:static}.quickToolsPage .qtLayout{grid-template-columns:minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){.quickToolsPage .qtPrimary,.quickToolsPage .qtSecondary,.quickToolsPage .qtSuggestion{transition:none!important}.quickToolsPage .qtPrimary:hover,.quickToolsPage .qtSecondary:hover,.quickToolsPage .qtSuggestion:hover{transform:none}}
+
+@media(prefers-reduced-motion:reduce){.adminDashboard .adminTabs>*,.adminDashboard .adminItem,.adminDashboard .adminDevice,.bgRemovePage .bgDropzone,.bgRemovePage .bgPrimary,.bgRemovePage .bgSecondary,.bgRemovePage .bgChooseButton,.igPage .igPhotoLink,.igPage .igOpenProfile{transition:none!important}.adminDashboard .adminTabs>*:hover,.bgRemovePage .bgDropzone:hover,.bgRemovePage .bgPrimary:hover,.bgRemovePage .bgSecondary:hover,.bgRemovePage .bgChooseButton:hover,.igPage .igPhotoLink:hover,.igPage .igOpenProfile:hover{transform:none}}
