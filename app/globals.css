@@ -575,3 +575,38 @@
   .steamPage .steamGrid{column-gap:10px!important}
   .steamPage .steamGrid .steamCoverCard{margin-bottom:10px!important;border-radius:10px!important}
 }
+
+
+/* Final Steam gallery separation: visible gutters and individual cover outlines. */
+.steamPage .steamGrid{
+  column-gap:16px!important;
+  background:transparent!important;
+  border:0!important;
+  overflow:visible!important;
+}
+.steamPage .steamGrid .steamCoverCard{
+  box-sizing:border-box;
+  margin:0 0 16px!important;
+  border:1px solid var(--bd)!important;
+  border-radius:10px!important;
+  overflow:hidden;
+  background:var(--s1)!important;
+  box-shadow:0 2px 10px #0000000a!important;
+}
+.steamPage .steamGrid .steamCoverCard:hover{
+  border-color:var(--ac)!important;
+  box-shadow:0 10px 24px #00000012!important;
+}
+.steamPage .steamGrid .steamCoverCard .steamGameImage{
+  display:block;
+  width:100%;
+  margin:0;
+}
+@media(max-width:760px){
+  .steamPage .steamGrid{column-gap:12px!important}
+  .steamPage .steamGrid .steamCoverCard{margin-bottom:12px!important}
+}
+@media(max-width:480px){
+  .steamPage .steamGrid{column-gap:10px!important}
+  .steamPage .steamGrid .steamCoverCard{margin-bottom:10px!important}
+}
