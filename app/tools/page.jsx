@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import TiltCard from "../../components/ui/tilt-card";
+import BorderTrail from "../../components/ui/border-trail";
+import MagneticButton from "../../components/ui/magnetic-button";
 import AmbientBackdrop from "../../components/ui/ambient-backdrop";
 import { Search, ArrowUpRight, Wrench, FileText, Instagram, Link2, Fingerprint, Image, Smartphone, Phone, GitCompare, ScanFace, FileSearch, Activity, CreditCard, QrCode, ScanText, ShieldCheck, KeyRound, Globe, Type, CarFront, CalendarDays, Landmark, FileBadge, FileImage, Sparkles, Scissors, Braces, Code2, CaseSensitive, Regex, Palette } from "lucide-react";
 
@@ -56,6 +58,7 @@ export default function ToolsPage() {
   }), [query, category]);
 
   return <div className="toolHub">
+    <BorderTrail className="toolHubHeroFrame">
     <div className="toolHubHero">
       <AmbientBackdrop />
       <div className="toolHubEyebrow"><Sparkles size={14}/> YOUR WORKSPACE</div>
@@ -63,8 +66,9 @@ export default function ToolsPage() {
       <p>A clean workspace for everyday file utilities, validators and analysis tools.</p>
       <label className="toolHubSearch"><Search size={19}/><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search tools..." aria-label="Search tools"/></label>
     </div>
+    </BorderTrail>
     <div className="toolHubFilters" aria-label="Filter tools by category">
-      {categories.map((item) => <button key={item} className={category === item ? "active" : ""} onClick={() => setCategory(item)}>{item}</button>)}
+      {categories.map((item) => <MagneticButton key={item} className={category === item ? "active" : ""} active={category === item} onClick={() => setCategory(item)}>{item}</MagneticButton>)}
     </div>
     <div className="toolHubCount">{filtered.length} {filtered.length === 1 ? "tool" : "tools"}</div>
     {filtered.length ? <div className="toolHubGrid">{filtered.map(({name, description, href, Icon, category: group}) => <TiltCard className="toolHubCard" href={href} key={name}>
