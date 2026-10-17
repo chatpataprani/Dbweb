@@ -2,7 +2,7 @@
    Scoped to Dbweb app routes; Photo Studio / Dbweb Lab is intentionally excluded. */
 @keyframes dbw-enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes dbw-orbit{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(14px,-10px,0) scale(1.06)}}
-@keyframes dbw-border-run{to{transform:rotate(360deg)}}
+@property --dbw-border-angle{syntax:"<angle>";inherits:false;initial-value:0deg}\n@keyframes dbw-border-run{from{--dbw-border-angle:0deg}to{--dbw-border-angle:360deg}}
 @keyframes dbw-sheen{0%{transform:translateX(-130%)}100%{transform:translateX(180%)}}
 @media(prefers-reduced-motion:no-preference){
   .app main>*{animation:dbw-enter .42s both}
@@ -57,7 +57,7 @@
 .toolHub .toolHubCardText>span{line-height:1.6}
 .toolHub .toolHubArrow{transition:transform .2s,color .2s}
 .toolHub .toolHubCard:hover .toolHubArrow{transform:translate(2px,-2px);color:var(--ac)}
-.dbwAmbientBackdrop{position:absolute;inset:0;overflow:hidden;z-index:-1;pointer-events:none}
+.dbwAmbientBackdrop{position:absolute;inset:0;overflow:hidden;z-index:0;pointer-events:none}\n.toolHub .toolHubHero>*:not(.dbwAmbientBackdrop){position:relative;z-index:1}
 .dbwAmbientBackdrop span{position:absolute;display:block;width:clamp(110px,18vw,230px);aspect-ratio:1;border-radius:50%;filter:blur(30px);opacity:.32;animation:dbw-orbit 11s ease-in-out infinite;background:color-mix(in srgb,var(--ac) 24%,transparent)}
 .dbwAmbientBackdrop span:nth-child(1){right:8%;top:-35%;width:clamp(180px,28vw,340px)}
 .dbwAmbientBackdrop span:nth-child(2){right:25%;bottom:-55%;animation-delay:-3.5s;background:color-mix(in srgb,#54b8ad 24%,transparent)}
