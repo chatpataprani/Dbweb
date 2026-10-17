@@ -7,6 +7,16 @@ import { useEffect } from "react";
 // It uses native browser events so Dbweb does not need another animation package.
 const SURFACES = [
   ".toolHubCard",
+  ".toolHubFilters button",
+  ".app .primary",
+  ".app .secondary",
+  ".adminDashboard .adminTabs > *",
+  ".bgRemovePage .bgPrimary",
+  ".bgRemovePage .bgSecondary",
+  ".steamPage .steamBuyButton",
+  ".igPage .igSearch",
+  ".quickToolsPage .qtPrimary",
+  ".quickToolsPage .qtSecondary",
   ".app .card",
   ".app .plan",
   ".app .historyRow",
