@@ -671,3 +671,42 @@ pre,code,.hash-value,.meta-value { overflow-wrap:anywhere; word-break:break-word
   :where(.tool-card,.result-card,.panel,.section-card,.editor-card,.analysis-card,button,.btn,.action-btn,.toolbar-btn,.verify-btn,.external-link,.back-home-btn,.file-drop-zone,.drop-zone,.upload-area,.upload-zone){transition:none!important}
   :where(button,.btn,.action-btn,.toolbar-btn,.verify-btn,.external-link,.back-home-btn):active{transform:none}
 }
+
+
+/* Extra shared component polish inspired by Animata's card patterns and
+   Skiper UI's CSS-first interactive controls. Standalone tools only. */
+:where(.tool-card,.result-card,.panel,.section-card,.editor-card,.analysis-card){
+  transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+}
+:where(.tool-card,.result-card,.panel,.section-card,.editor-card,.analysis-card):hover{
+  border-color:color-mix(in srgb,var(--accent,var(--primary,#6478e8)) 34%,var(--border,#dedfe7));
+  box-shadow:0 12px 30px rgba(25,35,70,.08);
+}
+:where(button,.btn,.action-btn,.toolbar-btn,.verify-btn,.external-link,.back-home-btn){
+  transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background-color .16s ease;
+}
+:where(button,.btn,.action-btn,.toolbar-btn,.verify-btn):hover:not(:disabled){
+  transform:translateY(-1px);
+}
+:where(button,.btn,.action-btn,.toolbar-btn,.verify-btn,.external-link,.back-home-btn):focus-visible{
+  outline:2px solid var(--accent,var(--primary,#6478e8));
+  outline-offset:3px;
+}
+:where(input,textarea,select):focus-visible{
+  outline:2px solid color-mix(in srgb,var(--accent,var(--primary,#6478e8)) 72%,transparent);
+  outline-offset:1px;
+}
+:where(.file-drop-zone,.drop-zone,.upload-area,.upload-zone,.file-drop-zone,.dropzone){
+  transition:border-color .2s ease,background-color .2s ease,box-shadow .2s ease;
+}
+:where(.file-drop-zone,.drop-zone,.upload-area,.upload-zone,.dropzone):hover{
+  border-color:var(--accent,var(--primary,#6478e8));
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent,var(--primary,#6478e8)) 10%,transparent);
+}
+:where(.tool-card,.result-card,.panel,.section-card,.editor-card,.analysis-card) :where(h2,h3,.card-title){
+  letter-spacing:-.02em;
+}
+@media(prefers-reduced-motion:reduce){
+  :where(.tool-card,.result-card,.panel,.section-card,.editor-card,.analysis-card,button,.btn,.action-btn,.toolbar-btn,.verify-btn,.external-link,.back-home-btn,.file-drop-zone,.drop-zone,.upload-area,.upload-zone,.dropzone){transition:none!important}
+  :where(.tool-card,.result-card,.panel,.section-card,.editor-card,.analysis-card,button,.btn,.action-btn,.toolbar-btn,.verify-btn):hover{transform:none}
+}
