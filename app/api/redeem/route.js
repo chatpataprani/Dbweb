@@ -1,5 +1,6 @@
 import {NextResponse} from "next/server";
 import {createClient} from "@supabase/supabase-js";
+import {createHash} from "node:crypto";
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 export async function POST(request){
  try{
@@ -7,8 +8,9 @@ export async function POST(request){
   const {code}=await request.json();if(typeof code!=="string"||code.trim().length<6||code.trim().length>100)return NextResponse.json({error:"Enter a valid redeem code."},{status:400});
   const db=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY,{auth:{autoRefreshToken:false,persistSession:false}});
   const {error:initError}=await db.from("device_accounts").upsert({device_id:id},{onConflict:"device_id",ignoreDuplicates:true});if(initError)throw initError;
-  // The database RPC hashes lower(trim(p_code)) itself. Send the entered code, not a pre-hashed value.
-  const {data,error}=await db.rpc("redeem_device_code",{p_device_id:id,p_code:code.trim()});
+  // redeem_device_code expects the SHA-256 hex digest, matching the admin code-creation route.
+  const codeHash=createHash("sha256").update(code.trim().toLowerCase()).digest("hex");
+  const {data,error}=await db.rpc("redeem_device_code",{p_device_id:id,p_code:codeHash});
   if(error){
    console.error("Redeem RPC failed:",error.message);
    const message=error.message.toLowerCase();
