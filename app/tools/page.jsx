@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import TiltCard from "../../components/ui/tilt-card";
 import BorderTrail from "../../components/ui/border-trail";
 import MagneticButton from "../../components/ui/magnetic-button";
+import SkiperLink from "../../components/ui/skiper-link";
 import AmbientBackdrop from "../../components/ui/ambient-backdrop";
 import { Search, ArrowUpRight, Wrench, FileText, Instagram, Link2, Fingerprint, Image, Smartphone, Phone, GitCompare, ScanFace, FileSearch, Activity, CreditCard, QrCode, ScanText, ShieldCheck, KeyRound, Globe, Type, CarFront, CalendarDays, Landmark, FileBadge, FileImage, Sparkles, Scissors, Braces, Code2, CaseSensitive, Regex, Palette } from "lucide-react";
 
@@ -58,6 +59,7 @@ export default function ToolsPage() {
   }), [query, category]);
 
   return <div className="toolHub">
+    <SkiperLink href="/" className="toolHubHomeLink">Back to Dbweb</SkiperLink>
     <BorderTrail className="toolHubHeroFrame">
     <div className="toolHubHero">
       <AmbientBackdrop />
