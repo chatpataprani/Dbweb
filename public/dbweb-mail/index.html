@@ -178,7 +178,7 @@ summary{cursor:pointer;font-weight:700;font-size:.9rem;color:var(--muted);paddin
 .switch:checked::after{transform:translateX(26px);background:var(--grad)}
 
 footer{text-align:center;font-size:.8rem;color:var(--muted)}
-footer b{font-family:var(--display);color:var(--fg);font-weight:700}
+footer b{font-family:var(--display);color:var(--fg);font-weight:700} footer a{color:var(--accent)} footer span{display:inline-block;margin-top:4px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 36px);
   background:var(--bg);color:var(--fg);padding:14px 22px;border-radius:18px;font-size:.9rem;font-weight:600;z-index:20;box-shadow:var(--r-md)}
 
@@ -357,7 +357,7 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     </details>
     <div class="phone-note"><strong>Privacy notice:</strong> These are shared public inboxes aggregated from third-party public SMS sources. Anyone may read messages and OTPs. Do not use these numbers for banking, government services, account recovery, private accounts, or anything important. Some services block temporary numbers. Use them only where permitted.</div>
   </section>
-  <footer><b>Dbweb</b> · temporary mail &amp; phone tools</footer>
+  <footer><b>Dbweb</b> · temporary mail tools<br><span>Mail providers: <a href="https://mail.tm/" target="_blank" rel="noopener noreferrer">Mail.tm</a>, <a href="https://mail.gw/" target="_blank" rel="noopener noreferrer">Mail.gw</a>, <a href="https://catchmail.io/" target="_blank" rel="noopener noreferrer">Catchmail</a>, and <a href="https://grabmail.io/" target="_blank" rel="noopener noreferrer">GrabMail</a>.</span><br><span>Use only for non-sensitive messages. Provider availability, domains, and retention are controlled by each provider.</span></footer>
 </main>
 <div class="toast" id="toast" hidden></div>
 
@@ -366,7 +366,7 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
   "use strict";
   var BASES = {"mail.tm":"https://api.mail.tm", "mail.gw":"/api/dbweb-mail", "catchmail":"/api/dbweb-mail-alt/catchmail", "grabmail":"/api/dbweb-mail-alt/grabmail"};
   // Catchmail and GrabMail use public, passwordless inboxes through a same-origin proxy.
-  var ORDER = ["catchmail","grabmail","mail.tm","mail.gw"];
+  var ORDER = ["catchmail","grabmail","mail.gw","mail.tm"];
   var KEY = "tempbox.v2", MAXBOX = 5;
   var $ = function(id){ return document.getElementById(id); };
 
@@ -584,7 +584,7 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     var lastErr = null, firstErr = null, taken = false, i = 0;
     function next(){
       if (i >= attempts.length) {
-        // Try Mail.tm directly first, then fall back to Mail.gw through the same-origin proxy.
+        // Prefer the same-origin Mail.gw API before the direct Mail.tm fallback; public inbox providers are tried first.
         // Report the most recent failure so a provider outage is not hidden by an earlier browser/network error.
         var usefulErr = lastErr || firstErr;
         showErr("err1", taken ? "That name is already in use. Choose another name, or leave it blank for a random address." : "We could not create your inbox. " + netHint(usefulErr));
@@ -690,7 +690,7 @@ footer b{font-family:var(--display);color:var(--fg);font-weight:700}
     $("optSound").checked = S.sound; $("optCopy").checked = S.copy;
 
     // status line
-    if (b) { $("status").textContent = "No expiry"; $("dot").className = "dot live"; }
+    if (b) { $("status").textContent = "Temporary inbox"; $("dot").className = "dot live"; }
     else { $("status").textContent = "No mailbox"; $("dot").className = "dot"; }
 
     // tabs
