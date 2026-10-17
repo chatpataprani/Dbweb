@@ -159,7 +159,7 @@ def pinterest(url):
     return error_result("No public downloadable Pinterest media was found.")
 
 def youtube(url):
-    # YouTube may challenge datacenter IPs. Try a few extractor clients before failing.
+    # Try multiple public YouTube player clients. Datacenter IPs may still be challenged.
     base_options = {
         "quiet": True,
         "no_warnings": True,
@@ -170,25 +170,27 @@ def youtube(url):
         "format": "best[ext=mp4]/best",
     }
     info = None
-    last_error = None
-    for client in ("android_vr", "ios", "web_safari"):
+    last_error = ""
+    # Embedded and mobile clients can work for videos where the default web client is challenged.
+    for client in ("web_embedded", "tv_embedded", "mweb", "android", "ios", "web_safari", "android_vr"):
         options = dict(base_options)
         options["extractor_args"] = {"youtube": {"player_client": [client]}}
         try:
             with yt_dlp.YoutubeDL(options) as ydl:
-                info = ydl.extract_info(url, download=False)
-            if info:
+                candidate = ydl.extract_info(url, download=False)
+            if candidate:
+                info = candidate
                 break
         except Exception as exc:
             last_error = str(exc).lower()
     if not info:
-        if last_error and any(term in last_error for term in ("sign in to confirm", "not a bot", "cookies", "bot")):
+        if any(term in last_error for term in ("sign in to confirm", "not a bot", "cookies", "bot verification")):
             return error_result(
-                "YouTube is blocking automated requests from the server for this video. "
-                "Tried alternate public extractor clients, but YouTube still requires verification. "
-                "Try another public video later; login-required videos are not supported."
+                "YouTube is rejecting requests from this server even after trying several public player clients. "
+                "This is a hosting/IP restriction. This deployment cannot safely sign in as a user; "
+                "videos that require account verification are unavailable through this downloader."
             )
-        return error_result("YouTube could not provide this video right now. It may be private, age-restricted, or temporarily unavailable.")
+        return error_result("YouTube could not provide this video. It may be private, age-restricted, removed, or temporarily unavailable.")
     items, seen = [], set()
     for media in info.get("formats", []):
         link = media.get("url")
