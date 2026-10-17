@@ -1,4 +1,5 @@
 import "./globals.css";
+import SpotlightSurfaces from "../components/ui/spotlight-surfaces";
 
 export const metadata = {
   title: "Dbweb",
@@ -6,5 +7,12 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-  return <html lang="en"><body>{children}</body></html>;
+  return (
+    <html lang="en">
+      <body>
+        <SpotlightSurfaces />
+        {children}
+      </body>
+    </html>
+  );
 }
