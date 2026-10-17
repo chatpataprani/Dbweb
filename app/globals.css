@@ -504,3 +504,13 @@
 /* Preserve each game's natural poster, landscape, or square artwork ratio. */
 .steamPage .steamCoverCard .steamGameImage{aspect-ratio:unset!important;object-fit:contain!important}
 .steamPage .steamCoverCard{height:fit-content}
+
+
+/* Pinterest-style masonry gallery for naturally sized game artwork. */
+.steamPage .steamGrid{display:block;columns:4 190px;column-gap:16px}
+.steamPage .steamGrid .steamCoverCard{display:inline-flex;width:100%;break-inside:avoid;vertical-align:top;margin:0 0 16px;padding:0}
+.steamPage .steamGrid .steamCoverCard .steamGameImage{display:block;width:100%;height:auto;max-height:none;aspect-ratio:auto;object-fit:contain;background:var(--s2);padding:0;border:0}
+.steamPage .steamGrid .steamCoverTitle{padding:11px 12px 4px;min-height:0}
+.steamPage .steamGrid .steamCoverHint{padding:4px 12px 12px}
+@media(max-width:760px){.steamPage .steamGrid{columns:3 145px;column-gap:12px}.steamPage .steamGrid .steamCoverCard{margin-bottom:12px}}
+@media(max-width:480px){.steamPage .steamGrid{columns:2 125px;column-gap:10px}.steamPage .steamGrid .steamCoverCard{margin-bottom:10px}.steamPage .steamGrid .steamCoverTitle{padding:9px 9px 3px}.steamPage .steamGrid .steamCoverHint{padding:4px 9px 10px}}
