@@ -539,3 +539,39 @@
 .steamPage .steamHeader .steamMark{animation:steamMarkFloat 4s ease-in-out infinite}
 @keyframes steamMarkFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 @media(prefers-reduced-motion:reduce){.steamPage .steamCoverCard,.steamPage .steamPromo,.steamPage .steamEmpty,.steamPage .steamHeader .steamMark{opacity:1;transform:none;animation:none!important;transition:none!important}}
+
+
+/* Steam gallery spacing: separate every cover so neighboring artwork never touches. */
+.steamPage .steamGrid{
+  columns:4 190px;
+  column-gap:14px!important;
+  background:transparent!important;
+  border:0!important;
+  overflow:visible!important;
+}
+.steamPage .steamGrid .steamCoverCard{
+  display:inline-flex;
+  width:100%;
+  margin:0 0 14px!important;
+  border:1px solid var(--bd)!important;
+  border-radius:12px!important;
+  overflow:hidden;
+  background:var(--s1)!important;
+  box-shadow:0 3px 12px #00000008!important;
+  vertical-align:top;
+}
+.steamPage .steamGrid .steamCoverCard:hover{
+  border-color:var(--ac)!important;
+  box-shadow:0 12px 26px #00000012!important;
+}
+.steamPage .steamGrid .steamCoverCard .steamGameImage{
+  border-radius:0!important;
+}
+@media(max-width:760px){
+  .steamPage .steamGrid{column-gap:12px!important}
+  .steamPage .steamGrid .steamCoverCard{margin-bottom:12px!important}
+}
+@media(max-width:480px){
+  .steamPage .steamGrid{column-gap:10px!important}
+  .steamPage .steamGrid .steamCoverCard{margin-bottom:10px!important;border-radius:10px!important}
+}
