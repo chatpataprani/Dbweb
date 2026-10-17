@@ -45,56 +45,90 @@ def facebook(url):
     return {"status": "success", "title": data.get("title", "Facebook video"), "author": data.get("author"), "thumbnail": data.get("thumbnail"), "items": items}
 
 def instagram(url):
-    # Do not depend on SnapDownloader's old /download route: it now returns 404.
-    # yt-dlp extracts media directly from public Instagram posts/reels where available.
-    options = {
-        "quiet": True,
-        "no_warnings": True,
-        "skip_download": True,
-        "noplaylist": True,
-        "socket_timeout": TIMEOUT,
-        "extractor_retries": 1,
-        "format": "best",
-    }
+    # Instagram often blocks anonymous server requests. Try yt-dlp with alternate
+    # extractor settings, then fall back to public Open Graph media if available.
+    last_error = ""
+    for client in (None, "web"):
+        options = {
+            "quiet": True,
+            "no_warnings": True,
+            "skip_download": True,
+            "noplaylist": True,
+            "socket_timeout": TIMEOUT,
+            "extractor_retries": 1,
+            "format": "best",
+        }
+        if client:
+            options["extractor_args"] = {"instagram": {"api": [client]}}
+        try:
+            with yt_dlp.YoutubeDL(options) as ydl:
+                info = ydl.extract_info(url, download=False)
+            if info:
+                entries = info.get("entries") or [info]
+                items, seen = [], set()
+                for entry in entries:
+                    if not entry:
+                        continue
+                    formats = entry.get("formats") or [entry]
+                    for media in formats:
+                        link = media.get("url")
+                        if not link or link in seen or media.get("vcodec") == "none":
+                            continue
+                        seen.add(link)
+                        items.append(media_item(
+                            entry.get("title") or info.get("title") or "Instagram media",
+                            link,
+                            media.get("format_note") or media.get("resolution") or "Original",
+                            "video" if media.get("vcodec") not in (None, "none") else "image",
+                            entry.get("thumbnail") or info.get("thumbnail"),
+                        ))
+                        if len(items) >= 12:
+                            break
+                    if len(items) >= 12:
+                        break
+                if items:
+                    return {
+                        "status": "success",
+                        "title": info.get("title") or "Instagram media",
+                        "author": info.get("uploader") or info.get("channel"),
+                        "thumbnail": info.get("thumbnail"),
+                        "items": items,
+                    }
+        except Exception as exc:
+            last_error = str(exc).lower()
+
+    # Public page metadata fallback; this does not bypass private/login-only content.
     try:
-        with yt_dlp.YoutubeDL(options) as ydl:
-            info = ydl.extract_info(url, download=False)
-    except Exception as exc:
-        message = str(exc).lower()
-        if "login" in message or "cookie" in message or "private" in message:
-            return error_result("Instagram could not access this post. Only publicly accessible posts and Reels are supported; login-required content will not work.")
-        return error_result("Instagram could not provide this media. Check that the post/Reel is public and try again.")
-    entries = info.get("entries") or [info]
-    items, seen = [], set()
-    for entry in entries:
-        if not entry:
-            continue
-        formats = entry.get("formats") or [entry]
-        for media in formats:
-            link = media.get("url")
-            if not link or link in seen or media.get("vcodec") == "none":
-                continue
-            seen.add(link)
-            items.append(media_item(
-                entry.get("title") or info.get("title") or "Instagram media",
-                link,
-                media.get("format_note") or media.get("resolution") or "Original",
-                "video" if media.get("vcodec") not in (None, "none") else "image",
-                entry.get("thumbnail") or info.get("thumbnail"),
-            ))
-            if len(items) >= 12:
-                break
-        if len(items) >= 12:
-            break
-    if not items:
-        return error_result("No downloadable media was found. The Instagram post may be private, removed, or unavailable to public access.")
-    return {
-        "status": "success",
-        "title": info.get("title") or "Instagram media",
-        "author": info.get("uploader") or info.get("channel"),
-        "thumbnail": info.get("thumbnail"),
-        "items": items,
-    }
+        response = requests.get(
+            url,
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml",
+                "Accept-Language": "en-US,en;q=0.8",
+            },
+            timeout=TIMEOUT,
+        )
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, "html.parser")
+        def meta(*keys):
+            for key in keys:
+                tag = soup.find("meta", attrs={"property": key}) or soup.find("meta", attrs={"name": key})
+                if tag and tag.get("content"):
+                    return tag["content"]
+            return None
+        title = meta("og:title", "twitter:title") or "Instagram media"
+        video = meta("og:video", "og:video:secure_url", "twitter:player:stream")
+        image_url = meta("og:image", "twitter:image")
+        if video and video.startswith("https://"):
+            return {"status": "success", "title": title, "items": [media_item(title, video, "Original", "video", image_url)]}
+        if image_url and image_url.startswith("https://"):
+            return {"status": "success", "title": title, "items": [media_item(title, image_url, "Original", "image", image_url)]}
+    except Exception:
+        pass
+
+    if any(term in last_error for term in ("login", "cookie", "private", "sign in")):
+        return error_result("Instagram requires login or is restricting server access to this post. Only public media accessible without login can be downloaded.")
+    return error_result("Instagram did not expose downloadable media. The post may be private, restricted, or Instagram may be blocking server requests.")
 
 def snapchat(url):
     response = requests.post("https://www.expertstool.com/converter.php",
