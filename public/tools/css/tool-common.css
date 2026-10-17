@@ -644,3 +644,30 @@ pre,code,.hash-value,.meta-value { overflow-wrap:anywhere; word-break:break-word
   .toolbar button,.toolbar-btn,.action-btn,.verify-btn { min-height:42px; }
   .typing-area,textarea { font-size:16px!important; }
 }
+
+
+/* Standalone browser utilities: consistent interactions, mobile spacing and accessibility.
+   This stylesheet is only used by public/tools pages, never by Dbweb Lab. */
+:where(.tool-container,.tool-content,.tool-card,.result-card,.panel,.section-card,.editor-card,.analysis-card){box-shadow:0 8px 28px rgba(0,0,0,.08)}
+:where(.tool-card,.result-card,.panel,.section-card,.editor-card,.analysis-card){transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+:where(.tool-card,.section-card,.editor-card,.analysis-card):hover{border-color:color-mix(in srgb,var(--accent-secondary,#a8baff) 40%,var(--card-border,transparent))}
+:where(button,.btn,.action-btn,.toolbar-btn,.verify-btn,.external-link,.back-home-btn){min-height:40px;transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease}
+:where(button,.btn,.action-btn,.toolbar-btn,.verify-btn,.external-link,.back-home-btn):active{transform:translateY(1px)}
+:where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),textarea,select){border-radius:10px}
+:where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),textarea,select):focus-visible{outline:2px solid var(--accent-secondary,#a8baff);outline-offset:2px}
+:where(.file-drop-zone,.drop-zone,.upload-area,.upload-zone){border-radius:16px;transition:border-color .18s ease,background-color .18s ease,box-shadow .18s ease}
+:where(.file-drop-zone,.drop-zone,.upload-area,.upload-zone):focus-within{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent-secondary,#a8baff) 18%,transparent)}
+:where(.data-table,table){max-width:100%}
+:where(.data-table,table) th{position:sticky;top:0;z-index:1}
+:where(.result-card,.result-details,.file-info-preview,pre,code){overflow-wrap:anywhere;word-break:break-word}
+:where(.action-buttons,.toolbar,.toolbar-actions,.results-actions){row-gap:9px}
+@media(max-width:600px){
+  :where(.tool-container,.tool-content){width:min(100% - 20px,100%);padding-inline:12px}
+  :where(.file-drop-zone,.drop-zone,.upload-area,.upload-zone){padding:24px 14px}
+  :where(.data-table,table){display:block;overflow-x:auto;white-space:nowrap}
+  :where(.action-buttons,.toolbar,.toolbar-actions,.results-actions){align-items:stretch}
+}
+@media(prefers-reduced-motion:reduce){
+  :where(.tool-card,.result-card,.panel,.section-card,.editor-card,.analysis-card,button,.btn,.action-btn,.toolbar-btn,.verify-btn,.external-link,.back-home-btn,.file-drop-zone,.drop-zone,.upload-area,.upload-zone){transition:none!important}
+  :where(button,.btn,.action-btn,.toolbar-btn,.verify-btn,.external-link,.back-home-btn):active{transform:none}
+}
