@@ -1,5 +1,5 @@
 import "./globals.css";
-import "./interactive-redesign.css";
+import "./component-motion.css";
 import SpotlightSurfaces from "../components/ui/spotlight-surfaces";
 
 export const metadata = {
