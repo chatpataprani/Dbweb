@@ -465,3 +465,10 @@
 .quickToolsPage .qtInput:focus,.quickToolsPage .qtTextarea:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px var(--acs)}
 @media(max-width:560px){.ui-spotlight-surface::after{background:radial-gradient(220px circle at var(--ui-spotlight-x,50%) var(--ui-spotlight-y,50%),color-mix(in srgb,var(--ac) 8%,transparent),transparent 72%)}}
 @media(prefers-reduced-motion:reduce){.ui-spotlight-surface::after,.adminDashboard .adminStats>*,.igPage .igStats>*,.quickToolsPage .qtSidebar button{transition:none!important}.adminDashboard .adminStats>*:hover,.igPage .igStats>*:hover,.quickToolsPage .qtSidebar button:hover{transform:none}}
+
+
+/* Steam game covers: consistent poster frames without stretching or cropping artwork. */
+.steamGameImage{width:100%;aspect-ratio:3/4;object-fit:contain;object-position:center;background:linear-gradient(160deg,var(--s2),var(--bg));padding:0;border-bottom:1px solid var(--bd)}
+.steamCardBody h2{white-space:pre-line;overflow-wrap:anywhere;word-break:normal;line-height:1.4}
+.adminForm .steamTitleInput{width:100%;min-height:112px;resize:vertical;border:1px solid var(--bd);border-radius:7px;background:var(--bg);padding:11px 12px;color:var(--tx);font:inherit;line-height:1.6;outline:none}
+.adminForm .steamTitleInput:focus{border-color:var(--ac);box-shadow:0 0 0 2px var(--acs)}
