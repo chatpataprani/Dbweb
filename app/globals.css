@@ -670,3 +670,10 @@
   .steamPage .steamPromo a:hover,.steamPage .steamRefresh:hover,.steamPage .steamSearchClear:hover{transform:none}
   .steamPage .steamSpotlightCard:hover .steamGameImage{transform:none}
 }
+
+
+/* Responsive site footer */
+.siteFooter{margin:18px auto 0;max-width:1040px;width:calc(100% - 32px);background:#0b0b0c;color:#e8e8eb;border:1px solid #242427;border-radius:16px;padding:30px 28px 20px}
+.footerBrand{display:flex;align-items:center;gap:12px;margin-bottom:28px}.footerLogo{width:42px;height:42px;border-radius:10px;background:#f5f5f5;color:#111;display:grid;place-items:center;font-size:24px;font-weight:800}.footerBrand strong{font-size:19px}.footerBrand p{color:#9a9aa2;font-size:13px;margin-top:3px}
+.footerColumns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px}.footerColumns section{display:flex;flex-direction:column;align-items:flex-start;gap:12px}.footerColumns h3{font-size:14px;color:#fff;margin:0 0 3px}.footerColumns a,.footerColumns button{font:inherit;font-size:14px;color:#b9b9c1;text-decoration:none;border:0;background:none;padding:0;text-align:left;cursor:pointer}.footerColumns a:hover,.footerColumns button:hover{color:#fff}.footerBottom{border-top:1px solid #29292d;margin-top:28px;padding-top:15px;display:flex;justify-content:space-between;gap:12px;color:#85858e;font-size:12px}
+@media(max-width:600px){.siteFooter{width:calc(100% - 24px);padding:24px 20px 18px;margin-top:12px;border-radius:14px}.footerColumns{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:28px;column-gap:18px}.footerBottom{flex-direction:column;gap:5px}.footerBrand{margin-bottom:25px}}
