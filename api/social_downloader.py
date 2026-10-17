@@ -45,38 +45,56 @@ def facebook(url):
     return {"status": "success", "title": data.get("title", "Facebook video"), "author": data.get("author"), "thumbnail": data.get("thumbnail"), "items": items}
 
 def instagram(url):
-    session = requests.Session()
-    ua = generate_user_agent()
-    page = session.get("https://snapdownloader.com/tools/instagram-reels-downloader/download",
-        headers={"User-Agent": ua, "Accept": "text/html,application/xhtml+xml", "Accept-Language": "en-US,en;q=0.9"}, timeout=TIMEOUT)
-    page.raise_for_status()
-    soup = BeautifulSoup(page.text, "html.parser")
-    token_tag = soup.find("meta", attrs={"name": "csrf-token"})
-    if not token_tag or not token_tag.get("content"):
-        return error_result("The Instagram provider changed its page; this downloader is temporarily unavailable.")
-    api_tag = soup.find("meta", attrs={"name": "api-fetch-url"})
-    api_url = api_tag.get("content") if api_tag else "https://grabgram.io/api/fetch/instagram"
-    response = session.post(api_url,
-        headers={"User-Agent": ua, "Accept": "application/json", "Content-Type": "application/json",
-                 "X-CSRF-TOKEN": token_tag["content"], "X-Requested-With": "XMLHttpRequest",
-                 "Origin": "https://grabgram.io", "Referer": "https://grabgram.io/en/instagram-reels-downloader"},
-        json={"url": url, "tool": "reels"}, timeout=TIMEOUT)
-    response.raise_for_status()
-    payload = response.json()
-    if not payload.get("ok"):
-        return error_result(payload.get("error") or "Instagram could not return public media for this link.")
-    data = payload.get("data") or {}
-    items = []
-    for entry in data.get("items", []):
-        for download in entry.get("downloads", []):
-            if download.get("url"):
-                items.append(media_item(data.get("caption") or "Instagram media", download["url"],
-                    download.get("label") or download.get("ext") or "Original", entry.get("kind", "media")))
+    # Do not depend on SnapDownloader's old /download route: it now returns 404.
+    # yt-dlp extracts media directly from public Instagram posts/reels where available.
+    options = {
+        "quiet": True,
+        "no_warnings": True,
+        "skip_download": True,
+        "noplaylist": True,
+        "socket_timeout": TIMEOUT,
+        "extractor_retries": 1,
+        "format": "best",
+    }
+    try:
+        with yt_dlp.YoutubeDL(options) as ydl:
+            info = ydl.extract_info(url, download=False)
+    except Exception as exc:
+        message = str(exc).lower()
+        if "login" in message or "cookie" in message or "private" in message:
+            return error_result("Instagram could not access this post. Only publicly accessible posts and Reels are supported; login-required content will not work.")
+        return error_result("Instagram could not provide this media. Check that the post/Reel is public and try again.")
+    entries = info.get("entries") or [info]
+    items, seen = [], set()
+    for entry in entries:
+        if not entry:
+            continue
+        formats = entry.get("formats") or [entry]
+        for media in formats:
+            link = media.get("url")
+            if not link or link in seen or media.get("vcodec") == "none":
+                continue
+            seen.add(link)
+            items.append(media_item(
+                entry.get("title") or info.get("title") or "Instagram media",
+                link,
+                media.get("format_note") or media.get("resolution") or "Original",
+                "video" if media.get("vcodec") not in (None, "none") else "image",
+                entry.get("thumbnail") or info.get("thumbnail"),
+            ))
+            if len(items) >= 12:
                 break
+        if len(items) >= 12:
+            break
     if not items:
-        return error_result("No public downloadable media was found for this Instagram link.")
-    user = data.get("user") or {}
-    return {"status": "success", "title": data.get("caption") or "Instagram media", "author": user.get("username"), "items": items}
+        return error_result("No downloadable media was found. The Instagram post may be private, removed, or unavailable to public access.")
+    return {
+        "status": "success",
+        "title": info.get("title") or "Instagram media",
+        "author": info.get("uploader") or info.get("channel"),
+        "thumbnail": info.get("thumbnail"),
+        "items": items,
+    }
 
 def snapchat(url):
     response = requests.post("https://www.expertstool.com/converter.php",
