@@ -45,18 +45,13 @@ def facebook(url):
     return {"status": "success", "title": data.get("title", "Facebook video"), "author": data.get("author"), "thumbnail": data.get("thumbnail"), "items": items}
 
 def instagram(url):
-    # Instagram often blocks anonymous server requests. Try yt-dlp with alternate
-    # extractor settings, then fall back to public Open Graph media if available.
+    # Try yt-dlp first. Instagram increasingly restricts anonymous datacenter requests.
     last_error = ""
     for client in (None, "web"):
         options = {
-            "quiet": True,
-            "no_warnings": True,
-            "skip_download": True,
-            "noplaylist": True,
-            "socket_timeout": TIMEOUT,
-            "extractor_retries": 1,
-            "format": "best",
+            "quiet": True, "no_warnings": True, "skip_download": True,
+            "noplaylist": True, "socket_timeout": TIMEOUT,
+            "extractor_retries": 1, "format": "best",
         }
         if client:
             options["extractor_args"] = {"instagram": {"api": [client]}}
@@ -69,16 +64,14 @@ def instagram(url):
                 for entry in entries:
                     if not entry:
                         continue
-                    formats = entry.get("formats") or [entry]
-                    for media in formats:
+                    for media in (entry.get("formats") or [entry]):
                         link = media.get("url")
                         if not link or link in seen or media.get("vcodec") == "none":
                             continue
                         seen.add(link)
                         items.append(media_item(
                             entry.get("title") or info.get("title") or "Instagram media",
-                            link,
-                            media.get("format_note") or media.get("resolution") or "Original",
+                            link, media.get("format_note") or media.get("resolution") or "Original",
                             "video" if media.get("vcodec") not in (None, "none") else "image",
                             entry.get("thumbnail") or info.get("thumbnail"),
                         ))
@@ -87,48 +80,67 @@ def instagram(url):
                     if len(items) >= 12:
                         break
                 if items:
-                    return {
-                        "status": "success",
-                        "title": info.get("title") or "Instagram media",
-                        "author": info.get("uploader") or info.get("channel"),
-                        "thumbnail": info.get("thumbnail"),
-                        "items": items,
-                    }
+                    return {"status": "success", "title": info.get("title") or "Instagram media",
+                            "author": info.get("uploader") or info.get("channel"),
+                            "thumbnail": info.get("thumbnail"), "items": items}
         except Exception as exc:
             last_error = str(exc).lower()
 
-    # Public page metadata fallback; this does not bypass private/login-only content.
+    # Fallback to Instagram's public embed page for posts that expose embed metadata.
+    # This does not bypass private posts, login walls, or other access controls.
     try:
-        response = requests.get(
-            url,
-            headers={
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-                "Accept": "text/html,application/xhtml+xml",
-                "Accept-Language": "en-US,en;q=0.8",
-            },
-            timeout=TIMEOUT,
-        )
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, "html.parser")
-        def meta(*keys):
-            for key in keys:
-                tag = soup.find("meta", attrs={"property": key}) or soup.find("meta", attrs={"name": key})
-                if tag and tag.get("content"):
-                    return tag["content"]
-            return None
-        title = meta("og:title", "twitter:title") or "Instagram media"
-        video = meta("og:video", "og:video:secure_url", "twitter:player:stream")
-        image_url = meta("og:image", "twitter:image")
-        if video and video.startswith("https://"):
-            return {"status": "success", "title": title, "items": [media_item(title, video, "Original", "video", image_url)]}
-        if image_url and image_url.startswith("https://"):
-            return {"status": "success", "title": title, "items": [media_item(title, image_url, "Original", "image", image_url)]}
+        parsed = urlparse(url)
+        match = re.search(r"/(?:p|reel|tv)/([A-Za-z0-9_-]+)", parsed.path)
+        paths = [url]
+        if match:
+            shortcode = match.group(1)
+            for kind in ("p", "reel", "tv"):
+                paths.append(f"https://www.instagram.com/{kind}/{shortcode}/embed/captioned/")
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml",
+            "Accept-Language": "en-US,en;q=0.8",
+        }
+        for page_url in paths:
+            response = requests.get(page_url, headers=headers, timeout=TIMEOUT, allow_redirects=True)
+            if response.status_code >= 400:
+                continue
+            html = response.text
+            soup = BeautifulSoup(html, "html.parser")
+            def meta(*keys):
+                for key in keys:
+                    tag = soup.find("meta", attrs={"property": key}) or soup.find("meta", attrs={"name": key})
+                    if tag and tag.get("content"):
+                        return tag["content"]
+                return None
+            title = meta("og:title", "twitter:title") or "Instagram media"
+            thumbnail = meta("og:image", "twitter:image")
+            video = meta("og:video", "og:video:secure_url", "twitter:player:stream")
+            if not video:
+                source = soup.find("video")
+                if source:
+                    video = source.get("src") or (source.find("source").get("src") if source.find("source") else None)
+            # Instagram embed HTML sometimes contains JSON-escaped media URLs rather than tags.
+            if not video:
+                match_video = re.search(r'"video_url"\\s*:\\s*"([^"]+)"', html)
+                if match_video:
+                    video = match_video.group(1).replace("\\u0026", "&").replace("\\/", "/").replace("\\u003D", "=")
+            if not thumbnail:
+                match_image = re.search(r'"display_url"\\s*:\\s*"([^"]+)"', html)
+                if match_image:
+                    thumbnail = match_image.group(1).replace("\\u0026", "&").replace("\\/", "/").replace("\\u003D", "=")
+            if video and video.startswith("https://"):
+                return {"status": "success", "title": title,
+                        "items": [media_item(title, video, "Original", "video", thumbnail)]}
+            if thumbnail and thumbnail.startswith("https://"):
+                return {"status": "success", "title": title,
+                        "items": [media_item(title, thumbnail, "Original", "image", thumbnail)]}
     except Exception:
         pass
 
     if any(term in last_error for term in ("login", "cookie", "private", "sign in")):
-        return error_result("Instagram requires login or is restricting server access to this post. Only public media accessible without login can be downloaded.")
-    return error_result("Instagram did not expose downloadable media. The post may be private, restricted, or Instagram may be blocking server requests.")
+        return error_result("Instagram requires login or is restricting access. Only public media accessible without login can be downloaded.")
+    return error_result("Instagram did not expose media through its extractor or public embed page. The post may be restricted, or Instagram may be blocking server requests.")
 
 def snapchat(url):
     response = requests.post("https://www.expertstool.com/converter.php",
