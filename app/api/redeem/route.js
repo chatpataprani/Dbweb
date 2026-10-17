@@ -8,13 +8,19 @@ export async function POST(request){
   const {code}=await request.json();if(typeof code!=="string"||code.trim().length<6||code.trim().length>100)return NextResponse.json({error:"Enter a valid redeem code."},{status:400});
   const db=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY,{auth:{autoRefreshToken:false,persistSession:false}});
   const {error:initError}=await db.from("device_accounts").upsert({device_id:id},{onConflict:"device_id",ignoreDuplicates:true});if(initError)throw initError;
-  // redeem_device_code expects the SHA-256 hex digest, matching the admin code-creation route.
-  const codeHash=createHash("sha256").update(code.trim().toLowerCase()).digest("hex");
-  const {data,error}=await db.rpc("redeem_device_code",{p_device_id:id,p_code:codeHash});
+  // Support both deployed RPC versions: some expect the SHA-256 digest,
+  // while older versions hash the raw code inside PostgreSQL.
+  const normalizedCode=code.trim().toLowerCase();
+  const codeHash=createHash("sha256").update(normalizedCode).digest("hex");
+  let result=await db.rpc("redeem_device_code",{p_device_id:id,p_code:codeHash});
+  if(result.error && /invalid code/i.test(result.error.message)){
+   result=await db.rpc("redeem_device_code",{p_device_id:id,p_code:normalizedCode});
+  }
+  const {data,error}=result;
   if(error){
    console.error("Redeem RPC failed:",error.message);
    const message=error.message.toLowerCase();
-   return NextResponse.json({error:message.includes("already redeemed")?"This device has already redeemed this code.":message.includes("expired")?"This code is expired.":message.includes("usage limit")?"This code has reached its usage limit.":message.includes("invalid")?"That redeem code is invalid or inactive.":"Could not redeem this code."},{status:400});
+   return NextResponse.json({error:message.includes("already redeemed")?"This device has already redeemed this code.":message.includes("expired")?"This code is expired.":message.includes("usage limit")?"This code has reached its usage limit.":message.includes("invalid")?"That redeem code is invalid or inactive.": "Redeem failed: "+error.message.slice(0,180)},{status:400});
   }
   return NextResponse.json({ok:true,message:data?.message||"Code redeemed successfully."});
  }catch(e){console.error("Redeem API failed:",e);return NextResponse.json({error:"Redeem service is temporarily unavailable. Please try again."},{status:500});}
