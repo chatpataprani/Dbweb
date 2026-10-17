@@ -125,10 +125,36 @@ def pinterest(url):
     return error_result("No public downloadable Pinterest media was found.")
 
 def youtube(url):
-    options = {"quiet": True, "no_warnings": True, "skip_download": True, "noplaylist": True,
-               "socket_timeout": TIMEOUT, "extractor_retries": 1, "format": "best[ext=mp4]/best"}
-    with yt_dlp.YoutubeDL(options) as ydl:
-        info = ydl.extract_info(url, download=False)
+    # YouTube may challenge datacenter IPs. Try a few extractor clients before failing.
+    base_options = {
+        "quiet": True,
+        "no_warnings": True,
+        "skip_download": True,
+        "noplaylist": True,
+        "socket_timeout": TIMEOUT,
+        "extractor_retries": 1,
+        "format": "best[ext=mp4]/best",
+    }
+    info = None
+    last_error = None
+    for client in ("android_vr", "ios", "web_safari"):
+        options = dict(base_options)
+        options["extractor_args"] = {"youtube": {"player_client": [client]}}
+        try:
+            with yt_dlp.YoutubeDL(options) as ydl:
+                info = ydl.extract_info(url, download=False)
+            if info:
+                break
+        except Exception as exc:
+            last_error = str(exc).lower()
+    if not info:
+        if last_error and any(term in last_error for term in ("sign in to confirm", "not a bot", "cookies", "bot")):
+            return error_result(
+                "YouTube is blocking automated requests from the server for this video. "
+                "Tried alternate public extractor clients, but YouTube still requires verification. "
+                "Try another public video later; login-required videos are not supported."
+            )
+        return error_result("YouTube could not provide this video right now. It may be private, age-restricted, or temporarily unavailable.")
     items, seen = [], set()
     for media in info.get("formats", []):
         link = media.get("url")
