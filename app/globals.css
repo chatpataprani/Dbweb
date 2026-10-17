@@ -273,3 +273,195 @@
 .steamCard{border-radius:18px;box-shadow:0 8px 30px #00000008;transition:transform .2s,box-shadow .2s,border-color .2s}.steamCard:hover{transform:translateY(-3px);box-shadow:0 15px 38px #00000012;border-color:var(--ac)}.steamGameImage{aspect-ratio:16/9;transition:transform .25s}.steamCard:hover .steamGameImage{transform:scale(1.015)}.steamPremiumGate{display:flex;flex-direction:column;align-items:center;text-align:center;gap:9px;margin-top:10px;padding:20px 14px;border:1px solid var(--bd);border-radius:14px;background:linear-gradient(145deg,var(--s2),var(--s1))}.steamLock,.steamPromoIcon{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:var(--acs);color:var(--ac)}.steamPremiumGate strong{font-size:14px}.steamPremiumGate p,.steamPromo p{font-size:12px;line-height:1.6;color:var(--mu);margin:0}.steamBuyButton{display:inline-flex;align-items:center;justify-content:center;gap:7px;margin-top:4px;padding:11px 15px;border-radius:11px;background:var(--ac);color:white;text-decoration:none;font-weight:750;font-size:13px}.steamPromo{display:flex;align-items:center;gap:14px;margin-top:24px;padding:20px;border:1px solid var(--bd);border-radius:18px;background:var(--s1)}.steamPromo>div:nth-child(2){flex:1}.steamPromo h2{font-size:16px;margin:0 0 5px}.steamPromo>a{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 14px;border-radius:11px;background:var(--ac);color:white;text-decoration:none;font-size:12px;font-weight:750;white-space:nowrap}@media(max-width:520px){.steamPromo{align-items:flex-start;flex-wrap:wrap;padding:16px}.steamPromo>a{width:100%}.steamPremiumGate{padding:18px 12px}}
 
 .steamSearch{display:flex;align-items:center;gap:10px;margin:0 0 20px;padding:0 13px;min-height:50px;border:1px solid var(--bd);border-radius:14px;background:var(--s1);color:var(--mu);box-shadow:0 5px 20px #00000005}.steamSearch:focus-within{border-color:var(--ac);box-shadow:0 0 0 3px var(--acs)}.steamSearch input{flex:1;min-width:0;height:48px;border:0;outline:0;background:transparent;color:var(--tx);font:inherit;font-size:14px}.steamSearch input::placeholder{color:var(--mu);opacity:.8}.steamSearchCount{white-space:nowrap;font-size:11px;color:var(--mu)}.steamSearchClear{display:grid;place-items:center;width:30px;height:30px;border:1px solid var(--bd);border-radius:9px;background:var(--s2);color:var(--tx);cursor:pointer}@media(max-width:420px){.steamSearch{gap:7px;padding:0 10px}.steamSearch input{font-size:12px}.steamSearchCount{font-size:10px}}
+
+
+/* Website polish: tool directory only; intentionally isolated from Dbweb Lab */
+.toolHub{--hub-glow:color-mix(in srgb,var(--ac) 14%,transparent);padding:12px 0 48px}
+.toolHubHero{position:relative;isolation:isolate;overflow:hidden;padding:clamp(22px,4vw,38px);border-radius:24px;background:radial-gradient(ellipse at 88% 8%,var(--hub-glow),transparent 38%),radial-gradient(ellipse at 8% 100%,color-mix(in srgb,var(--ac) 7%,transparent),transparent 42%),var(--s1);box-shadow:0 14px 45px #00000008}
+.toolHubHero:after{content:"";position:absolute;z-index:-1;inset:0;pointer-events:none;background-image:linear-gradient(color-mix(in srgb,var(--bd) 28%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--bd) 28%,transparent) 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(110deg,transparent 8%,#000 100%);opacity:.45}
+.toolHubEyebrow{width:max-content;padding:7px 10px;border:1px solid color-mix(in srgb,var(--ac) 22%,var(--bd));border-radius:999px;background:color-mix(in srgb,var(--acs) 70%,transparent);letter-spacing:1.3px}
+.toolHubHero h1{max-width:680px;font-size:clamp(32px,5vw,52px);line-height:1.04;letter-spacing:-2px;margin:17px 0 12px;text-wrap:balance}
+.toolHubHero p{font-size:14px;line-height:1.75;max-width:540px}
+.toolHubSearch{max-width:640px;margin-top:25px;height:54px;border-radius:14px;background:var(--s1);box-shadow:0 8px 26px #00000008;transition:border-color .18s,box-shadow .18s,transform .18s}
+.toolHubSearch:focus-within{transform:translateY(-1px);box-shadow:0 0 0 3px var(--acs),0 12px 30px #0000000a}
+.toolHubFilters{gap:8px;margin:22px 0 15px}
+.toolHubFilters button{font-size:12px;font-weight:650;padding:9px 14px;transition:background .18s,color .18s,border-color .18s,transform .18s}
+.toolHubFilters button:hover{transform:translateY(-1px);border-color:var(--ac);color:var(--tx)}
+.toolHubFilters button.active{box-shadow:0 3px 12px color-mix(in srgb,var(--ac) 12%,transparent)}
+.toolHubCount{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:650;margin:0 0 13px}
+.toolHubCount:before{content:"";display:block;width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px color-mix(in srgb,var(--ok) 12%,transparent)}
+.toolHubGrid{gap:14px}
+.toolHubCard{min-height:150px;padding:18px;border-radius:17px;overflow:hidden;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease,background .22s ease}
+.toolHubCard:before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(220px circle at var(--pointer-x,50%) var(--pointer-y,0%),var(--hub-glow),transparent 70%);opacity:0;transition:opacity .2s}
+.toolHubCard:hover{transform:translateY(-4px);box-shadow:0 14px 35px #0000000d;border-color:color-mix(in srgb,var(--ac) 60%,var(--bd))}
+.toolHubCard:hover:before{opacity:1}
+.toolHubIcon{flex-basis:44px;width:44px;height:44px;border-radius:13px;background:color-mix(in srgb,var(--acs) 55%,var(--s1));transition:transform .2s,border-color .2s}
+.toolHubCard:hover .toolHubIcon{transform:translateY(-2px) scale(1.04);border-color:color-mix(in srgb,var(--ac) 45%,var(--bd))}
+.toolHubCardText{gap:7px}
+.toolHubCardText small{font-weight:750;letter-spacing:1px}
+.toolHubCardText strong{font-size:14px;letter-spacing:-.15px;padding-right:8px}
+.toolHubCardText>span{font-size:12px;line-height:1.65}
+.toolHubArrow{transition:transform .2s,color .2s}
+.toolHubCard:hover .toolHubArrow{transform:translate(2px,-2px);color:var(--ac);opacity:1}
+.toolHubCard:focus-visible,.toolHubFilters button:focus-visible,.toolHubSearch:focus-within{outline:none}
+.toolHubCard:focus-visible,.toolHubFilters button:focus-visible{box-shadow:0 0 0 3px var(--acs);border-color:var(--ac)}
+.toolHubEmpty{border-radius:18px;background:var(--s1)}
+@media(max-width:700px){.toolHub{padding-top:4px}.toolHubHero{border-radius:19px}.toolHubHero h1{letter-spacing:-1.3px}.toolHubGrid{gap:10px}.toolHubCard{min-height:140px;padding:14px;gap:10px}.toolHubIcon{flex-basis:38px;width:38px;height:38px}.toolHubIcon svg{width:18px;height:18px}}
+@media(max-width:560px){.toolHubGrid{grid-template-columns:1fr}.toolHubCard{min-height:0;padding:15px}.toolHubHero p{font-size:13px}.toolHubFilters{flex-wrap:nowrap;overflow-x:auto;padding:2px 1px 8px;scrollbar-width:thin}.toolHubFilters button{flex:0 0 auto}.toolHubCardText>span{max-width:54ch}}
+@media(prefers-reduced-motion:reduce){.toolHubCard,.toolHubIcon,.toolHubArrow,.toolHubFilters button,.toolHubSearch{transition:none!important}.toolHubCard:hover,.toolHubFilters button:hover,.toolHubSearch:focus-within{transform:none}}
+
+
+/* Main Dbweb workspace polish — excludes the Photo Studio / Dbweb Lab */
+.app{background:transparent;gap:0}
+.app>aside{position:sticky;top:0;height:100dvh;overflow-y:auto;background:color-mix(in srgb,var(--s1) 94%,transparent);backdrop-filter:blur(16px);border-right-color:color-mix(in srgb,var(--bd) 78%,transparent)}
+.app .brandIcon{border-radius:10px;box-shadow:0 5px 14px color-mix(in srgb,var(--ac) 25%,transparent)}
+.app .nav{border-radius:10px;transition:background .18s,color .18s,transform .18s}
+.app .nav:hover{transform:translateX(2px)}
+.app main{padding-top:34px}
+.app header{align-items:center;margin-bottom:24px}
+.app header h1{font-size:clamp(22px,3vw,29px);letter-spacing:-.8px}
+.app .creditPill{box-shadow:0 4px 15px #00000006;font-weight:650}
+.app .card{border-radius:16px;box-shadow:0 7px 25px #00000005;transition:border-color .18s,box-shadow .18s}
+.app .card:focus-within{border-color:color-mix(in srgb,var(--ac) 48%,var(--bd))}
+.app .primary,.app .secondary{border-radius:10px;font-weight:650;transition:transform .16s,box-shadow .16s,background .16s}
+.app .primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 7px 18px color-mix(in srgb,var(--ac) 22%,transparent)}
+.app .secondary:hover:not(:disabled){border-color:var(--ac);transform:translateY(-1px)}
+.app .lookupForm input,.app .auth input{border-radius:10px;transition:border-color .18s,box-shadow .18s}
+.app .seg{border-radius:10px;padding:4px}
+.app .seg button{border-radius:8px;font-weight:600}
+.app .plan{border-radius:14px;transition:transform .18s,border-color .18s,box-shadow .18s}
+.app .plan:hover{transform:translateY(-2px);border-color:var(--ac);box-shadow:0 8px 20px #00000008}
+.app .historyRow{border-radius:11px;transition:background .16s}
+.app .historyRow:hover{background:var(--s2)}
+@media(max-width:760px){.app{grid-template-columns:1fr}.app>aside{position:relative;top:auto;height:auto;max-height:none;border-right:0;border-bottom:1px solid var(--bd);padding:10px 12px}.app main{padding:22px 16px 40px}.app header{align-items:flex-start}.app .card{padding:15px}}
+@media(max-width:420px){.app main{padding:18px 12px 32px}.app header{gap:10px}.app header h1{font-size:22px}.app .lookupForm{flex-direction:column}.app .lookupForm .primary{width:100%}}
+@media(prefers-reduced-motion:reduce){.app .nav,.app .card,.app .primary,.app .secondary,.app .plan,.app .historyRow{transition:none!important}.app .nav:hover,.app .primary:hover:not(:disabled),.app .secondary:hover:not(:disabled),.app .plan:hover{transform:none}}
+
+
+/* Route-specific polish for Dbweb pages outside Dbweb Lab / Photo Studio.
+   Keep selectors page-prefixed so the editor remains visually untouched. */
+.adminDashboard{max-width:1180px;margin-inline:auto}
+.adminDashboard .adminTopActions{gap:10px;flex-wrap:wrap}
+.adminDashboard .adminStats{gap:12px}
+.adminDashboard .adminStats>*{border-radius:15px;box-shadow:0 6px 22px #00000006}
+.adminDashboard .adminTabs{gap:7px;overflow-x:auto;padding:3px 1px 8px;scrollbar-width:thin}
+.adminDashboard .adminTabs>*{flex:0 0 auto;border-radius:10px;transition:background .18s,border-color .18s,transform .18s}
+.adminDashboard .adminTabs>*:hover{transform:translateY(-1px)}
+.adminDashboard .adminSectionHead{gap:14px;flex-wrap:wrap}
+.adminDashboard .adminFilters{gap:10px;flex-wrap:wrap}
+.adminDashboard .adminSearch{min-width:0;border-radius:11px}
+.adminDashboard .adminList{gap:10px}
+.adminDashboard .adminItem,.adminDashboard .adminDevice,.adminDashboard .adminPaymentInfo{border-radius:13px;transition:border-color .18s,box-shadow .18s,background .18s}
+.adminDashboard .adminItem:hover,.adminDashboard .adminDevice:hover{border-color:color-mix(in srgb,var(--ac) 38%,var(--bd));box-shadow:0 7px 20px #00000007}
+.adminDashboard .adminForm{gap:12px}
+.adminDashboard .adminForm input,.adminDashboard .adminForm select,.adminDashboard .adminForm textarea,.adminDashboard .adminSearch input{min-width:0;border-radius:10px}
+.adminDashboard .adminTwoCol{gap:16px}
+.adminDashboard .adminNotice{border-radius:12px}
+@media(max-width:640px){.adminDashboard .adminTopActions>*{flex:1 1 auto}.adminDashboard .adminTwoCol{grid-template-columns:minmax(0,1fr)}.adminDashboard .adminSectionHead{align-items:flex-start}.adminDashboard .adminItem{overflow-wrap:anywhere}}
+
+.bgRemovePage{--bg-accent:var(--ac);max-width:1180px;margin-inline:auto}
+.bgRemovePage .bgTopbar{backdrop-filter:blur(14px)}
+.bgRemovePage .bgHero{border-radius:24px;overflow:hidden}
+.bgRemovePage .bgWorkspace{border-radius:20px;box-shadow:0 12px 36px #00000008}
+.bgRemovePage .bgDropzone{border-radius:17px;transition:border-color .2s,background .2s,transform .2s}
+.bgRemovePage .bgDropzone:hover{transform:translateY(-1px);border-color:var(--ac);background:color-mix(in srgb,var(--acs) 22%,var(--s1))}
+.bgRemovePage .bgPreviewWrap{border-radius:16px;overflow:hidden}
+.bgRemovePage .bgPrimary,.bgRemovePage .bgSecondary,.bgRemovePage .bgChooseButton{border-radius:11px;transition:transform .16s,box-shadow .16s}
+.bgRemovePage .bgPrimary:hover,.bgRemovePage .bgSecondary:hover,.bgRemovePage .bgChooseButton:hover{transform:translateY(-1px)}
+.bgRemovePage .bgInfoGrid{gap:12px}
+.bgRemovePage .bgInfoGrid>*{border-radius:14px}
+.bgRemovePage .bgFooter{line-height:1.75}
+
+.streamPage{max-width:1240px;margin-inline:auto}
+.streamPage .streamHero{position:relative;isolation:isolate;overflow:hidden;border-radius:24px;background-image:radial-gradient(ellipse at 85% 0%,color-mix(in srgb,var(--ac) 15%,transparent),transparent 45%)}
+.streamPage .streamSearch{border-radius:15px;box-shadow:0 7px 25px #00000007;transition:border-color .18s,box-shadow .18s}
+.streamPage .streamSearch:focus-within{box-shadow:0 0 0 3px var(--acs),0 10px 28px #00000008}
+.streamPage .streamTabs{gap:7px;overflow-x:auto;scrollbar-width:thin}
+.streamPage .streamTabs button{border-radius:10px;white-space:nowrap;transition:background .18s,color .18s,transform .18s}
+.streamPage .streamTabs button:hover{transform:translateY(-1px)}
+.streamPage .streamGrid{gap:15px}
+.streamPage .streamCard{border-radius:17px;box-shadow:0 8px 26px #00000007;transition:transform .2s,border-color .2s,box-shadow .2s}
+.streamPage .streamCard:hover{transform:translateY(-4px);box-shadow:0 15px 36px #00000012}
+.streamPage .streamPosterButton{overflow:hidden}
+.streamPage .streamPosterButton img{transition:transform .35s ease}
+.streamPage .streamCard:hover .streamPosterButton img{transform:scale(1.035)}
+.streamPage .streamModal{border-radius:22px;box-shadow:0 24px 90px #00000035}
+.streamPage .streamModalClose{border-radius:10px}
+@media(prefers-reduced-motion:reduce){.streamPage .streamCard,.streamPage .streamPosterButton img,.streamPage .streamTabs button{transition:none!important}.streamPage .streamCard:hover,.streamPage .streamTabs button:hover{transform:none}}
+
+.steamPage .steamMark{box-shadow:0 7px 22px #00000008}
+.steamPage .steamCard{border-radius:18px;box-shadow:0 8px 30px #00000008;transition:transform .2s,box-shadow .2s,border-color .2s}
+.steamPage .steamCard:hover{transform:translateY(-3px);box-shadow:0 15px 38px #00000012;border-color:var(--ac)}
+.steamPage .steamGameImage{transition:transform .25s}
+.steamPage .steamCard:hover .steamGameImage{transform:scale(1.015)}
+.steamPage .steamCredential{gap:10px}
+.steamPage .steamPremiumGate{border-radius:16px}
+.steamPage .steamBuyButton,.steamPage .steamPromo>a{border-radius:11px;transition:transform .16s,box-shadow .16s}
+.steamPage .steamBuyButton:hover,.steamPage .steamPromo>a:hover{transform:translateY(-1px);box-shadow:0 8px 20px color-mix(in srgb,var(--ac) 20%,transparent)}
+@media(prefers-reduced-motion:reduce){.steamPage .steamCard,.steamPage .steamGameImage,.steamPage .steamBuyButton,.steamPage .steamPromo>a{transition:none!important}.steamPage .steamCard:hover,.steamPage .steamBuyButton:hover,.steamPage .steamPromo>a:hover{transform:none}}
+
+.igPage{max-width:1100px;margin-inline:auto}
+.igPage .igHero{border-radius:22px;overflow:hidden;background-image:radial-gradient(ellipse at 90% 0%,color-mix(in srgb,var(--ac) 13%,transparent),transparent 48%)}
+.igPage .igSearch{border-radius:14px;transition:border-color .18s,box-shadow .18s}
+.igPage .igSearch:focus-within{box-shadow:0 0 0 3px var(--acs)}
+.igPage .igProfileHead{gap:18px;flex-wrap:wrap}
+.igPage .igAvatar{box-shadow:0 7px 22px #00000012}
+.igPage .igStats{gap:10px}
+.igPage .igStats>*{border-radius:13px}
+.igPage .igPhotoLink,.igPage .igOpenProfile{border-radius:10px;transition:transform .16s,box-shadow .16s}
+.igPage .igPhotoLink:hover,.igPage .igOpenProfile:hover{transform:translateY(-1px)}
+.igPage .shortDestination{overflow-wrap:anywhere}
+.igPage .shortChain{gap:10px}
+.igPage .shortHop{overflow-wrap:anywhere;border-radius:11px}
+@media(max-width:560px){.igPage .igProfileHead{align-items:flex-start}.igPage .igStats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.quickToolsPage{max-width:1180px;margin-inline:auto}
+.quickToolsPage .qtHero{border-radius:22px;overflow:hidden;background-image:radial-gradient(ellipse at 90% 0%,color-mix(in srgb,var(--ac) 13%,transparent),transparent 48%)}
+.quickToolsPage .qtLayout{gap:16px}
+.quickToolsPage .qtSidebar,.quickToolsPage .qtWorkspace{border-radius:17px}
+.quickToolsPage .qtSidebar{position:sticky;top:14px;align-self:start}
+.quickToolsPage .qtWorkspace{box-shadow:0 9px 30px #00000006}
+.quickToolsPage .qtInput,.quickToolsPage .qtTextarea,.quickToolsPage .qtPreview{border-radius:11px}
+.quickToolsPage .qtTextarea{line-height:1.7;resize:vertical}
+.quickToolsPage .qtPrimary,.quickToolsPage .qtSecondary{border-radius:10px;transition:transform .16s,box-shadow .16s}
+.quickToolsPage .qtPrimary:hover,.quickToolsPage .qtSecondary:hover{transform:translateY(-1px)}
+.quickToolsPage .qtBottomGrid{gap:12px}
+.quickToolsPage .qtSuggestion{border-radius:13px;transition:transform .18s,border-color .18s,box-shadow .18s}
+.quickToolsPage .qtSuggestion:hover{transform:translateY(-2px);border-color:var(--ac);box-shadow:0 8px 22px #00000008}
+@media(max-width:760px){.quickToolsPage .qtSidebar{position:static}.quickToolsPage .qtLayout{grid-template-columns:minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){.quickToolsPage .qtPrimary,.quickToolsPage .qtSecondary,.quickToolsPage .qtSuggestion{transition:none!important}.quickToolsPage .qtPrimary:hover,.quickToolsPage .qtSecondary:hover,.quickToolsPage .qtSuggestion:hover{transform:none}}
+
+@media(prefers-reduced-motion:reduce){.adminDashboard .adminTabs>*,.adminDashboard .adminItem,.adminDashboard .adminDevice,.bgRemovePage .bgDropzone,.bgRemovePage .bgPrimary,.bgRemovePage .bgSecondary,.bgRemovePage .bgChooseButton,.igPage .igPhotoLink,.igPage .igOpenProfile{transition:none!important}.adminDashboard .adminTabs>*:hover,.bgRemovePage .bgDropzone:hover,.bgRemovePage .bgPrimary:hover,.bgRemovePage .bgSecondary:hover,.bgRemovePage .bgChooseButton:hover,.igPage .igPhotoLink:hover,.igPage .igOpenProfile:hover{transform:none}}
+
+
+/* Reusable pointer spotlight surfaces — native React/browser implementation.
+   Inspired by Aceternity UI Card Spotlight, Animata interactive cards, and
+   Skiper UI's lightweight CSS hover patterns. This is limited to app routes. */
+.ui-spotlight-surface{position:relative;isolation:isolate}
+.ui-spotlight-surface::after{content:"";position:absolute;z-index:0;inset:0;pointer-events:none;border-radius:inherit;background:radial-gradient(280px circle at var(--ui-spotlight-x,50%) var(--ui-spotlight-y,50%),color-mix(in srgb,var(--ac) 13%,transparent),transparent 72%);opacity:0;transition:opacity .22s ease}
+.ui-spotlight-surface.ui-spotlight-active::after{opacity:1}
+.ui-spotlight-surface>*{position:relative;z-index:1}
+.ui-spotlight-surface:focus-within{outline:2px solid color-mix(in srgb,var(--ac) 45%,transparent);outline-offset:2px}
+
+/* Consistent, component-like states across the remaining app routes. */
+.app .nav:focus-visible,.app button:focus-visible,.app a:focus-visible,
+.adminDashboard button:focus-visible,.bgRemovePage button:focus-visible,
+.streamPage button:focus-visible,.steamPage button:focus-visible,
+.igPage button:focus-visible,.quickToolsPage button:focus-visible{
+  outline:2px solid color-mix(in srgb,var(--ac) 72%,white);outline-offset:3px
+}
+.adminDashboard .adminStats>*{background:linear-gradient(145deg,var(--s1),color-mix(in srgb,var(--acs) 16%,var(--s1)))}
+.adminDashboard .adminStats>*:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--ac) 42%,var(--bd))}
+.bgRemovePage .bgDropzone:focus-within{outline:2px solid color-mix(in srgb,var(--ac) 55%,transparent);outline-offset:3px}
+.streamPage .streamCard{overflow:hidden}
+.streamPage .streamPosterButton:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.streamPage .streamType{backdrop-filter:blur(12px)}
+.steamPage .steamCredential{min-width:0}
+.steamPage .steamCredential>*{min-width:0}
+.igPage .igStats>*{transition:transform .18s,border-color .18s,box-shadow .18s}
+.igPage .igStats>*:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--ac) 38%,var(--bd));box-shadow:0 8px 20px #00000008}
+.quickToolsPage .qtSidebar button{transition:background .16s,color .16s,border-color .16s,transform .16s}
+.quickToolsPage .qtSidebar button:hover{transform:translateX(2px)}
+.quickToolsPage .qtInput:focus,.quickToolsPage .qtTextarea:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px var(--acs)}
+@media(max-width:560px){.ui-spotlight-surface::after{background:radial-gradient(220px circle at var(--ui-spotlight-x,50%) var(--ui-spotlight-y,50%),color-mix(in srgb,var(--ac) 8%,transparent),transparent 72%)}}
+@media(prefers-reduced-motion:reduce){.ui-spotlight-surface::after,.adminDashboard .adminStats>*,.igPage .igStats>*,.quickToolsPage .qtSidebar button{transition:none!important}.adminDashboard .adminStats>*:hover,.igPage .igStats>*:hover,.quickToolsPage .qtSidebar button:hover{transform:none}}
