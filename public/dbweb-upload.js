@@ -10,7 +10,7 @@ function enhance(input,index){
  if(hidden&&!zone&&!trigger)return;
  let card=zone;
  if(!card){card=document.createElement("div");const anchor=trigger||input;anchor.parentNode.insertBefore(card,anchor);if(trigger)trigger.classList.add("dbw-upload-legacy");}
- card.classList.add("dbw-upload-card");
+ card.classList.add("dbw-upload-card");card.removeAttribute("onclick");
  const inputId=input.id||("dbw-file-"+index);input.id=inputId;
  Array.from(card.children).forEach(child=>{if(child!==input&&!child.classList.contains("dbw-upload-preview"))child.classList.add("dbw-upload-legacy");});
  const hero=document.createElement("div");hero.className="dbw-upload-hero";
@@ -33,9 +33,9 @@ function enhance(input,index){
  card.addEventListener("click",event=>{if(event.target.closest("button,a,select,textarea")||event.target===input)return;input.click();});
  card.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();input.click();}});
  card.tabIndex=0;card.setAttribute("role","button");card.setAttribute("aria-label",label.textContent+" "+hint.textContent);
- card.addEventListener("dragover",event=>{event.preventDefault();card.style.background="rgba(0,110,255,.09)";});
+ if(!zone){card.addEventListener("dragover",event=>{event.preventDefault();card.style.background="rgba(0,110,255,.09)";});
  card.addEventListener("dragleave",()=>{card.style.background="";});
- card.addEventListener("drop",event=>{card.style.background="";if(!event.dataTransfer?.files?.length)return;event.preventDefault();try{input.files=event.dataTransfer.files;input.dispatchEvent(new Event("change",{bubbles:true}));}catch{}});
+ card.addEventListener("drop",event=>{card.style.background="";if(!event.dataTransfer?.files?.length)return;event.preventDefault();try{input.files=event.dataTransfer.files;input.dispatchEvent(new Event("change",{bubbles:true}));}catch{}});}
 }
 function init(){document.querySelectorAll('input[type="file"]').forEach((input,index)=>{try{enhance(input,index)}catch(error){console.warn("Dbweb upload UI skipped an input",error)}})}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
