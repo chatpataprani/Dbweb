@@ -233,7 +233,34 @@ export default function InstagramAnalyzerPage() {
       {error && <div className="error" role="alert">{error}</div>}
     </section>
 
-    {busy && <section className="card igLoadingCard"><span className="igLoading large"/><div><strong>Loading public profile</strong><p>Requesting profile details from Instagram…</p></div></section>}
+    {busy && <section className="igSkeletonWrap" role="status" aria-live="polite" aria-label="Loading Instagram profile">
+      <style jsx>{`
+        .igSkeletonWrap{width:100%;max-width:520px;margin:24px auto 0;padding:18px;background:var(--card,#fff);border:1px solid var(--border,#e5e7eb);border-radius:16px;box-shadow:0 8px 28px rgba(15,23,42,.08);color:var(--foreground,#172033)}
+        .igSkeletonHead{display:flex;align-items:center;gap:15px}
+        .igSkeletonAvatar,.igSkeletonLine{background:linear-gradient(120deg,#e5e5e5 30%,#f0f0f0 38%,#f0f0f0 40%,#e5e5e5 48%);background-size:200% 100%;animation:igSkeletonShimmer 1.6s ease-in-out infinite}
+        .igSkeletonAvatar{width:70px;height:70px;flex:0 0 70px;border-radius:50%}
+        .igSkeletonDetails{flex:1;min-width:0;display:grid;gap:10px}
+        .igSkeletonLine{height:10px;border-radius:5px}
+        .igSkeletonTitle{width:min(65%,180px)}
+        .igSkeletonDescription{height:42px;width:100%;margin-top:2px}
+        .igSkeletonStats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}
+        .igSkeletonStat{height:48px;border-radius:9px}
+        .igSkeletonCaption{font-size:13px;line-height:1.5;color:var(--muted-foreground,#64748b);margin:15px 0 0}
+        @keyframes igSkeletonShimmer{to{background-position:-100% 0}}
+        @media(prefers-reduced-motion:reduce){.igSkeletonAvatar,.igSkeletonLine{animation:none}}
+      `}</style>
+      <div className="igSkeletonHead">
+        <div className="igSkeletonAvatar" />
+        <div className="igSkeletonDetails">
+          <div className="igSkeletonLine igSkeletonTitle" />
+          <div className="igSkeletonLine" style={{width:"82%"}} />
+          <div className="igSkeletonLine" style={{width:"54%"}} />
+        </div>
+      </div>
+      <div className="igSkeletonLine igSkeletonDescription" />
+      <div className="igSkeletonStats"><div className="igSkeletonLine igSkeletonStat"/><div className="igSkeletonLine igSkeletonStat"/><div className="igSkeletonLine igSkeletonStat"/></div>
+      <p className="igSkeletonCaption">Loading public profile details…</p>
+    </section>}
 
     {data && <section className="card igResult">
       <div className="igProfileHead">
