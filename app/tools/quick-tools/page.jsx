@@ -207,7 +207,7 @@ export default function QuickToolsPage() {
         </>}
         {active === "image" && <>
           <div className="qtDrop" onClick={() => fileRef.current?.click()} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") fileRef.current?.click(); }}>
-            <Upload size={24}/><strong>{imageFile ? imageFile.name : "Choose an image"}</strong><span>{imageFile ? (imageFile.size / 1024).toFixed(1) + " KB · selected" : "JPG, PNG, WebP or another browser-supported image"}</span>
+            <div className="qtUploadHero"><Upload size={30}/><strong>Browse image to upload!</strong><span>Tap to open your device files · JPG, PNG or WebP</span></div><div className="qtUploadFooter"><FileImage size={19}/><span>{imageFile ? imageFile.name + " · " + (imageFile.size / 1024).toFixed(1) + " KB" : "No file selected"}</span><span aria-hidden="true">{imageFile ? "✓" : ""}</span></div>
             <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => { setImageFile(e.target.files?.[0] || null); setImageResult(null); setNotice(""); }}/>
           </div>
           <div className="qtInputRow"><label className="qtLabel">OUTPUT FORMAT<select className="qtInput" value={imageFormat} onChange={(e) => setImageFormat(e.target.value)}><option value="image/webp">WebP — smaller files</option><option value="image/jpeg">JPEG — compatible</option><option value="image/png">PNG — may be larger</option></select></label><label className="qtLabel">QUALITY · {Math.round(imageQuality * 100)}%<input className="qtRange" type="range" min="0.25" max="1" step="0.05" value={imageQuality} onChange={(e) => setImageQuality(Number(e.target.value))}/></label></div>
