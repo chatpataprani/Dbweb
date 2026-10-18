@@ -16,6 +16,15 @@ const backgrounds = [
   { name: "Mint", value: "#d9f5e9" },
 ];
 
+function BackgroundRemovalLoader() {
+  const petalPath = "M63 37c-6.7-4-4-27-13-27s-6.3 23-13 27-27 4-27 13 20.3 9 27 13 4 27 13 27 6.3-23 13-27 27-4 27-13-20.3-9-27-13Z";
+  return <div className="bgFlowerLoader" role="status" aria-label="Removing image background">
+    <svg className="bgFlowerOne" viewBox="0 0 100 100" aria-hidden="true"><path d={petalPath} fill="currentColor"/><path d={petalPath} fill="white" opacity=".16" transform="translate(-3 -3) scale(1.06)"/></svg>
+    <svg className="bgFlowerTwo" viewBox="0 0 100 100" aria-hidden="true"><path d={petalPath} fill="currentColor"/><path d={petalPath} fill="white" opacity=".16" transform="translate(-3 -3) scale(1.06)"/></svg>
+    <svg className="bgFlowerThree" viewBox="0 0 100 100" aria-hidden="true"><path d={petalPath} fill="currentColor"/><path d={petalPath} fill="white" opacity=".16" transform="translate(-3 -3) scale(1.06)"/></svg>
+  </div>;
+}
+
 export default function BackgroundRemoverPage() {
   const inputRef = useRef(null);
   const originalRef = useRef(null);
@@ -231,7 +240,7 @@ export default function BackgroundRemoverPage() {
         </button> : <div className="bgPreviewWrap"><div className="bgPreview" style={{background:background==="transparent"?"repeating-conic-gradient(#e6e8ee 0% 25%,#fff 0% 50%) 50% / 18px 18px":background}}><img src={showOriginal?originalUrl:outputUrl||originalUrl} alt={showOriginal?"Original image":outputUrl?"Background removed preview":"Image awaiting background removal"}/></div><div className="bgPreviewFooter"><span>{showOriginal?"Original image":outputUrl?"Transparent cutout":"Original preview"}</span>{outputUrl&&<button className="bgTextButton" onClick={()=>setShowOriginal(v=>!v)}>{showOriginal?"View result":"Compare original"}</button>}</div></div>}
         <input ref={inputRef} type="file" accept="image/png,image/jpeg,image/webp,image/avif" hidden onChange={e=>chooseFile(e.target.files?.[0])}/>
         {error&&<div className="bgError"><X size={16}/><span>{error}</span></div>}
-        {progress&&<div className="bgProgress"><LoaderCircle className="bgSpin" size={18}/><div><strong>{progress}</strong><span>{modelReady?"On-device processing ready": "If on-device processing is unavailable, Dbweb switches automatically to online processing."}</span></div></div>}
+        {progress&&<div className="bgProgress bgProgressWithFlower"><BackgroundRemovalLoader/><div><strong>{progress}</strong><span>{modelReady?"On-device processing ready": "If on-device processing is unavailable, Dbweb switches automatically to online processing."}</span></div></div>}
         <div className="bgActions">{!outputUrl?<button className="bgPrimary" disabled={!file||status==="processing"} onClick={removeBackground}>{status==="processing"?<><LoaderCircle className="bgSpin" size={17}/> Working…</>:<><Sparkles size={17}/> Remove background</>}</button>:<button className="bgPrimary" onClick={downloadResult}><Download size={17}/> Download transparent PNG</button>}{outputUrl&&<button className="bgSecondary" onClick={reset}>New image</button>}</div>
         {outputUrl&&<div className="bgControls"><div className="bgControlHead"><div><h3>Preview background</h3><p>Background choice changes the preview, not your transparent PNG.</p></div></div><div className="bgSwatches">{backgrounds.map(item=><button key={item.value} className={"bgSwatch "+(background===item.value?"selected":"")} onClick={()=>setBackground(item.value)} aria-label={item.name} title={item.name}><span style={{background:item.value==="transparent"?"repeating-conic-gradient(#cfd2da 0% 25%,#fff 0% 50%) 50% / 10px 10px":item.value}}/>{item.name}</button>)}</div><label className="bgSliderLabel"><span>Edge softness</span><strong>{feather.toFixed(1)} px</strong><input type="range" min="0" max="2.5" step="0.1" value={feather} onChange={e=>setFeather(Number(e.target.value))}/><small>Edge softness applies when you process the image again.</small></label><button className="bgSecondary bgReprocess" onClick={removeBackground} disabled={status==="processing"}><RefreshCw size={15}/> Reprocess with edge setting</button></div>}
       </section>
