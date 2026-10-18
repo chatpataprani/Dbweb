@@ -5,7 +5,7 @@ function db(){return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.e
 export async function POST(request){
  try{
   const id=request.headers.get("x-device-id")||"";if(!UUID.test(id))return NextResponse.json({error:"Device ID is missing. Refresh and try again."},{status:400});
-  const form=await request.formData();const days=Number(form.get("plan_days")),amount=Number(form.get("amount")),file=form.get("receipt");const allowed={1:30,7:100,30:300};
+  const form=await request.formData();const days=Number(form.get("plan_days")),amount=Number(form.get("amount")),file=form.get("receipt");const allowed={1:30,7:100,30:300,365:1500};
   if(!allowed[days]||allowed[days]!==amount)return NextResponse.json({error:"Invalid plan or amount."},{status:400});
   if(!(file instanceof File)||!file.size)return NextResponse.json({error:"Please select a receipt."},{status:400});
   if(file.size>8*1024*1024)return NextResponse.json({error:"Receipt must be 8 MB or smaller."},{status:400});
