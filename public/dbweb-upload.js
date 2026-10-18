@@ -32,8 +32,8 @@ function enhance(input,index){
  const update=()=>{const files=Array.from(input.files||[]);status.textContent=files.length?(files.length===1?files[0].name:files.length+" files selected"):"No file selected";clear.hidden=!files.length;};
  input.addEventListener("change",update);
  clear.addEventListener("click",event=>{event.stopPropagation();input.value="";update();input.dispatchEvent(new Event("change",{bubbles:true}));});
- card.addEventListener("click",event=>{if(event.target.closest("button,a,select,textarea")||event.target===input)return;input.click();});
- card.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();input.click();}});
+ card.addEventListener("click",event=>{if(event.target.closest("button,a,select,textarea")||event.target===input)return;event.preventDefault();event.stopPropagation();try{input.click()}catch(error){console.warn("Could not open the device file picker",error)}});
+ card.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();event.stopPropagation();input.click();}});
  card.tabIndex=0;card.setAttribute("role","button");card.setAttribute("aria-label",label.textContent+" "+hint.textContent);
  if(!zone){card.addEventListener("dragover",event=>{event.preventDefault();card.style.background="rgba(0,110,255,.09)";});
  card.addEventListener("dragleave",()=>{card.style.background="";});
