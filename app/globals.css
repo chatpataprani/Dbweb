@@ -822,3 +822,6 @@ input[type="file"]::file-selector-button:hover {background:rgba(65,105,225,.2)}
 .planSavingsNote{text-align:center;color:#7b8494;font-size:11px;line-height:1.6;margin:17px 0 0}
 @media(max-width:520px){.planChooser{padding:18px 13px;border-radius:14px}.planOption label{gap:9px;padding:14px 10px}.planCost{font-size:19px}.planName{font-size:12px}.planReduction{font-size:10px;padding:4px 6px}.planChooserFoot{align-items:stretch;flex-direction:column}.choosePlanBtn{width:100%}}
 @media(prefers-reduced-motion:reduce){.planOption label{transition:none}}
+
+.planFeature{font-size:12px;color:#1d7a4b;font-weight:600;line-height:1.4;margin-top:2px}
+@media(max-width:520px){.planFeature{font-size:11px;max-width:210px}}
