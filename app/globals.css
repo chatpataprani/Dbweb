@@ -751,3 +751,29 @@
 @keyframes square5{0%,50%,100%{left:calc(3 * var(--offset));top:calc(1 * var(--offset))}58.33%{left:calc(3 * var(--offset));top:calc(0 * var(--offset))}66.67%{left:calc(2 * var(--offset));top:calc(0 * var(--offset))}75%{left:calc(2 * var(--offset));top:calc(1 * var(--offset))}}
 @keyframes squarefadein{0%{transform:scale(.75);opacity:0}100%{transform:scale(1);opacity:1}}
 @media(prefers-reduced-motion:reduce){.loadingspinner div{animation:none!important;opacity:1}}
+
+
+/* Privacy consent dialog inspired by the supplied Uiverse layout */
+.termsOverlay{background:rgba(20,18,16,.42);backdrop-filter:blur(5px);padding:18px}
+.termsModal.privacyConsentModal{position:relative;box-sizing:border-box;width:min(360px,100%);max-height:min(90dvh,760px);overflow-y:auto;display:flex;align-items:stretch;gap:12px;padding:38px 24px 24px;background:#fff;color:#35312f;border:1px solid #eee5dc;border-radius:18px;box-shadow:0 12px 36px rgba(60,64,67,.22),0 2px 8px rgba(60,64,67,.12)}
+.privacyConsentIcon{height:30px;display:flex;align-items:center;justify-content:center;margin:-59px auto 12px;width:76px;flex-shrink:0}
+.privacyConsentIcon svg{width:65px;height:46px;filter:drop-shadow(0 2px 1px #00000012)}
+.termsModal.privacyConsentModal h1{font-size:15px;line-height:1.45;font-weight:750;letter-spacing:0;margin:0 0 1px;color:#45403d}
+.termsModal.privacyConsentModal .termsIntro{font-size:13px;line-height:1.65;color:#5e5854;margin:0}
+.privacyPolicyLink{font-weight:700;color:#634647;text-decoration:underline;text-underline-offset:2px}
+.termsModal.privacyConsentModal .termsNameLabel{font-size:12px;color:#716965;gap:6px}
+.termsModal.privacyConsentModal .termsNameInput{min-height:42px;border:1px solid #e6ddd6;border-radius:8px;background:#fff;color:#342f2c}
+.termsModal.privacyConsentModal .termsNameInput:focus{border-color:#9c6750;box-shadow:0 0 0 3px #9c67501c}
+.termsModal.privacyConsentModal .termsReadLink{font-size:12px;font-weight:700;color:#634647;text-decoration:none;align-self:flex-start;margin:0}
+.termsModal.privacyConsentModal .termsReadLink:hover{text-decoration:underline}
+.termsModal.privacyConsentModal .termsScroll{max-height:38dvh;background:#faf8f6;border-color:#eee5dc;color:#45403d}
+.termsModal.privacyConsentModal .termsScroll p{color:#655e59;font-size:12px}
+.termsModal.privacyConsentModal .termsScroll h2{color:#453c38}
+.termsModal.privacyConsentModal .termsActions{display:flex;flex-direction:column-reverse;gap:8px;margin-top:1px}
+.termsModal.privacyConsentModal .termsActions button{width:100%;min-height:42px;border-radius:9px;font-size:13px}
+.termsModal.privacyConsentModal .termsActions .primary{background:#ddad81;border-color:#ddad81;color:#634647;font-weight:750}
+.termsModal.privacyConsentModal .termsActions .primary:hover{background:#634647;border-color:#634647;color:#fff}
+.termsModal.privacyConsentModal .termsActions .secondary{background:#fff;color:#6d625c;border:1px solid #e7ddd5}
+.termsModal.privacyConsentModal .termsActions .secondary:hover{background:#f8f3ef}
+@media(max-width:520px){.termsModal.privacyConsentModal{width:min(340px,100%);max-height:88dvh;padding:36px 22px 22px;gap:11px}.privacyConsentIcon{margin-top:-57px}.termsModal.privacyConsentModal h1{font-size:15px}.termsModal.privacyConsentModal .termsActions{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.termsModal.privacyConsentModal *{scroll-behavior:auto}}
