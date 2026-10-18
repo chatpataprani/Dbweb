@@ -4,10 +4,12 @@ const fileIcon='<svg class="dbw-upload-file-icon" viewBox="0 0 32 32" aria-hidde
 function enhance(input,index){
  if(input.dataset.dbwUploadReady==="1")return;
  const hidden=input.hidden||getComputedStyle(input).display==="none"||input.getAttribute("aria-hidden")==="true"||input.classList.contains("hidden");
- const zone=input.closest("#uploadArea,.upload-area,.upload-zone,.file-drop-zone,.drop-zone,.dropzone,.upload-container,.upload-section,.image-upload-area");
- if(hidden&&!zone)return;
+ const zone=input.closest("#uploadArea,.upload-area,.upload-zone,.file-drop-zone,.drop-zone,.dropzone,.image-upload-area");
+ let trigger=null;
+ if(hidden&&!zone&&input.id){const escaped=window.CSS&&CSS.escape?CSS.escape(input.id):input.id;trigger=document.querySelector(`button[onclick*="${escaped}"],label[for="${escaped}"],[role="button"][onclick*="${escaped}"]`);}
+ if(hidden&&!zone&&!trigger)return;
  let card=zone;
- if(!card){card=document.createElement("div");input.parentNode.insertBefore(card,input);}
+ if(!card){card=document.createElement("div");const anchor=trigger||input;anchor.parentNode.insertBefore(card,anchor);if(trigger)trigger.classList.add("dbw-upload-legacy");}
  card.classList.add("dbw-upload-card");
  const inputId=input.id||("dbw-file-"+index);input.id=inputId;
  Array.from(card.children).forEach(child=>{if(child!==input&&!child.classList.contains("dbw-upload-preview"))child.classList.add("dbw-upload-legacy");});
