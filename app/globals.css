@@ -788,3 +788,37 @@ input[type="file"]::file-selector-button {margin:0 12px 7px 0;padding:9px 13px;b
 input[type="file"]::file-selector-button:hover {background:rgba(65,105,225,.2)}
 @media(max-width:600px){input[type="file"]:not([hidden]):not(.hidden):not(.sr-only):not([style*="display:none"]):not([style*="display: none"]):not([style*="opacity:0"]):not([style*="opacity: 0"]){min-height:94px;padding:13px 12px 11px;font-size:12px}}
 @media(prefers-reduced-motion:reduce){input[type="file"]{transition:none!important}}
+
+
+/* Premium plan chooser inspired by the requested radio-card design */
+.planChooser{width:min(100%,680px);margin:0 auto;background:#fff;border:1px solid #e6eaf0;border-radius:18px;padding:clamp(18px,4vw,30px);color:#111827;box-shadow:0 22px 55px -38px rgba(15,23,42,.35)}
+.planChooserHeader{text-align:center;margin:4px 0 24px}
+.planChooserTitle{display:block;font-size:clamp(24px,4vw,30px);font-weight:800;letter-spacing:-.8px;line-height:1.2;color:#111827}
+.planChooserDesc{max-width:430px;margin:9px auto 0;color:#667085;font-size:14px;line-height:1.6}
+.planOptions{display:grid;gap:11px}
+.planOption{margin:0}
+.planOption input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.planOption label{position:relative;display:flex;align-items:center;gap:13px;justify-content:space-between;padding:16px 15px;border:1.5px solid #e2e8f0;border-radius:12px;background:#f9fafb;cursor:pointer;transition:border-color .18s ease,background .18s ease,box-shadow .18s ease;min-width:0}
+.planOption label:hover{border-color:#9ab2f8;background:#f5f8ff}
+.planOption input:checked+label{border-color:#4169e1;background:#f4f7ff;box-shadow:0 0 0 2px rgba(65,105,225,.08)}
+.planOption input:focus-visible+label{outline:3px solid rgba(65,105,225,.25);outline-offset:3px}
+.planOption label.planOptionFeatured{background:#f5f8ff}
+.planOption input:checked+label.planOptionFeatured{background:#eef3ff}
+.planRadio{width:18px;height:18px;flex:0 0 18px;border:1.7px solid #c2cbd9;border-radius:50%;display:grid;place-items:center}
+.planOption input:checked+label .planRadio{border-color:#4169e1}
+.planOption input:checked+label .planRadio:after{content:"";width:9px;height:9px;border-radius:50%;background:#4169e1}
+.planInfo{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px}
+.planCost{font-size:21px;line-height:1.25;font-weight:800;color:#101828}
+.planCost small{font-size:12px;font-weight:600;color:#667085}
+.planName{font-size:13px;color:#667085;line-height:1.4}
+.planRate{font-size:12px;color:#475467}
+.planReduction{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;border:1px solid #86d5a0;background:#eaf9ef;color:#16803c;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:750;white-space:nowrap}
+.planNoSaving{border-color:#e2e8f0;background:#f1f3f6;color:#667085}
+.planChooserFoot{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:20px;padding-top:18px;border-top:1px solid #edf0f4}
+.planSelectedLabel{display:block;color:#667085;font-size:12px;margin-bottom:4px}
+.planChooserFoot strong{display:block;font-size:20px;color:#101828}
+.planChooserFoot strong small{font-size:12px;font-weight:500;color:#667085}
+.choosePlanBtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:11px 16px;white-space:nowrap}
+.planSavingsNote{text-align:center;color:#7b8494;font-size:11px;line-height:1.6;margin:17px 0 0}
+@media(max-width:520px){.planChooser{padding:18px 13px;border-radius:14px}.planOption label{gap:9px;padding:14px 10px}.planCost{font-size:19px}.planName{font-size:12px}.planReduction{font-size:10px;padding:4px 6px}.planChooserFoot{align-items:stretch;flex-direction:column}.choosePlanBtn{width:100%}}
+@media(prefers-reduced-motion:reduce){.planOption label{transition:none}}
