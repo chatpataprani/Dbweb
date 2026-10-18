@@ -825,3 +825,17 @@ input[type="file"]::file-selector-button:hover {background:rgba(65,105,225,.2)}
 
 .planFeature{font-size:12px;color:#1d7a4b;font-weight:600;line-height:1.4;margin-top:2px}
 @media(max-width:520px){.planFeature{font-size:11px;max-width:210px}}
+
+/* Uiverse-inspired upload card on the background-removal tool. */
+.bgRemovePage .bgDropzone{width:100%;max-width:440px;min-height:225px;padding:10px;display:flex;flex-direction:column;align-items:stretch;justify-content:space-between;gap:8px;text-align:center;border:1px solid #dce4f8;background:rgba(0,110,255,.035);border-radius:12px;box-shadow:0 4px 22px rgba(15,23,42,.07);color:#101828}
+.bgRemovePage .bgUploadHero{flex:1;min-height:145px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:18px;border:2px dashed #4169e1;border-radius:10px;background:#fff;color:#101828}
+.bgRemovePage .bgUploadHero .bgUploadIcon{width:auto;height:auto;margin:0;padding:0;border:0;background:transparent;color:#101828}
+.bgRemovePage .bgUploadHero .bgUploadIcon svg{width:48px;height:48px;stroke-width:1.5}
+.bgRemovePage .bgUploadHero strong{font-size:14px;color:#101828}
+.bgRemovePage .bgUploadHero>span:not(.bgUploadIcon){font-size:12px;color:#667085}
+.bgRemovePage .bgUploadHero small{font-size:11px;color:#667085}
+.bgRemovePage .bgUploadFooter{display:flex;align-items:center;gap:9px;min-height:42px;padding:8px 10px;border-radius:9px;background:rgba(0,110,255,.075);font-size:12px;color:#101828;text-align:left}
+.bgRemovePage .bgUploadFooter>svg{flex-shrink:0;color:#4169e1}
+.bgRemovePage .bgUploadFooter span:first-of-type{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bgRemovePage .bgUploadFooter span:last-child{color:#16834a;font-weight:800}
+@media(max-width:600px){.bgRemovePage .bgDropzone{min-height:205px;padding:8px}.bgRemovePage .bgUploadHero{min-height:130px;padding:14px}}
