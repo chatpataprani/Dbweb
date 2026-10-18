@@ -12,22 +12,22 @@ function enhance(input,index){
  let card=zone;
  if(existingCard){card=document.createElement("div");existingCard.parentNode.insertBefore(card,existingCard);}
  else if(!card){card=document.createElement("div");const anchor=trigger||input;anchor.parentNode.insertBefore(card,anchor);if(trigger)trigger.classList.add("dbw-upload-legacy");}
- card.classList.add("dbw-upload-card");card.removeAttribute("onclick");
+ card.classList.add("dbw-upload-card");card.removeAttribute("onclick");card.style.cssText="box-sizing:border-box;width:100%;max-width:440px;min-height:220px;margin:12px 0;padding:10px;border:1px solid rgba(65,105,225,.16);border-radius:12px;display:flex;flex-direction:column;gap:8px;justify-content:space-between;background:rgba(0,110,255,.035);box-shadow:0 4px 22px rgba(15,23,42,.08);color:#111827;position:relative;overflow:hidden";
  const inputId=input.id||("dbw-file-"+index);input.id=inputId;
- Array.from(card.children).forEach(child=>{if(child!==input&&!child.classList.contains("dbw-upload-preview"))child.classList.add("dbw-upload-legacy");});
+ Array.from(card.children).forEach(child=>{if(child!==input&&!child.classList.contains("dbw-upload-preview")){child.classList.add("dbw-upload-legacy");child.style.setProperty("display","none","important");}});
  const hero=document.createElement("div");hero.className="dbw-upload-hero";
  const label=document.createElement("strong");
  const accept=(input.accept||"").toLowerCase();
  const imageOnly=accept.includes("image/")&&!accept.includes("application/")&&!accept.includes(".pdf");
- label.textContent=imageOnly?"Browse image to upload!":"Browse file to upload!";
- const hint=document.createElement("small");hint.textContent=input.multiple?"Choose one or more files from your device":"Tap to choose a file from your device";
- hero.innerHTML=cloud;hero.append(label,hint);
- const footer=document.createElement("div");footer.className="dbw-upload-footer";
+ label.style.cssText="font-size:15px;font-weight:650;line-height:1.4";label.textContent=imageOnly?"Browse image to upload!":"Browse file to upload!";
+ const hint=document.createElement("small");hint.style.cssText="font-size:12px;line-height:1.45;color:#667085";hint.textContent=input.multiple?"Choose one or more files from your device":"Tap to choose a file from your device";
+ hero.innerHTML=cloud;hero.style.cssText="flex:1;min-height:145px;width:100%;box-sizing:border-box;border:2px dashed #4169e1;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:18px;text-align:center;background:#fff;color:#101828";hero.append(label,hint);
+ const footer=document.createElement("div");footer.className="dbw-upload-footer";footer.style.cssText="width:100%;min-height:42px;box-sizing:border-box;padding:8px 10px;border-radius:9px;display:flex;align-items:center;gap:9px;background:rgba(0,110,255,.075);color:#101828;font-size:12px";
  const status=document.createElement("span");status.className="dbw-upload-status";status.textContent="No file selected";
  const clear=document.createElement("button");clear.type="button";clear.className="dbw-upload-clear";clear.setAttribute("aria-label","Clear selected file");clear.title="Clear selection";clear.textContent="×";clear.hidden=true;
  footer.insertAdjacentHTML("afterbegin",fileIcon);footer.append(status,clear);
  card.insertBefore(hero,card.firstChild);card.append(footer);
- input.classList.add("dbw-upload-native");input.dataset.dbwUploadReady="1";
+ input.hidden=false;input.removeAttribute("hidden");input.removeAttribute("aria-hidden");input.classList.remove("hidden");input.classList.add("dbw-upload-native");input.style.cssText="position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;overflow:hidden!important;clip-path:inset(50%)!important;left:10px!important;bottom:10px!important";input.dataset.dbwUploadReady="1";
  if(input.parentNode!==card)card.appendChild(input);
  const update=()=>{const files=Array.from(input.files||[]);status.textContent=files.length?(files.length===1?files[0].name:files.length+" files selected"):"No file selected";clear.hidden=!files.length;};
  input.addEventListener("change",update);
