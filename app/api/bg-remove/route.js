@@ -55,9 +55,18 @@ export async function POST(request) {
     });
 
     if (!upstream.ok) {
-      const details = await upstream.text().catch(() => "");
-      console.error("Background removal API error", upstream.status, details.slice(0, 500));
-      const status = upstream.status === 429 ? 429 : upstream.status === 402 ? 402 : upstream.status === 403 ? 502 : 502;
+      const rawDetails = await upstream.text().catch(() => "");
+      console.error("Background removal API error", upstream.status, rawDetails.slice(0, 500));
+      let details = {};
+      try { details = JSON.parse(rawDetails); } catch {}
+      const errorCode = details?.errors?.[0]?.code || "";
+      if (errorCode === "unknown_foreground") {
+        return NextResponse.json({
+          code: "unknown_foreground",
+          error: "We couldn't detect a clear subject in this image. Try a photo with a clearly visible person, pet, product, or object against a distinct background."
+        }, { status: 422 });
+      }
+      const status = upstream.status === 429 ? 429 : upstream.status === 402 ? 402 : 502;
       return NextResponse.json(
         { error: upstream.status === 402 ? "The background removal service has no remaining credits." :
           upstream.status === 429 ? "The background removal service is busy. Try again shortly." :
