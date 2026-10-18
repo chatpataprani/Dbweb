@@ -692,3 +692,35 @@
 .legalContent{width:min(760px,100%);margin:0 auto;padding:54px 24px 64px;flex:1}.legalEyebrow{font-size:11px;font-weight:750;letter-spacing:.16em;color:var(--ac);margin-bottom:12px!important}.legalContent h1{font-size:clamp(30px,5vw,42px);letter-spacing:-.045em;line-height:1.12;margin:0 0 14px}.legalLead{font-size:16px;line-height:1.7;color:var(--mu);max-width:650px}.legalUpdated{font-size:12px;color:var(--mu);margin-top:18px!important;padding-bottom:25px;border-bottom:1px solid var(--bd)}
 .legalContent section{padding:22px 0 0}.legalContent section h2{font-size:17px;letter-spacing:-.02em;margin:0 0 8px}.legalContent section p{font-size:14px;line-height:1.8;color:var(--mu)}.legalContent section a{color:var(--ac)}.legalActions{display:flex;align-items:center;flex-wrap:wrap;gap:18px;margin-top:34px;padding-top:24px;border-top:1px solid var(--bd)}.legalActions a{font-size:13px;text-decoration:none;color:var(--ac)}.legalActions .legalPrimary{background:var(--ac);color:white;padding:10px 14px;border-radius:7px}.legalFooter{padding:18px clamp(20px,5vw,64px);border-top:1px solid var(--bd);display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--mu)}
 @media(max-width:520px){.legalNav{gap:14px;padding:15px 18px}.legalContent{padding:38px 20px 48px}.legalFooter{flex-direction:column;gap:4px}}
+
+
+/* AqFox-inspired 3D cube spinner for lookup searches */
+.lookupProgressCore>.spinner{
+  position:relative;
+  flex:0 0 44px;
+  width:44px;
+  height:44px;
+  animation:spinner-y0fdc1 2s infinite ease;
+  transform-style:preserve-3d;
+  margin:0 5px 0 2px;
+}
+.lookupProgressCore>.spinner>div{
+  position:absolute;
+  width:100%;
+  height:100%;
+  background:rgba(0,77,255,.2);
+  border:2px solid #004dff;
+}
+.lookupProgressCore>.spinner>div:nth-of-type(1){transform:translateZ(-22px) rotateY(180deg)}
+.lookupProgressCore>.spinner>div:nth-of-type(2){transform:rotateY(-270deg) translateX(50%);transform-origin:top right}
+.lookupProgressCore>.spinner>div:nth-of-type(3){transform:rotateY(270deg) translateX(-50%);transform-origin:center left}
+.lookupProgressCore>.spinner>div:nth-of-type(4){transform:rotateX(90deg) translateY(-50%);transform-origin:top center}
+.lookupProgressCore>.spinner>div:nth-of-type(5){transform:rotateX(-90deg) translateY(50%);transform-origin:bottom center}
+.lookupProgressCore>.spinner>div:nth-of-type(6){transform:translateZ(22px)}
+@keyframes spinner-y0fdc1{
+  0%{transform:rotate(45deg) rotateX(-25deg) rotateY(25deg)}
+  50%{transform:rotate(45deg) rotateX(-385deg) rotateY(25deg)}
+  100%{transform:rotate(45deg) rotateX(-385deg) rotateY(385deg)}
+}
+@media(max-width:420px){.lookupProgressCore>.spinner{flex-basis:38px;width:38px;height:38px;transform-origin:center;scale:.86}}
+@media(prefers-reduced-motion:reduce){.lookupProgressCore>.spinner{animation:none!important}}
