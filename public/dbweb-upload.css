@@ -16,3 +16,8 @@
 .dbw-upload-card:focus-within .dbw-upload-hero{border-color:#244cc5}
 @media(max-width:600px){.dbw-upload-card{max-width:100%;min-height:205px;padding:8px}.dbw-upload-hero{min-height:130px;padding:14px}.dbw-upload-hero svg{width:48px;height:48px}.dbw-upload-hero strong{font-size:14px}.dbw-upload-footer{min-height:40px}}
 @media(prefers-reduced-motion:reduce){.dbw-upload-card,.dbw-upload-hero{transition:none!important}}
+/* Override old per-tool drop-zone styling after the shared card enhancement. */
+.dbw-upload-card{border:1px solid rgba(65,105,225,.16)!important;background:rgba(0,110,255,.035)!important;box-shadow:0 4px 22px rgba(15,23,42,.08)!important;padding:10px!important;height:auto!important;min-height:220px!important;max-width:440px!important;align-items:stretch!important;justify-content:space-between!important;gap:8px!important}
+.dbw-upload-card .dbw-upload-hero{border:2px dashed #4169e1!important;border-radius:10px!important;background:#fff!important;min-height:145px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;padding:18px!important;gap:12px!important}
+.dbw-upload-card .dbw-upload-footer{background:rgba(0,110,255,.075)!important;border:0!important;min-height:42px!important;border-radius:9px!important}
+@media(max-width:600px){.dbw-upload-card{min-height:200px!important;padding:8px!important}.dbw-upload-card .dbw-upload-hero{min-height:128px!important;padding:14px!important}}
