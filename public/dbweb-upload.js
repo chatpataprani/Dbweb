@@ -4,12 +4,14 @@ const fileIcon='<svg class="dbw-upload-file-icon" viewBox="0 0 32 32" aria-hidde
 function enhance(input,index){
  if(input.dataset.dbwUploadReady==="1")return;
  const hidden=input.hidden||getComputedStyle(input).display==="none"||input.getAttribute("aria-hidden")==="true"||input.classList.contains("hidden");
- const zone=input.closest("#uploadArea,.upload-area,.upload-zone,.file-drop-zone,.drop-zone,.dropzone,.image-upload-area");
+ const existingCard=input.closest(".dbw-upload-card");
+ const zone=existingCard?null:input.closest("#uploadArea,.upload-area,.upload-zone,.file-drop-zone,.drop-zone,.dropzone,.image-upload-area");
  let trigger=null;
- if(hidden&&!zone&&input.id){const escaped=window.CSS&&CSS.escape?CSS.escape(input.id):input.id;trigger=document.querySelector(`button[onclick*="${escaped}"],label[for="${escaped}"],[role="button"][onclick*="${escaped}"]`);}
- if(hidden&&!zone&&!trigger)return;
+ if(hidden&&!zone&&!existingCard&&input.id){const escaped=window.CSS&&CSS.escape?CSS.escape(input.id):input.id;trigger=document.querySelector(`button[onclick*="${escaped}"],label[for="${escaped}"],[role="button"][onclick*="${escaped}"]`);}
+ if(hidden&&!zone&&!trigger&&!existingCard)return;
  let card=zone;
- if(!card){card=document.createElement("div");const anchor=trigger||input;anchor.parentNode.insertBefore(card,anchor);if(trigger)trigger.classList.add("dbw-upload-legacy");}
+ if(existingCard){card=document.createElement("div");existingCard.parentNode.insertBefore(card,existingCard);}
+ else if(!card){card=document.createElement("div");const anchor=trigger||input;anchor.parentNode.insertBefore(card,anchor);if(trigger)trigger.classList.add("dbw-upload-legacy");}
  card.classList.add("dbw-upload-card");card.removeAttribute("onclick");
  const inputId=input.id||("dbw-file-"+index);input.id=inputId;
  Array.from(card.children).forEach(child=>{if(child!==input&&!child.classList.contains("dbw-upload-preview"))child.classList.add("dbw-upload-legacy");});
