@@ -221,8 +221,8 @@
                   if (!zone || !input || zone.dataset.dbwPickerReady) return;
                   zone.dataset.dbwPickerReady = '1';
                   const openFiles = () => {
-                    try { if (typeof input.showPicker === 'function') input.showPicker(); else input.click(); }
-                    catch (_) { input.click(); }
+                    try { input.click(); }
+                    catch (_) { try { if (typeof input.showPicker === 'function') input.showPicker(); } catch (__) {} }
                   };
                   zone.addEventListener('click', event => {
                     if (event.target.closest('button')) return;
@@ -576,6 +576,6 @@
             }
         }
     </script>
-<script src="/dbweb-upload.js?v=20261019-picker-fix2" defer></script>
+<script src="/dbweb-upload.js?v=20261019-picker-fix3" defer></script>
 </body>
 </html>
