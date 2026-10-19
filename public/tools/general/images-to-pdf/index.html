@@ -164,7 +164,7 @@
             font-size: 1.5rem;
         }
     </style>
-    <link rel="stylesheet" href="/dbweb-upload.css?v=20261018-images-pdf">
+    <link rel="stylesheet" href="/dbweb-upload.css?v=20261019-images-pdf-fix">
 </head>
 <body>
     <!-- Header -->
@@ -200,17 +200,50 @@
         <!-- Upload Section -->
         <section class="upload-section">
             <div class="upload-container">
-                <div class="upload-area" id="uploadArea">
-                    <div class="upload-icon">
-                        <i class="fas fa-cloud-arrow-up"></i>
+                <div class="dbw-upload-card" id="uploadArea" role="button" tabindex="0" aria-label="Choose images from your device" style="box-sizing:border-box;width:100%;max-width:440px;min-height:220px;margin:12px auto;padding:10px;border:1px solid rgba(65,105,225,.18);border-radius:12px;display:flex;flex-direction:column;gap:8px;justify-content:space-between;background:#f8fbff;box-shadow:0 4px 22px rgba(15,23,42,.08);color:#111827;cursor:pointer">
+                    <div style="flex:1;min-height:145px;box-sizing:border-box;border:2px dashed #4169e1;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:18px;text-align:center;background:#fff">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" style="width:48px;height:48px;fill:none;stroke:#111827;stroke-width:1.5"><path d="M7 10V9a5 5 0 0 1 10 0v1a4 4 0 0 1 1 7.9M7 10a4 4 0 0 0-2 7.5M12 12v9m0-9 3 3m-3-3-3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <strong style="font-size:15px;font-weight:650">Browse image to upload!</strong>
+                        <small style="font-size:12px;line-height:1.45;color:#667085">Tap to choose images from your device</small>
                     </div>
-                    <h3>Drop images here or click to upload</h3>
-                    <p>Supports JPG, PNG, WebP, GIF, BMP • Multiple images • Client-side processing</p>
-                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-                        <i class="fas fa-folder-open"></i> Select Images
-                    </button>
-                    <input type="file" id="fileInput" multiple accept="image/*" hidden>
+                    <div style="min-height:42px;box-sizing:border-box;padding:8px 10px;border-radius:9px;display:flex;align-items:center;gap:9px;background:rgba(0,110,255,.075);font-size:12px">
+                        <span aria-hidden="true">▤</span><span id="dbwUploadStatus" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">No file selected</span>
+                        <button type="button" id="dbwUploadClear" aria-label="Clear selected images" title="Clear selection" style="display:none;border:0;border-radius:50%;width:30px;height:30px;background:rgba(70,66,66,.08);font-size:18px">×</button>
+                    </div>
+                    <input type="file" id="fileInput" multiple accept="image/*" aria-label="Choose images" data-dbw-upload-ready="1" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip-path:inset(50%)">
                 </div>
+                <script>
+                (() => {
+                  const zone = document.getElementById('uploadArea');
+                  const input = document.getElementById('fileInput');
+                  const status = document.getElementById('dbwUploadStatus');
+                  const clear = document.getElementById('dbwUploadClear');
+                  if (!zone || !input || zone.dataset.dbwPickerReady) return;
+                  zone.dataset.dbwPickerReady = '1';
+                  const openFiles = () => {
+                    try { if (typeof input.showPicker === 'function') input.showPicker(); else input.click(); }
+                    catch (_) { input.click(); }
+                  };
+                  zone.addEventListener('click', event => {
+                    if (event.target.closest('button')) return;
+                    event.preventDefault();
+                    openFiles();
+                  });
+                  zone.addEventListener('keydown', event => {
+                    if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openFiles(); }
+                  });
+                  input.addEventListener('change', () => {
+                    const files = Array.from(input.files || []);
+                    status.textContent = files.length ? (files.length === 1 ? files[0].name : files.length + ' images selected') : 'No file selected';
+                    clear.style.display = files.length ? 'inline-grid' : 'none';
+                  });
+                  clear.addEventListener('click', event => {
+                    event.stopPropagation();
+                    input.value = '';
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                  });
+                })();
+                </script>
             </div>
         </section>
 
@@ -543,6 +576,6 @@
             }
         }
     </script>
-<script src="/dbweb-upload.js?v=20261018-images-pdf" defer></script>
+<script src="/dbweb-upload.js?v=20261019-images-pdf-fix" defer></script>
 </body>
 </html>
