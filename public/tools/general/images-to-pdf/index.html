@@ -221,8 +221,19 @@
                   if (!zone || !input || zone.dataset.dbwPickerReady) return;
                   zone.dataset.dbwPickerReady = '1';
                   const openFiles = () => {
-                    try { input.click(); }
-                    catch (_) { try { if (typeof input.showPicker === 'function') input.showPicker(); } catch (__) {} }
+                    // Call showPicker directly inside the user's tap gesture (Android Chrome).
+                    try {
+                      input.disabled = false;
+                      input.hidden = false;
+                      input.removeAttribute('hidden');
+                      input.removeAttribute('aria-hidden');
+                      if (typeof input.showPicker === 'function') input.showPicker();
+                      else input.click();
+                    } catch (error) {
+                      // Some browsers reject showPicker; fall back to the standard file-input click.
+                      try { input.click(); }
+                      catch (fallbackError) { console.warn('Could not open the device file picker', fallbackError); }
+                    }
                   };
                   zone.addEventListener('click', event => {
                     if (event.target.closest('button')) return;
