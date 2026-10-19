@@ -96,6 +96,7 @@ document.addEventListener('click',function(event){
  }
  if(!looksLikeUpload||!(input instanceof HTMLInputElement)||input.type!=='file')return;
  event.preventDefault();
+ event.stopImmediatePropagation();
  try{input.hidden=false;input.removeAttribute('hidden');input.removeAttribute('aria-hidden');input.classList.remove('hidden');if(typeof input.showPicker==='function')input.showPicker();else input.click();}
  catch(error){try{input.click()}catch(fallback){console.warn('Dbweb could not open the device file picker',fallback)}}
 },true);
