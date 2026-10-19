@@ -43,4 +43,39 @@ function enhance(input,index){
 function init(){document.querySelectorAll('input[type="file"]').forEach((input,index)=>{try{enhance(input,index)}catch(error){console.warn("Dbweb upload UI skipped an input",error)}})}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 new MutationObserver(()=>init()).observe(document.documentElement,{childList:true,subtree:true});
+
+/* Global safety net: make every upload zone use the same light card and open
+   the browser's native Android document picker from a real user gesture. */
+function dbwApplyGlobalUploadFix(){
+ document.querySelectorAll('#uploadArea,.upload-area,.upload-zone,.file-drop-zone,.drop-zone,.dropzone,.image-upload-area').forEach(zone=>{
+   const input=zone.querySelector('input[type="file"]');
+   if(!input)return;
+   zone.classList.add('dbw-upload-card');
+   zone.style.cssText += ';box-sizing:border-box;width:100%;max-width:440px;min-height:220px;margin:12px 0;padding:10px;border:1px solid rgba(65,105,225,.16);border-radius:12px;display:flex;flex-direction:column;gap:8px;justify-content:space-between;background:#f8fbff;box-shadow:0 4px 22px rgba(15,23,42,.08);color:#111827;cursor:pointer';
+   Array.from(zone.children).forEach(child=>{
+     if(child!==input&&!child.classList.contains('dbw-upload-hero')&&!child.classList.contains('dbw-upload-footer')){
+       child.classList.add('dbw-upload-legacy');
+       child.style.setProperty('display','none','important');
+     }
+   });
+   input.hidden=false;input.removeAttribute('hidden');input.removeAttribute('aria-hidden');input.classList.remove('hidden');
+   input.classList.add('dbw-upload-native');
+   input.style.cssText='position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;overflow:hidden!important;clip-path:inset(50%)!important;left:10px!important;bottom:10px!important';
+ });
+}
+document.addEventListener('click',function(event){
+ const target=event.target instanceof Element?event.target:null;
+ if(!target)return;
+ const zone=target.closest('#uploadArea,.upload-area,.upload-zone,.file-drop-zone,.drop-zone,.dropzone,.image-upload-area,.dbw-upload-card');
+ if(!zone||target.closest('button,a,select,textarea'))return;
+ const input=zone.querySelector('input[type="file"]');
+ if(!input)return;
+ event.preventDefault();
+ try{input.hidden=false;input.removeAttribute('hidden');if(typeof input.showPicker==='function')input.showPicker();else input.click();}
+ catch(error){try{input.click()}catch(fallback){console.warn('Dbweb could not open the device file picker',fallback)}}
+},true);
+document.addEventListener('DOMContentLoaded',dbwApplyGlobalUploadFix);
+dbwApplyGlobalUploadFix();
+new MutationObserver(()=>dbwApplyGlobalUploadFix()).observe(document.documentElement,{childList:true,subtree:true});
+
 })();
