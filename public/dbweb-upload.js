@@ -71,7 +71,8 @@ document.addEventListener('click',function(event){
  const input=zone.querySelector('input[type="file"]');
  if(!input)return;
  event.preventDefault();
- try{input.hidden=false;input.removeAttribute('hidden');if(typeof input.showPicker==='function')input.showPicker();else input.click();}
+ event.stopImmediatePropagation();
+ try{input.hidden=false;input.removeAttribute('hidden');input.removeAttribute('aria-hidden');input.classList.remove('hidden');if(typeof input.showPicker==='function')input.showPicker();else input.click();}
  catch(error){try{input.click()}catch(fallback){console.warn('Dbweb could not open the device file picker',fallback)}}
 },true);
 document.addEventListener('DOMContentLoaded',dbwApplyGlobalUploadFix);
