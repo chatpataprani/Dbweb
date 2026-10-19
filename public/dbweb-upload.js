@@ -76,6 +76,26 @@ document.addEventListener('click',function(event){
 },true);
 document.addEventListener('DOMContentLoaded',dbwApplyGlobalUploadFix);
 dbwApplyGlobalUploadFix();
+
+/* Ensure upload/browse controls throughout Dbweb open the native device file picker. */
+document.addEventListener('click',function(event){
+ const target=event.target instanceof Element?event.target:null;
+ if(!target)return;
+ const control=target.closest('label[for],button,[role="button"],.upload-btn,.upload-button,.browse-btn,[onclick]');
+ if(!control||control.closest('.dbw-upload-card'))return;
+ const labelText=((control.innerText||control.getAttribute('aria-label')||control.getAttribute('title')||'')+'').trim();
+ const looksLikeUpload=/upload|browse|choose (file|image|photo)|select (file|image|photo)|add (file|image|photo)/i.test(labelText);
+ const forId=control.getAttribute('for');
+ let input=forId?document.getElementById(forId):null;
+ if(!(input instanceof HTMLInputElement)||input.type!=='file'){
+   const scope=control.closest('section,form,.upload-section,.upload-container,.tool-container,.card')||control.parentElement;
+   input=scope?.querySelector('input[type="file"]')||null;
+ }
+ if(!looksLikeUpload||!(input instanceof HTMLInputElement)||input.type!=='file')return;
+ event.preventDefault();
+ try{input.hidden=false;input.removeAttribute('hidden');input.removeAttribute('aria-hidden');input.classList.remove('hidden');if(typeof input.showPicker==='function')input.showPicker();else input.click();}
+ catch(error){try{input.click()}catch(fallback){console.warn('Dbweb could not open the device file picker',fallback)}}
+},true);
 new MutationObserver(()=>dbwApplyGlobalUploadFix()).observe(document.documentElement,{childList:true,subtree:true});
 
 })();
