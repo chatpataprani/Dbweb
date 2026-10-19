@@ -66,7 +66,9 @@ function dbwApplyGlobalUploadFix(){
 document.addEventListener('click',function(event){
  const target=event.target instanceof Element?event.target:null;
  if(!target)return;
- const zone=target.closest('#uploadArea,.upload-area,.upload-zone,.file-drop-zone,.drop-zone,.dropzone,.image-upload-area,.dbw-upload-card');
+ /* Custom cards have their own picker handler; avoid opening the picker twice. */
+ if(target.closest('.dbw-upload-card'))return;
+ const zone=target.closest('#uploadArea,.upload-area,.upload-zone,.file-drop-zone,.drop-zone,.dropzone,.image-upload-area');
  if(!zone||target.closest('button,a,select,textarea'))return;
  const input=zone.querySelector('input[type="file"]');
  if(!input)return;
