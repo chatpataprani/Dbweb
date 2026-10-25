@@ -829,3 +829,7 @@
 .bgRemovePage .bgUploadFooter span:first-of-type{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bgRemovePage .bgUploadFooter span:last-child{color:#16834a;font-weight:800}
 @media(max-width:600px){.bgRemovePage .bgDropzone{min-height:205px;padding:8px}.bgRemovePage .bgUploadHero{min-height:130px;padding:14px}}
+
+
+/* UPI QR payment block */
+.upiQrWrap{display:flex;flex-direction:column;align-items:center;gap:12px;margin:18px 0}.upiQrImage{display:block;width:min(240px,100%);height:auto;aspect-ratio:1;object-fit:contain;background:#fff;padding:8px;border:1px solid var(--border,#e5e7eb);border-radius:14px}.upiIdRow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;width:100%;padding:12px;border:1px solid var(--border,#e5e7eb);border-radius:12px;overflow-wrap:anywhere}.upiIdRow span{min-width:0;overflow-wrap:anywhere}.upiIdRow button{flex-shrink:0}
