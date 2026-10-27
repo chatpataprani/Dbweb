@@ -855,3 +855,12 @@ img, video, iframe, canvas, svg {
 .footerUtilityLinks a:hover{color:var(--text,#e6edf3);text-decoration:underline}
 .footerUtilityLinks a:focus-visible{outline:2px solid var(--accent,#3d5bd9);outline-offset:4px;border-radius:2px}
 @media(max-width:480px){.footerUtilityLinks{gap:12px 18px;padding:18px 0}.footerUtilityLinks a{font-size:12px}}
+
+
+/* Dbweb footer utility row: horizontal, centered and responsive (footer only). */
+.siteFooter .footerUtilityLinks{display:flex;flex-flow:row wrap;align-items:center;justify-content:center;column-gap:clamp(18px,3.2vw,34px);row-gap:12px;width:100%;max-width:1040px;margin:18px auto 0;padding:22px 0 18px;border-top:1px solid var(--bd)}
+.siteFooter .footerUtilityLinks a{display:inline-flex;align-items:center;min-height:32px;color:var(--mu);font-size:clamp(12px,1.5vw,14px);line-height:1.4;white-space:normal;text-align:center;text-decoration:none}
+.siteFooter .footerUtilityLinks a:hover{color:var(--tx);text-decoration:underline;text-underline-offset:4px}
+.siteFooter .footerBottom{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;max-width:1040px;margin:0 auto;padding:18px 0 4px;text-align:center;border-top:0;color:var(--mu);font-size:12px}
+.siteFooter .footerBottom span{max-width:100%;overflow-wrap:anywhere}
+@media(max-width:480px){.siteFooter .footerUtilityLinks{column-gap:16px;row-gap:8px;padding:18px 4px 14px}.siteFooter .footerUtilityLinks a{font-size:12px;min-height:30px}.siteFooter .footerBottom{font-size:11px;padding-top:12px}}
