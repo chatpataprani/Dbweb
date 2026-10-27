@@ -51,6 +51,14 @@ export default function Home(){
     <section><h3>Account</h3><button type="button" onClick={()=>go("credits")}>Buy Credits</button><button type="button" onClick={()=>go("redeem")}>Redeem Code</button><button type="button" onClick={()=>go("history")}>Recent Searches</button><button type="button" onClick={()=>go("settings")}>Settings</button></section>
     <section><h3>Legal & Info</h3><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/tools/quick-tools">Quick Tools</a></section>
   </div>
+  <nav className="footerUtilityLinks" aria-label="Site information">
+    <a href="/terms">Terms</a>
+    <a href="/privacy">Privacy</a>
+    <a href="/privacy#security">Security</a>
+    <a href="/status">Status</a>
+    <a href="/docs">Docs</a>
+    <a href="mailto:lumenomore@hotmail.com">Contact</a>
+  </nav>
   <div className="footerBottom"><span>© {new Date().getFullYear()} Dbweb</span><span>Tools and services may depend on third-party providers.</span></div>
 </footer></div></>; 
 }
