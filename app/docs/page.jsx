@@ -1,5 +1,3 @@
-"use client";
-
 export const metadata = {
   title: "Dbweb Docs",
   description: "A quick guide to using Dbweb tools, accounts, credits, and support."
