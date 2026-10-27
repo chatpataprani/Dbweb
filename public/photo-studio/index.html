@@ -1753,8 +1753,12 @@ if(document.fonts&&document.fonts.load)Promise.all(['DM Sans','Space Grotesk','B
    return (await r.text()).trim();
   }));
   const image='url("data:image/jpeg;base64,'+parts.join('')+'")';
+  document.body.style.backgroundImage='linear-gradient(rgba(0,0,0,.12),rgba(0,0,0,.18)),'+image;
+  document.body.style.backgroundPosition='center';
+  document.body.style.backgroundSize='cover';
+  document.body.style.backgroundRepeat='no-repeat';
   const style=document.createElement('style');
-  style.textContent='body::before{background-image:linear-gradient(rgba(0,0,0,.16),rgba(0,0,0,.3)),'+image+'!important;background-position:center center!important;background-size:cover!important;background-repeat:no-repeat!important;filter:blur(3px) contrast(1.08)!important;image-rendering:pixelated!important}.welcome::before{background:transparent!important;filter:none!important}.welcome .hero div::before{background:transparent!important;filter:none!important}';
+  style.textContent='.welcome::before{background-image:linear-gradient(rgba(0,0,0,.12),rgba(0,0,0,.18)),'+image+'!important}.welcome .hero div::before{background-image:linear-gradient(rgba(0,0,0,.12),rgba(0,0,0,.22)),'+image+'!important;background-position:center!important;background-size:cover!important;filter:blur(3px) contrast(1.08)!important;image-rendering:pixelated!important}';
   document.head.appendChild(style);
  }catch(e){console.error('Dbweb Lab local background failed:',e);}
 })();
