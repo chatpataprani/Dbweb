@@ -43,7 +43,7 @@ export default function StatusPage() {
         <div className="dbStatusRow"><div><strong>Core API & database</strong><span>Health endpoint and database connectivity</span></div><span className={"dbStatusPill " + (good ? "isGood" : state === "checking" ? "isChecking" : "isWarn")}>{state === "checking" ? "Checking" : good ? "Operational" : state === "unreachable" ? "Unknown" : "Degraded"}</span></div>
         <button className="dbStatusRefresh" type="button" onClick={checkStatus} disabled={refreshing}><RefreshCw size={15} className={refreshing ? "dbStatusSpin" : ""}/>{refreshing ? "Checking…" : "Refresh status"}</button>
         {checkedAt && <p className="dbStatusChecked">Last checked: {checkedAt}</p>}
-        <p className="dbStatusNote">This automated check covers the API health endpoint and its database check only. Other features may rely on third-party services and are not monitored here.</p>
+        <p className="dbStatusNote">Live checks cover the API health endpoint and its database connection.</p>
       </section>
       <style jsx>{`
         .dbInfoPage{min-height:100svh;padding:20px clamp(16px,4vw,40px) 50px;background:var(--bg,#0d1117);color:var(--text,#e6edf3)}
