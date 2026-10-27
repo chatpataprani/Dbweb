@@ -77,7 +77,7 @@ export default function StreamingPage() {
   const justWatch = selected ? "https://www.justwatch.com/in/search?q=" + encodeURIComponent(titleOf(selected)) : "#";
 
   return <main className="streamPage">
-    <a className="streamBack" href="/"><ArrowLeft size={16}/> Back to Dbweb</a>
+    <a className="streamBack" href="/"><img className="dbwebInlineLogo" src="/dbweb-logo.svg" alt="" /><ArrowLeft size={16}/> Back to Dbweb</a>
     <section className="streamHero">
       <div className="streamEyebrow"><Sparkles size={14}/> DBWEB ENTERTAINMENT</div>
       <h1>Find your next <span>watch.</span></h1>
