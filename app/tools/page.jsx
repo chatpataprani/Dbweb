@@ -59,7 +59,7 @@ export default function ToolsPage() {
   }), [query, category]);
 
   return <div className="toolHub">
-    <SkiperLink href="/" className="toolHubHomeLink">Back to Dbweb</SkiperLink>
+    <SkiperLink href="/" className="toolHubHomeLink"><img className="dbwebInlineLogo" src="/dbweb-logo.svg" alt="" />Back to Dbweb</SkiperLink>
     <BorderTrail className="toolHubHeroFrame">
     <div className="toolHubHero">
       <AmbientBackdrop />
