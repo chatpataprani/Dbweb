@@ -864,3 +864,25 @@ img, video, iframe, canvas, svg {
 .siteFooter .footerBottom{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;max-width:1040px;margin:0 auto;padding:18px 0 4px;text-align:center;border-top:0;color:var(--mu);font-size:12px}
 .siteFooter .footerBottom span{max-width:100%;overflow-wrap:anywhere}
 @media(max-width:480px){.siteFooter .footerUtilityLinks{column-gap:16px;row-gap:8px;padding:18px 4px 14px}.siteFooter .footerUtilityLinks a{font-size:12px;min-height:30px}.siteFooter .footerBottom{font-size:11px;padding-top:12px}}
+
+
+/* Dbweb Docs page styles (global CSS avoids styled-jsx client-only import). */
+.dbDocsPage{min-height:100svh;padding:22px clamp(16px,4vw,40px) 40px;background:var(--bg,#f6f6f4);color:var(--tx,#1b1d22)}
+.dbDocsNav{max-width:1000px;margin:0 auto;display:flex;align-items:center;gap:22px}
+.dbDocsNav a{font-size:13px;color:var(--mu,#6b7080);text-decoration:none}
+.dbDocsNav a:hover,.dbDocsFooter a:hover{color:var(--ac,#3d5bd9)}
+.dbDocsNav .dbDocsBrand{margin-right:auto;font-size:18px;font-weight:800;color:var(--tx,#1b1d22)}
+.dbDocsHero{max-width:1000px;margin:clamp(45px,8vw,90px) auto 34px}
+.dbDocsHero>p{font-size:11px;font-weight:800;letter-spacing:.16em;color:var(--ac,#3d5bd9)}
+.dbDocsHero h1{font-size:clamp(32px,7vw,54px);letter-spacing:-.05em;line-height:1.08;margin:10px 0 14px}
+.dbDocsHero span{font-size:15px;line-height:1.7;color:var(--mu,#6b7080)}
+.dbDocsGrid{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.dbDocsCard{padding:22px;border:1px solid var(--bd,#dedfd9);border-radius:12px;background:var(--s1,#fff)}
+.dbDocsNumber{font-size:11px;color:var(--ac,#3d5bd9);font-weight:800;letter-spacing:.1em}
+.dbDocsCard h2{font-size:18px;margin:13px 0 8px;color:var(--tx,#1b1d22)}
+.dbDocsCard p{font-size:13px;line-height:1.75;color:var(--mu,#6b7080);margin:0}
+.dbDocsCard a{display:inline-block;margin-top:14px;color:var(--ac,#3d5bd9);font-size:13px;text-decoration:none}
+.dbDocsCard a:hover{text-decoration:underline;text-underline-offset:3px}
+.dbDocsFooter{max-width:1000px;margin:28px auto 0;padding-top:18px;border-top:1px solid var(--bd,#dedfd9);display:flex;flex-wrap:wrap;gap:20px}
+.dbDocsFooter a{color:var(--mu,#6b7080);font-size:12px;text-decoration:none}
+@media(max-width:600px){.dbDocsGrid{grid-template-columns:1fr}.dbDocsNav{gap:16px}.dbDocsCard{padding:18px}}
