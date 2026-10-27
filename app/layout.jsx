@@ -1,6 +1,7 @@
 import "./globals.css";
 import "./component-motion.css";
 import SpotlightSurfaces from "../components/ui/spotlight-surfaces";
+import OfflineServiceWorker from "../components/offline-service-worker";
 
 export const metadata = {
   applicationName: "Dbweb",
@@ -20,6 +21,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
+        <OfflineServiceWorker />
         <SpotlightSurfaces />
         {children}
       </body>
