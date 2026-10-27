@@ -1030,3 +1030,10 @@ img, video, iframe, canvas, svg {
 @media(max-width:900px){.dbDocsPage{padding:0 22px 36px}.dbDocsLayout{grid-template-columns:190px minmax(0,1fr);gap:28px}.dbDocsSidebar{padding-right:15px}.dbDocsTopicGrid{grid-template-columns:1fr}.dbDocsTopic{min-height:130px}.dbDocsContent{padding-top:37px}}
 @media(max-width:640px){.dbDocsPage{padding:0 16px 28px}.dbDocsTopbar{height:60px;gap:12px}.dbDocsBrand{font-size:15px;margin-right:0}.dbDocsLogo{width:27px;height:27px;font-size:15px}.dbDocsBreadcrumb{display:none}.dbDocsTopSupport{width:34px;height:34px;justify-content:center;padding:0}.dbDocsTopSupport span{display:none}.dbDocsLayout{display:block}.dbDocsSidebar{display:none}.dbDocsContent{padding-top:27px}.dbDocsBreadcrumbMobile{display:flex;align-items:center;gap:5px;margin-bottom:24px;color:var(--docs-muted);font-size:11px}.dbDocsContent h1{font-size:34px}.dbDocsIntro{font-size:13px}.dbDocsNotice{align-items:flex-start;gap:10px;padding:13px}.dbDocsNotice p{font-size:11px}.dbDocsTopicsSection,.dbDocsGuidesSection{margin-top:31px}.dbDocsTopicGrid{grid-template-columns:1fr;gap:9px}.dbDocsTopic{min-height:0;padding:15px}.dbDocsTopicCopy em{padding-top:10px}.dbDocsTopicArrow{opacity:1}.dbDocsFooter{margin-top:30px;gap:8px}.dbDocsFooter>div{width:100%;margin:6px 0 0;order:3}.dbDocsFooter>div a{font-size:11px}}
 @media(prefers-reduced-motion:reduce){.dbDocsPage *{transition:none!important}}
+
+
+/* Official Dbweb W brand mark */
+.brandLogo{display:block;width:25px;height:34px;object-fit:contain;flex:0 0 auto}
+.footerBrandLogo{display:block;width:24px;height:34px;object-fit:contain;flex:0 0 auto;margin-bottom:8px}
+.dbDocsLogo{display:block;width:22px;height:34px;object-fit:contain;flex:0 0 auto}
+:root[data-theme="dark"] .brandLogo,:root[data-theme="dark"] .footerBrandLogo{filter:invert(1)}
