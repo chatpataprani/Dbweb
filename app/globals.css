@@ -833,3 +833,17 @@
 
 /* UPI QR payment block */
 .upiQrWrap{display:flex;flex-direction:column;align-items:center;gap:12px;margin:18px 0}.upiQrImage{display:block;width:min(240px,100%);height:auto;aspect-ratio:1;object-fit:contain;background:#fff;padding:8px;border:1px solid var(--border,#e5e7eb);border-radius:14px}.upiIdRow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;width:100%;padding:12px;border:1px solid var(--border,#e5e7eb);border-radius:12px;overflow-wrap:anywhere}.upiIdRow span{min-width:0;overflow-wrap:anywhere}.upiIdRow button{flex-shrink:0}
+
+
+/* Site-wide overflow safeguards: preserve vertical scrolling and tool-specific layouts. */
+html {
+  max-width: 100%;
+  overflow-x: clip;
+}
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+img, video, iframe, canvas, svg {
+  max-width: 100%;
+}
