@@ -886,3 +886,79 @@ img, video, iframe, canvas, svg {
 .dbDocsFooter{max-width:1000px;margin:28px auto 0;padding-top:18px;border-top:1px solid var(--bd,#dedfd9);display:flex;flex-wrap:wrap;gap:20px}
 .dbDocsFooter a{color:var(--mu,#6b7080);font-size:12px;text-decoration:none}
 @media(max-width:600px){.dbDocsGrid{grid-template-columns:1fr}.dbDocsNav{gap:16px}.dbDocsCard{padding:18px}}
+
+
+/* Refined Dbweb Help Center */
+.dbDocsPage{position:relative;isolation:isolate;max-width:none;width:100%;min-height:100svh;margin:0;padding:0 clamp(20px,5.5vw,84px) 28px;background:var(--bg,#f6f6f4);color:var(--tx,#1b1d22);overflow:hidden}
+.dbDocsNav{position:relative;z-index:2;max-width:1180px;height:78px;margin:0 auto;display:flex;align-items:center;gap:30px;border-bottom:1px solid var(--bd,#dedfd9)}
+.dbDocsNav a{font-size:13px;color:var(--mu,#6b7080);text-decoration:none;transition:color .18s ease,background .18s ease,border-color .18s ease}
+.dbDocsNav a:hover,.dbDocsFooter a:hover{color:var(--ac,#3d5bd9)}
+.dbDocsNav .dbDocsBrand{display:inline-flex;align-items:center;gap:10px;margin-right:auto;font-size:17px;font-weight:750;letter-spacing:-.04em;color:var(--tx,#1b1d22)}
+.dbDocsBrandMark{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--ac,#3d5bd9);color:#fff;font-size:17px;font-weight:800;letter-spacing:-.06em;box-shadow:0 5px 12px #3d5bd924}
+.dbDocsBrandDot,.dbDocsFooterBrand span{color:var(--ac,#3d5bd9)}
+.dbDocsNavLinks{display:flex;align-items:center;gap:26px}
+.dbDocsNav .dbDocsNavActive{color:var(--tx,#1b1d22);font-weight:650}
+.dbDocsNavButton{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--bd,#dedfd9);background:var(--s1,#fff);border-radius:8px;padding:10px 13px;color:var(--tx,#1b1d22)!important;font-weight:600}
+.dbDocsNavButton:hover{border-color:var(--ac,#3d5bd9)!important;background:var(--acs,#e6eafb)}
+.dbDocsHero{position:relative;max-width:1180px;margin:0 auto;padding:clamp(52px,7vw,90px) 0 clamp(58px,7vw,86px);display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,.82fr);align-items:center;gap:clamp(40px,7vw,100px)}
+.dbDocsHeroCopy{position:relative;z-index:1;max-width:560px}
+.dbDocsEyebrow,.dbDocsSectionEyebrow{display:flex;align-items:center;gap:9px;font-size:10px;font-weight:800;letter-spacing:.17em;color:var(--ac,#3d5bd9)}
+.dbDocsEyebrowDot{width:7px;height:7px;border-radius:50%;background:var(--ac,#3d5bd9);box-shadow:0 0 0 4px var(--acs,#e6eafb)}
+.dbDocsHero h1{margin:22px 0 18px;font-size:clamp(44px,6vw,76px);line-height:.99;letter-spacing:-.075em;font-weight:760;color:var(--tx,#1b1d22)}
+.dbDocsHero h1 span{color:var(--ac,#3d5bd9)}
+.dbDocsHeroCopy>p{max-width:430px;font-size:15px;line-height:1.85;color:var(--mu,#6b7080)}
+.dbDocsHeroActions{display:flex;align-items:center;gap:24px;margin-top:28px;flex-wrap:wrap}
+.dbDocsHeroActions a,.dbDocsContactButton{display:inline-flex;align-items:center;justify-content:center;gap:14px;text-decoration:none;font-size:13px;font-weight:650;transition:transform .18s ease,background .18s ease,border-color .18s ease}
+.dbDocsPrimary{min-height:46px;padding:0 17px;border-radius:8px;background:var(--ac,#3d5bd9);color:#fff!important;box-shadow:0 8px 18px #3d5bd921}
+.dbDocsPrimary:hover{transform:translateY(-2px);background:#304bc0}
+.dbDocsTextLink{color:var(--tx,#1b1d22)!important}
+.dbDocsTextLink:hover{color:var(--ac,#3d5bd9)!important}
+.dbDocsHeroPanel{position:relative;z-index:1;padding:22px;border:1px solid var(--bd,#dedfd9);border-radius:15px;background:var(--s1,#fff);box-shadow:0 20px 55px #20243a0a}
+.dbDocsPanelTop{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:20px;border-bottom:1px solid var(--bd,#dedfd9)}
+.dbDocsPanelIcon{width:35px;height:35px;display:grid;place-items:center;border-radius:10px;background:var(--acs,#e6eafb);color:var(--ac,#3d5bd9);font-size:19px;font-weight:750}
+.dbDocsPanelStatus{display:flex;align-items:center;gap:7px;font-size:9px;font-weight:750;letter-spacing:.1em;color:var(--mu,#6b7080)}
+.dbDocsPanelStatus i{width:6px;height:6px;border-radius:50%;background:var(--ok,#2f8f5b)}
+.dbDocsPanelTitle{font-size:19px;font-weight:720;letter-spacing:-.035em;padding:20px 0 9px}
+.dbDocsPanelRow{display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:1px solid var(--bd,#dedfd9);text-decoration:none;color:var(--tx,#1b1d22);transition:transform .18s ease}
+.dbDocsPanelRow:hover{transform:translateX(3px)}
+.dbDocsPanelGlyph{flex:0 0 38px;width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--bd,#dedfd9);border-radius:9px;color:var(--ac,#3d5bd9);font-size:11px;font-weight:750}
+.dbDocsPanelRow>span:nth-child(2){display:grid;gap:3px;min-width:0}
+.dbDocsPanelRow strong{font-size:12px;font-weight:700}
+.dbDocsPanelRow small{font-size:11px;line-height:1.5;color:var(--mu,#6b7080)}
+.dbDocsPanelRow>b{margin-left:auto;font-size:15px;font-weight:500;color:var(--mu,#6b7080)}
+.dbDocsPanelFoot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:18px;font-size:11px;color:var(--mu,#6b7080)}
+.dbDocsPanelFoot a{color:var(--ac,#3d5bd9);font-weight:650;text-decoration:none}
+.dbDocsHeroGrid{position:absolute;z-index:-1;right:-150px;top:30px;width:430px;height:430px;opacity:.45;background-image:radial-gradient(var(--bd,#dedfd9) 1px,transparent 1px);background-size:17px 17px;mask-image:radial-gradient(ellipse at center,#000 12%,transparent 72%);pointer-events:none}
+.dbDocsGuideSection{max-width:1180px;margin:0 auto;padding:36px 0 52px;border-top:1px solid var(--bd,#dedfd9)}
+.dbDocsSectionHead{display:flex;align-items:end;justify-content:space-between;gap:28px;margin-bottom:24px}
+.dbDocsSectionEyebrow{font-size:9px}
+.dbDocsSectionHead h2{margin-top:10px;font-size:clamp(25px,3vw,34px);line-height:1.15;letter-spacing:-.055em;font-weight:730}
+.dbDocsSectionHead>p{max-width:340px;font-size:12px;line-height:1.8;color:var(--mu,#6b7080)}
+.dbDocsGrid{max-width:none;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.dbDocsCard{min-width:0;padding:23px 24px 21px;border:1px solid var(--bd,#dedfd9);border-radius:12px;background:var(--s1,#fff);transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.dbDocsCard:hover{transform:translateY(-2px);border-color:#c4cbea;box-shadow:0 12px 28px #20243a08}
+.dbDocsCardTop{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dbDocsCardNumber{font-size:11px;font-weight:800;color:var(--ac,#3d5bd9);letter-spacing:.08em}
+.dbDocsCardLabel{font-size:9px;font-weight:750;letter-spacing:.12em;color:var(--mu,#6b7080)}
+.dbDocsCard h3{margin:18px 0 9px;font-size:19px;line-height:1.25;font-weight:720;letter-spacing:-.035em;color:var(--tx,#1b1d22)}
+.dbDocsCard p{max-width:490px;font-size:12px;line-height:1.85;color:var(--mu,#6b7080);margin:0}
+.dbDocsCardLinks{display:flex;flex-wrap:wrap;gap:9px 18px;margin-top:19px;padding-top:15px;border-top:1px solid var(--bd,#dedfd9)}
+.dbDocsCardLinks a{display:inline-flex;gap:3px;margin:0;font-size:11px;font-weight:650;color:var(--ac,#3d5bd9);text-decoration:none}
+.dbDocsCardLinks a:hover{text-decoration:underline;text-underline-offset:3px}
+.dbDocsContact{max-width:1180px;margin:0 auto 42px;padding:23px 25px;display:flex;align-items:center;gap:18px;border:1px solid var(--bd,#dedfd9);border-radius:13px;background:var(--s2,#eeeeea)}
+.dbDocsContactMark{flex:0 0 42px;width:42px;height:42px;display:grid;place-items:center;border-radius:11px;background:var(--s1,#fff);color:var(--ac,#3d5bd9);font-size:19px}
+.dbDocsContact>div:nth-child(2){flex:1;min-width:0}
+.dbDocsContact>div:nth-child(2)>span{font-size:9px;font-weight:800;letter-spacing:.15em;color:var(--ac,#3d5bd9)}
+.dbDocsContact h2{margin:5px 0;font-size:17px;font-weight:720;letter-spacing:-.035em}
+.dbDocsContact p{font-size:11px;line-height:1.7;color:var(--mu,#6b7080)}
+.dbDocsContactButton{flex:0 0 auto;min-height:41px;padding:0 13px;border:1px solid var(--bd,#dedfd9);border-radius:8px;background:var(--s1,#fff);color:var(--tx,#1b1d22)!important}
+.dbDocsContactButton:hover{border-color:var(--ac,#3d5bd9);transform:translateY(-1px)}
+.dbDocsFooter{max-width:1180px;margin:0 auto;padding:20px 0 0;border-top:1px solid var(--bd,#dedfd9);display:flex;align-items:center;gap:20px}
+.dbDocsFooterBrand{font-size:15px!important;font-weight:800!important;letter-spacing:-.04em;color:var(--tx,#1b1d22)!important}
+.dbDocsFooter>span{font-size:10px;color:var(--mu,#6b7080)}
+.dbDocsFooter>div{display:flex;gap:17px;margin-left:auto}
+.dbDocsFooter>div a{font-size:11px;color:var(--mu,#6b7080);text-decoration:none}
+.dbDocsFooter small{font-size:10px;color:var(--mu,#6b7080)}
+@media(max-width:800px){.dbDocsPage{padding:0 22px 24px}.dbDocsNav{height:68px;gap:15px}.dbDocsNavLinks{gap:16px}.dbDocsNavButton{padding:9px 10px;font-size:11px}.dbDocsHero{grid-template-columns:1fr;gap:34px;padding:54px 0 50px}.dbDocsHeroCopy{max-width:650px}.dbDocsHero h1{font-size:clamp(48px,9vw,70px)}.dbDocsHeroPanel{max-width:600px;width:100%}.dbDocsHeroGrid{right:-190px;top:0}.dbDocsSectionHead{align-items:flex-start;flex-direction:column;gap:10px}.dbDocsSectionHead>p{max-width:500px}.dbDocsGuideSection{padding-top:30px}.dbDocsContact{align-items:flex-start;flex-wrap:wrap}.dbDocsContact>div:nth-child(2){flex-basis:calc(100% - 65px)}.dbDocsContactButton{margin-left:60px}}
+@media(max-width:520px){.dbDocsPage{padding:0 16px 22px}.dbDocsNav{height:64px;gap:12px}.dbDocsNavLinks{gap:12px}.dbDocsNavLinks a{font-size:11px}.dbDocsNavButton{width:36px;height:36px;padding:0;justify-content:center;font-size:0;gap:0}.dbDocsNavButton span{font-size:14px}.dbDocsNav .dbDocsBrand{gap:7px;font-size:15px}.dbDocsBrandMark{width:27px;height:27px;font-size:15px}.dbDocsHero{padding:47px 0 40px;gap:27px}.dbDocsHero h1{margin-top:18px;font-size:clamp(43px,12vw,58px)}.dbDocsHeroCopy>p{font-size:13px}.dbDocsHeroActions{gap:18px;margin-top:22px}.dbDocsPrimary{min-height:43px}.dbDocsHeroPanel{padding:17px;border-radius:12px}.dbDocsPanelStatus{font-size:8px;letter-spacing:.07em}.dbDocsPanelTitle{font-size:17px}.dbDocsPanelRow{gap:10px}.dbDocsPanelRow small{font-size:10px}.dbDocsPanelFoot{align-items:flex-start;flex-direction:column;gap:6px}.dbDocsGuideSection{padding:27px 0 36px}.dbDocsSectionHead h2{font-size:27px}.dbDocsGrid{grid-template-columns:1fr;gap:10px}.dbDocsCard{padding:20px}.dbDocsCard h3{margin-top:15px}.dbDocsContact{padding:18px;gap:13px;margin-bottom:32px}.dbDocsContactMark{width:36px;height:36px;flex-basis:36px}.dbDocsContact>div:nth-child(2){flex-basis:calc(100% - 50px)}.dbDocsContact h2{font-size:16px}.dbDocsContactButton{margin-left:49px}.dbDocsFooter{display:grid;grid-template-columns:1fr auto;gap:8px 12px}.dbDocsFooter>span{grid-column:1/-1;grid-row:2}.dbDocsFooter>div{gap:12px;margin-left:0;grid-column:1/-1;grid-row:3}.dbDocsFooter small{grid-column:2;grid-row:1;text-align:right}}
+@media(prefers-reduced-motion:reduce){.dbDocsPage *{scroll-behavior:auto!important;transition:none!important}}
