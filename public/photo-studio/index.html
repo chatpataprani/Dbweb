@@ -151,7 +151,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:26px;background:var(--face
 .welcome[hidden]{display:none!important}
 .welcome .win{width:100%;margin:auto}
 .welcome .hero{background:var(--mid);padding:6px;box-shadow:inset 1px 1px var(--mid),inset -1px -1px var(--hi),inset 2px 2px #000,inset -2px -2px var(--soft)}
-.welcome .hero div{background:#161625;color:#fff;text-align:center;padding:22px 10px;font:44px/1 var(--mono);text-shadow:0 0 8px #ff7ad9,2px 2px 0 #000;letter-spacing:2px}
+.welcome .hero div{position:relative;isolation:isolate;overflow:hidden;background:transparent;color:#fff;text-align:center;padding:22px 10px;font:44px/1 var(--mono);text-shadow:0 0 8px #ff7ad9,2px 2px 0 #000;letter-spacing:2px}.welcome .hero div::before{content:"";position:absolute;inset:-5px;z-index:-1;background:#161625;filter:blur(2.5px);transform:scale(1.02);pointer-events:none}
 .welcome .hero small{display:block;font:16px var(--ui);letter-spacing:.5px;margin-top:6px;text-shadow:1px 1px 0 #000}
 .welcome .big{min-height:56px;font-size:21px}
 .welcome .chips span{background:var(--soft);padding:4px 8px;font-size:15px;box-shadow:inset 1px 1px var(--mid),inset -1px -1px var(--hi)}
@@ -1758,7 +1758,7 @@ if(document.fonts&&document.fonts.load)Promise.all(['DM Sans','Space Grotesk','B
   document.body.style.backgroundSize='cover';
   document.body.style.backgroundRepeat='no-repeat';
   const style=document.createElement('style');
-  style.textContent='.welcome::before{background-image:linear-gradient(rgba(0,0,0,.12),rgba(0,0,0,.18)),'+image+'!important}.welcome .hero div{background-image:linear-gradient(rgba(0,0,0,.12),rgba(0,0,0,.22)),'+image+'!important;background-position:center!important;background-size:cover!important}';
+  style.textContent='.welcome::before{background-image:linear-gradient(rgba(0,0,0,.12),rgba(0,0,0,.18)),'+image+'!important}.welcome .hero div::before{background-image:linear-gradient(rgba(0,0,0,.12),rgba(0,0,0,.22)),'+image+'!important;background-position:center!important;background-size:cover!important;filter:blur(3px) contrast(1.08)!important;image-rendering:pixelated!important}';
   document.head.appendChild(style);
  }catch(e){console.error('Dbweb Lab local background failed:',e);}
 })();
