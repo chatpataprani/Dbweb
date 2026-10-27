@@ -31,7 +31,7 @@ export default function StatusPage() {
 
   return (
     <main className="dbInfoPage">
-      <nav className="dbInfoNav"><a href="/" className="dbInfoBrand">Dbweb</a><a href="/">Home</a><a href="/tools">Tools</a></nav>
+      <nav className="dbInfoNav"><a href="/" className="dbInfoBrand"><img className="dbInfoBrandLogo" src="/dbweb-logo.svg" alt="" />Dbweb</a><a href="/">Home</a><a href="/tools">Tools</a></nav>
       <section className="dbInfoCard">
         <p className="dbInfoEyebrow">SERVICE STATUS</p>
         <h1>Dbweb status</h1>
