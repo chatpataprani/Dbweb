@@ -962,3 +962,71 @@ img, video, iframe, canvas, svg {
 @media(max-width:800px){.dbDocsPage{padding:0 22px 24px}.dbDocsNav{height:68px;gap:15px}.dbDocsNavLinks{gap:16px}.dbDocsNavButton{padding:9px 10px;font-size:11px}.dbDocsHero{grid-template-columns:1fr;gap:34px;padding:54px 0 50px}.dbDocsHeroCopy{max-width:650px}.dbDocsHero h1{font-size:clamp(48px,9vw,70px)}.dbDocsHeroPanel{max-width:600px;width:100%}.dbDocsHeroGrid{right:-190px;top:0}.dbDocsSectionHead{align-items:flex-start;flex-direction:column;gap:10px}.dbDocsSectionHead>p{max-width:500px}.dbDocsGuideSection{padding-top:30px}.dbDocsContact{align-items:flex-start;flex-wrap:wrap}.dbDocsContact>div:nth-child(2){flex-basis:calc(100% - 65px)}.dbDocsContactButton{margin-left:60px}}
 @media(max-width:520px){.dbDocsPage{padding:0 16px 22px}.dbDocsNav{height:64px;gap:12px}.dbDocsNavLinks{gap:12px}.dbDocsNavLinks a{font-size:11px}.dbDocsNavButton{width:36px;height:36px;padding:0;justify-content:center;font-size:0;gap:0}.dbDocsNavButton span{font-size:14px}.dbDocsNav .dbDocsBrand{gap:7px;font-size:15px}.dbDocsBrandMark{width:27px;height:27px;font-size:15px}.dbDocsHero{padding:47px 0 40px;gap:27px}.dbDocsHero h1{margin-top:18px;font-size:clamp(43px,12vw,58px)}.dbDocsHeroCopy>p{font-size:13px}.dbDocsHeroActions{gap:18px;margin-top:22px}.dbDocsPrimary{min-height:43px}.dbDocsHeroPanel{padding:17px;border-radius:12px}.dbDocsPanelStatus{font-size:8px;letter-spacing:.07em}.dbDocsPanelTitle{font-size:17px}.dbDocsPanelRow{gap:10px}.dbDocsPanelRow small{font-size:10px}.dbDocsPanelFoot{align-items:flex-start;flex-direction:column;gap:6px}.dbDocsGuideSection{padding:27px 0 36px}.dbDocsSectionHead h2{font-size:27px}.dbDocsGrid{grid-template-columns:1fr;gap:10px}.dbDocsCard{padding:20px}.dbDocsCard h3{margin-top:15px}.dbDocsContact{padding:18px;gap:13px;margin-bottom:32px}.dbDocsContactMark{width:36px;height:36px;flex-basis:36px}.dbDocsContact>div:nth-child(2){flex-basis:calc(100% - 50px)}.dbDocsContact h2{font-size:16px}.dbDocsContactButton{margin-left:49px}.dbDocsFooter{display:grid;grid-template-columns:1fr auto;gap:8px 12px}.dbDocsFooter>span{grid-column:1/-1;grid-row:2}.dbDocsFooter>div{gap:12px;margin-left:0;grid-column:1/-1;grid-row:3}.dbDocsFooter small{grid-column:2;grid-row:1;text-align:right}}
 @media(prefers-reduced-motion:reduce){.dbDocsPage *{scroll-behavior:auto!important;transition:none!important}}
+
+
+/* Documentation UI — restrained, documentation-first layout */
+.dbDocsPage{--docs-line:var(--bd,#dedfd9);--docs-muted:var(--mu,#6b7080);--docs-accent:var(--ac,#3d5bd9);max-width:none;width:100%;min-height:100vh;margin:0;padding:0 clamp(18px,4vw,54px) 48px;background:var(--bg,#f6f6f4);color:var(--tx,#1b1d22);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:visible}
+.dbDocsTopbar{max-width:1280px;height:68px;margin:0 auto;display:flex;align-items:center;gap:24px;border-bottom:1px solid var(--docs-line)}
+.dbDocsTopbar a{text-decoration:none}
+.dbDocsBrand{display:flex;align-items:center;gap:9px;margin-right:12px;color:var(--tx)!important;font-size:17px;font-weight:750;letter-spacing:-.045em}
+.dbDocsLogo{display:grid;place-items:center;width:29px;height:29px;border-radius:7px;background:var(--docs-accent);color:#fff;font-size:17px;font-weight:800;letter-spacing:-.08em}
+.dbDocsBreadcrumb{display:flex;align-items:center;gap:8px;color:var(--docs-muted);font-size:12px}
+.dbDocsBreadcrumb strong{font-weight:600;color:var(--tx)}
+.dbDocsTopSupport{display:inline-flex;align-items:center;gap:8px;margin-left:auto;padding:8px 11px;border:1px solid var(--docs-line);border-radius:7px;color:var(--tx)!important;background:var(--s1,#fff);font-size:12px;font-weight:550}
+.dbDocsTopSupport:hover{border-color:var(--docs-accent);color:var(--docs-accent)!important}
+.dbDocsLayout{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:225px minmax(0,790px);justify-content:space-between;gap:clamp(34px,6vw,92px);align-items:start}
+.dbDocsSidebar{position:sticky;top:20px;padding:35px 0 24px;border-right:1px solid var(--docs-line);min-height:calc(100vh - 68px);padding-right:22px}
+.dbDocsSidebarLabel{padding:0 10px 10px;color:var(--docs-muted);font-size:10px;font-weight:750;letter-spacing:.1em}
+.dbDocsSidebarSecond{margin-top:28px}
+.dbDocsSideLink{display:flex;align-items:center;gap:10px;min-height:37px;margin:2px 0;padding:8px 10px;border-radius:6px;color:var(--docs-muted);font-size:12px;text-decoration:none;transition:background .15s ease,color .15s ease}
+.dbDocsSideLink:hover{background:var(--s2,#eeeeea);color:var(--tx)}
+.dbDocsSideLink.active{background:var(--acs,#e6eafb);color:var(--docs-accent);font-weight:650}
+.dbDocsSideArrow{margin-left:auto;opacity:0;transition:opacity .15s ease}
+.dbDocsSideLink:hover .dbDocsSideArrow{opacity:1}
+.dbDocsSidebarHelp{margin-top:42px;padding:15px 13px;border:1px solid var(--docs-line);border-radius:8px;background:var(--s1,#fff)}
+.dbDocsSidebarHelpIcon{display:grid;place-items:center;width:30px;height:30px;margin-bottom:13px;border-radius:7px;background:var(--s2,#eeeeea);color:var(--docs-accent)}
+.dbDocsSidebarHelp strong{font-size:12px;font-weight:650}
+.dbDocsSidebarHelp p{margin:6px 0 12px;color:var(--docs-muted);font-size:11px;line-height:1.65}
+.dbDocsSidebarHelp>a{display:inline-flex;align-items:center;gap:5px;color:var(--docs-accent);font-size:11px;font-weight:650;text-decoration:none}
+.dbDocsContent{min-width:0;padding:47px 0 0}
+.dbDocsBreadcrumbMobile{display:none}
+.dbDocsKicker{font-size:10px;letter-spacing:.13em;font-weight:750;color:var(--docs-accent)}
+.dbDocsContent h1{margin:12px 0 12px;font-size:clamp(32px,4vw,42px);line-height:1.13;letter-spacing:-.055em;font-weight:740}
+.dbDocsIntro{max-width:650px;color:var(--docs-muted);font-size:14px;line-height:1.85}
+.dbDocsNotice{display:flex;align-items:center;gap:13px;margin-top:27px;padding:15px 16px;border:1px solid #d5dcf7;border-radius:8px;background:var(--acs,#e6eafb);color:var(--docs-accent)}
+.dbDocsNotice>svg{flex:0 0 auto}
+.dbDocsNotice p{flex:1;min-width:0;color:var(--tx);font-size:12px;line-height:1.7}
+.dbDocsNotice p strong{font-weight:700}
+.dbDocsNotice>a{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;border:1px solid #cbd4f5;border-radius:6px;background:var(--s1,#fff);color:var(--docs-accent)}
+.dbDocsTopicsSection,.dbDocsGuidesSection{margin-top:38px}
+.dbDocsSectionTitle{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:15px}
+.dbDocsSectionTitle h2{font-size:17px;letter-spacing:-.025em;font-weight:700}
+.dbDocsSectionTitle>span{color:var(--docs-muted);font-size:10px}
+.dbDocsTopicGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.dbDocsTopic{position:relative;display:flex;gap:12px;min-width:0;min-height:157px;padding:16px 15px;border:1px solid var(--docs-line);border-radius:8px;background:var(--s1,#fff);color:var(--tx);text-decoration:none;transition:border-color .16s ease,background .16s ease}
+.dbDocsTopic:hover{border-color:#bfcaf4;background:var(--s1,#fff)}
+.dbDocsTopicIcon{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border:1px solid var(--docs-line);border-radius:7px;color:var(--docs-accent);background:var(--bg,#f6f6f4)}
+.dbDocsTopicCopy{display:flex;flex-direction:column;align-items:flex-start;min-width:0}
+.dbDocsTopicCopy small{margin:2px 0 7px;color:var(--docs-muted);font-size:9px;font-weight:750;letter-spacing:.09em}
+.dbDocsTopicCopy strong{font-size:13px;line-height:1.4;font-weight:680}
+.dbDocsTopicCopy>span{margin-top:5px;color:var(--docs-muted);font-size:11px;line-height:1.6}
+.dbDocsTopicCopy em{display:inline-flex;align-items:center;gap:5px;margin-top:auto;padding-top:12px;color:var(--docs-accent);font-size:10px;font-style:normal;font-weight:650}
+.dbDocsTopicArrow{position:absolute;top:16px;right:14px;color:var(--docs-muted);opacity:0;transition:opacity .15s ease,transform .15s ease}
+.dbDocsTopic:hover .dbDocsTopicArrow{opacity:1;transform:translate(1px,-1px)}
+.dbDocsGuideList{border-top:1px solid var(--docs-line)}
+.dbDocsGuide{display:flex;align-items:flex-start;gap:14px;padding:15px 7px;border-bottom:1px solid var(--docs-line);color:var(--tx);text-decoration:none;transition:background .15s ease}
+.dbDocsGuide:hover{background:var(--s2,#eeeeea)}
+.dbDocsGuideNumber{padding-top:2px;color:var(--docs-muted);font-size:10px;font-variant-numeric:tabular-nums}
+.dbDocsGuideCopy{display:grid;gap:4px;flex:1;min-width:0}
+.dbDocsGuideCopy strong{font-size:12px;font-weight:650}
+.dbDocsGuideCopy>span{color:var(--docs-muted);font-size:11px;line-height:1.65}
+.dbDocsGuideArrow{margin-top:1px;color:var(--docs-muted)}
+.dbDocsGuide:hover .dbDocsGuideArrow{color:var(--docs-accent)}
+.dbDocsFooter{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:38px;padding-top:18px;border-top:1px solid var(--docs-line);font-size:10px;color:var(--docs-muted)}
+.dbDocsFooter>a{display:inline-flex;align-items:center;gap:3px;color:var(--docs-accent);text-decoration:none}
+.dbDocsFooter>div{display:flex;gap:15px;margin-left:auto}
+.dbDocsFooter>div a{color:var(--docs-muted);text-decoration:none}
+.dbDocsFooter a:hover{color:var(--docs-accent)}
+@media(max-width:900px){.dbDocsPage{padding:0 22px 36px}.dbDocsLayout{grid-template-columns:190px minmax(0,1fr);gap:28px}.dbDocsSidebar{padding-right:15px}.dbDocsTopicGrid{grid-template-columns:1fr}.dbDocsTopic{min-height:130px}.dbDocsContent{padding-top:37px}}
+@media(max-width:640px){.dbDocsPage{padding:0 16px 28px}.dbDocsTopbar{height:60px;gap:12px}.dbDocsBrand{font-size:15px;margin-right:0}.dbDocsLogo{width:27px;height:27px;font-size:15px}.dbDocsBreadcrumb{display:none}.dbDocsTopSupport{width:34px;height:34px;justify-content:center;padding:0}.dbDocsTopSupport span{display:none}.dbDocsLayout{display:block}.dbDocsSidebar{display:none}.dbDocsContent{padding-top:27px}.dbDocsBreadcrumbMobile{display:flex;align-items:center;gap:5px;margin-bottom:24px;color:var(--docs-muted);font-size:11px}.dbDocsContent h1{font-size:34px}.dbDocsIntro{font-size:13px}.dbDocsNotice{align-items:flex-start;gap:10px;padding:13px}.dbDocsNotice p{font-size:11px}.dbDocsTopicsSection,.dbDocsGuidesSection{margin-top:31px}.dbDocsTopicGrid{grid-template-columns:1fr;gap:9px}.dbDocsTopic{min-height:0;padding:15px}.dbDocsTopicCopy em{padding-top:10px}.dbDocsTopicArrow{opacity:1}.dbDocsFooter{margin-top:30px;gap:8px}.dbDocsFooter>div{width:100%;margin:6px 0 0;order:3}.dbDocsFooter>div a{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.dbDocsPage *{transition:none!important}}
