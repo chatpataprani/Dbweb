@@ -6,7 +6,7 @@ export const metadata = {
 export default function PrivacyPage() {
   return (
     <div className="legalPage">
-      <nav className="legalNav"><a className="legalBrand" href="/">Dbweb</a><a href="/">Home</a><a href="/terms">Terms of Service</a></nav>
+      <nav className="legalNav"><a className="legalBrand" href="/"><img className="legalBrandLogo" src="/dbweb-logo.svg" alt="" />Dbweb</a><a href="/">Home</a><a href="/terms">Terms of Service</a></nav>
       <main className="legalContent">
         <p className="legalEyebrow">LEGAL</p>
         <h1>Privacy Policy</h1>
