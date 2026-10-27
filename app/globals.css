@@ -1050,3 +1050,8 @@ img, video, iframe, canvas, svg {
 .dbInfoBrandLogo{display:block;width:30px;height:44px;object-fit:contain;flex:0 0 auto}
 .legalBrand{display:inline-flex;align-items:center;gap:10px}
 :root[data-theme="dark"] .brandLogo,:root[data-theme="dark"] .footerBrandLogo,:root[data-theme="dark"] .dbDocsLogo,:root[data-theme="dark"] .legalBrandLogo,:root[data-theme="dark"] .dbInfoBrandLogo{filter:invert(1)}
+
+.dbwebInlineLogo{display:inline-block;width:25px;height:38px;object-fit:contain;vertical-align:middle;flex:0 0 auto}
+.streamBack{display:inline-flex;align-items:center;gap:8px}
+.mailBrandLogo{display:inline-block;width:27px;height:39px;object-fit:contain;vertical-align:middle;margin-right:9px}
+@media(max-width:640px){.brandLogo{width:34px;height:46px}.footerBrandLogo{width:30px;height:42px}.dbDocsLogo{width:32px;height:45px}.legalBrandLogo{width:30px;height:42px}.dbInfoBrandLogo{width:28px;height:40px}}
