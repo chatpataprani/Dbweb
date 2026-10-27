@@ -1037,3 +1037,6 @@ img, video, iframe, canvas, svg {
 .footerBrandLogo{display:block;width:24px;height:34px;object-fit:contain;flex:0 0 auto;margin-bottom:8px}
 .dbDocsLogo{display:block;width:22px;height:34px;object-fit:contain;flex:0 0 auto}
 :root[data-theme="dark"] .brandLogo,:root[data-theme="dark"] .footerBrandLogo{filter:invert(1)}
+
+.dbDocsLogo{background:transparent!important;border-radius:0;color:inherit}
+:root[data-theme="dark"] .dbDocsLogo{filter:invert(1)}
