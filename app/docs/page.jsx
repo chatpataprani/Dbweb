@@ -23,7 +23,7 @@ export default function DocsPage() {
   return (
     <main className="dbDocsPage">
       <header className="dbDocsTopbar">
-        <a className="dbDocsBrand" href="/" aria-label="Dbweb home"><span className="dbDocsLogo">D</span><span>Dbweb</span></a>
+        <a className="dbDocsBrand" href="/" aria-label="Dbweb home"><img className="dbDocsLogo" src="/dbweb-logo.svg" alt="" /><span>Dbweb</span></a>
         <div className="dbDocsBreadcrumb"><span>Help center</span><ChevronRight size={14} strokeWidth={1.8} /><strong>Documentation</strong></div>
         <a className="dbDocsTopSupport" href="mailto:lumenomore@hotmail.com"><LifeBuoy size={16} strokeWidth={1.8} /><span>Contact support</span></a>
       </header>
