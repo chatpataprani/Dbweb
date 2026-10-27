@@ -59,6 +59,6 @@ export default function Home(){
     <a href="/docs">Docs</a>
     <a href="mailto:lumenomore@hotmail.com">Contact</a>
   </nav>
-  <div className="footerBottom"><span>© {new Date().getFullYear()} Dbweb</span><span>Tools and services may depend on third-party providers.</span></div>
+  <div className="footerBottom"><span>© {new Date().getFullYear()} Dbweb</span></div>
 </footer></div></>; 
 }
