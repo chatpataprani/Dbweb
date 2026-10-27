@@ -16,11 +16,12 @@
     button{margin-top:14px;border:0;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;padding:13px 18px;font-size:1rem;cursor:pointer}button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #91a5ff;outline-offset:3px}
     #result{margin-top:18px;border-radius:12px;padding:16px;display:none}#result.good{display:block;background:#e9f8f0;color:var(--good)}#result.bad{display:block;background:#fff0ef;color:var(--bad)}
     .notice{border-left:4px solid #e0a126;background:#fff8e7;padding:12px 14px;border-radius:6px;color:#624a12;margin-top:24px}footer{font-size:.9rem;margin-top:20px}
-  </style>
+   .aadhaarBrand{display:inline-flex;align-items:center;gap:9px}.aadhaarBrand img{width:25px;height:38px;object-fit:contain;vertical-align:middle}
+</style>
     <link rel="stylesheet" href="/dbweb-upload.css">
 </head>
 <body>
-  <header><nav><strong>Dbweb · Aadhaar Checksum Validator</strong><a href="/tools">All tools</a></nav></header>
+  <header><nav><strong class="aadhaarBrand"><img src="/dbweb-logo.svg" alt="" />Dbweb · Aadhaar Checksum Validator</strong><a href="/tools">All tools</a></nav></header>
   <main><section class="card">
     <h1>Local Aadhaar format check</h1>
     <p>Checks the 12-digit format and Verhoeff checksum directly in this browser.</p>
