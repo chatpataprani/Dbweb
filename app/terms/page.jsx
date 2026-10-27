@@ -6,7 +6,7 @@ export const metadata = {
 export default function TermsPage() {
   return (
     <div className="legalPage">
-      <nav className="legalNav"><a className="legalBrand" href="/">Dbweb</a><a href="/">Home</a><a href="/privacy">Privacy Policy</a></nav>
+      <nav className="legalNav"><a className="legalBrand" href="/"><img className="legalBrandLogo" src="/dbweb-logo.svg" alt="" />Dbweb</a><a href="/">Home</a><a href="/privacy">Privacy Policy</a></nav>
       <main className="legalContent">
         <p className="legalEyebrow">LEGAL</p>
         <h1>Terms of Service</h1>
