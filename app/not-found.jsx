@@ -41,7 +41,7 @@ export default function NotFound() {
         <nav className="db404Links" aria-label="Helpful links">
           {helpfulLinks.map(({label,href,icon:Icon}) => <Link key={href} href={href}><Icon size={15}/>{label}</Link>)}
         </nav>
-        <footer className="db404Footer">Dbweb <span>·</span> Lost in the web, not for long.</footer>
+        <footer className="db404Footer"><img src="/dbweb-logo.svg" alt="" />Dbweb <span>·</span> Lost in the web, not for long.</footer>
       </section>
       <style jsx>{`
         .db404{position:relative;isolation:isolate;overflow:hidden;min-height:100svh;display:flex;align-items:center;justify-content:center;padding:max(28px,env(safe-area-inset-top)) 20px max(28px,env(safe-area-inset-bottom));background:var(--bg,#f6f6f4);color:var(--tx,#1b1d22);font:15px/1.6 Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}
@@ -59,7 +59,7 @@ export default function NotFound() {
         .db404Actions .db404Secondary{background:var(--s1,#fff);color:var(--tx,#1b1d22)}.db404Actions .db404Secondary:hover{background:var(--s2,#eeeeea);border-color:var(--ac,#3d5bd9)}
         .db404Actions a:focus-visible,.db404Actions button:focus-visible,.db404Links a:focus-visible{outline:3px solid var(--acs,#e6eafb);outline-offset:3px}.db404Actions a:active,.db404Actions button:active{transform:translateY(1px)}
         .db404Links{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 24px;margin-top:28px;padding-top:20px;border-top:1px solid var(--bd,#dedfd9)}.db404Links a{display:inline-flex;align-items:center;gap:7px;color:var(--mu,#6b7080);font-size:13px;text-decoration:none;transition:color .15s}.db404Links a:hover{color:var(--ac,#3d5bd9);text-decoration:underline;text-underline-offset:4px}
-        .db404Footer{margin-top:23px;color:var(--mu,#6b7080);font-size:12px}.db404Footer span{padding:0 5px;color:var(--ac,#3d5bd9)}
+        .db404Footer{display:flex;align-items:center;justify-content:center;gap:7px}.db404Footer img{width:22px;height:32px;object-fit:contain}.db404Footer{margin-top:23px;color:var(--mu,#6b7080);font-size:12px}.db404Footer span{padding:0 5px;color:var(--ac,#3d5bd9)}
         @keyframes db404Twinkle{0%,100%{opacity:.12}50%{opacity:.38}}@keyframes db404Float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-10px) rotate(3deg)}}@keyframes db404Shoot{0%,75%,100%{opacity:0;transform:translate(0,0) rotate(18deg)}78%{opacity:.55}88%{opacity:0;transform:translate(120vw,40vh) rotate(18deg)}}
         @media(prefers-reduced-motion:reduce){.db404Sky i,.db404Shooting,.db404Code svg{animation:none}}@media(max-width:480px){.db404{padding-left:14px;padding-right:14px}.db404Content{padding:24px 17px;border-radius:15px}.db404Links{gap:12px 18px;margin-top:24px}.db404Actions a,.db404Actions button{flex:1;min-width:0}}@media(max-width:340px){.db404Actions{flex-direction:column}.db404Actions a,.db404Actions button{width:100%}}
       `}</style>
