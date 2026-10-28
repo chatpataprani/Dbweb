@@ -17,20 +17,25 @@ export async function GET(request){
     if(authError)throw authError;
     const authUsers=authResult?.users||[];
     const ids=authUsers.map(u=>u.id);
-    let profiles=[],devices=[];
+    let profiles=[],devices=[],rewards=[];
     if(ids.length){
-      const [profileResult,deviceResult]=await Promise.all([
+      const [profileResult,deviceResult,rewardResult]=await Promise.all([
         client.from("profiles").select("*").in("id",ids),
-        client.from("device_accounts").select("device_id,auth_user_id,display_name,credits,plan,plan_expires_at,created_at,updated_at").in("auth_user_id",ids).limit(5000)
+        client.from("device_accounts").select("device_id,auth_user_id,display_name,credits,plan,plan_expires_at,created_at,updated_at").in("auth_user_id",ids).limit(5000),
+        client.from("referral_reward_events").select("*").in("referrer_user_id",ids).order("created_at",{ascending:false}).limit(10000)
       ]);
       if(profileResult.error)throw profileResult.error;
       if(deviceResult.error)throw deviceResult.error;
+      if(rewardResult.error)throw rewardResult.error;
       profiles=profileResult.data||[];
       devices=deviceResult.data||[];
+      rewards=rewardResult.data||[];
     }
     const profileById=new Map(profiles.map(p=>[p.id,p]));
     const verifiedIds=new Set(authUsers.filter(u=>u.email_confirmed_at).map(u=>u.id));
     const devicesByUser=new Map();
+    const rewardsByUser=new Map();
+    for(const reward of rewards){const list=rewardsByUser.get(reward.referrer_user_id)||[];list.push(reward);rewardsByUser.set(reward.referrer_user_id,list);}
     for(const d of devices){
       const list=devicesByUser.get(d.auth_user_id)||[];
       list.push(d);devicesByUser.set(d.auth_user_id,list);
