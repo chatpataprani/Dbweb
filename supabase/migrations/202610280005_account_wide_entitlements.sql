@@ -199,7 +199,7 @@ returns jsonb
 language plpgsql
 security definer
 set search_path = public
-as $
+as $$
 declare
   v_payment public.device_payments%rowtype;
   v_device public.device_accounts%rowtype;
@@ -247,7 +247,7 @@ begin
   where id = p_payment_id;
   return jsonb_build_object('ok', true, 'status', case when p_action = 'approve' then 'approved' else 'rejected' end);
 end;
-$;
+$$;
 
 -- Reconcile legacy linked accounts before switching balance reads to profiles.
 -- For linked users, device balances reflect actual past spending; take the highest
