@@ -92,7 +92,7 @@ export default function LoginPage() {
     } catch (e) {
       const raw = e?.message || "Could not start social login.";
       setError(/provider is not enabled|unsupported provider|provider.*disabled/i.test(raw)
-        ? `${provider === "github" ? "GitHub" : "Google"} login is not enabled in Supabase. Configure its OAuth Client ID and Client Secret in Authentication → Sign In / Providers.`
+        ? "Google login is not enabled in Supabase. Configure its OAuth Client ID and Client Secret in Authentication → Sign In / Providers."
         : raw);
       setBusy(false);
     }
