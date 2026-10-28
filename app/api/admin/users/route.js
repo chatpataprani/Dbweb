@@ -29,6 +29,7 @@ export async function GET(request){
       devices=deviceResult.data||[];
     }
     const profileById=new Map(profiles.map(p=>[p.id,p]));
+    const verifiedIds=new Set(authUsers.filter(u=>u.email_confirmed_at).map(u=>u.id));
     const devicesByUser=new Map();
     for(const d of devices){
       const list=devicesByUser.get(d.auth_user_id)||[];
@@ -44,7 +45,7 @@ export async function GET(request){
         banned_until:u.banned_until||null,providers:u.app_metadata?.providers||[],
         user_metadata:{full_name:u.user_metadata?.full_name||u.user_metadata?.name||"",username:u.user_metadata?.username||p.username||"",avatar_url:u.user_metadata?.avatar_url||p.avatar_url||""},
         profile:{username:p.username||"",avatar_url:p.avatar_url||"",referral_code:p.referral_code||"",referred_by:p.referred_by||null,credits:p.credits??0,plan:p.plan||"free",plan_expires_at:p.plan_expires_at||null},
-        referral_count:profiles.filter(x=>x.referred_by===u.id).length,
+        referral_count:profiles.filter(x=>x.referred_by===u.id&&verifiedIds.has(x.id)).length,
         linked_devices:linked.map(d=>({device_id:d.device_id,display_name:d.display_name||"",credits:d.credits,plan:d.plan||"free",plan_expires_at:d.plan_expires_at||null,created_at:d.created_at||null,updated_at:d.updated_at||null})),
         linked_device_count:linked.length,
         total_device_credits:linked.reduce((sum,d)=>sum+Number(d.credits||0),0)
