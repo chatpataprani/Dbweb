@@ -249,6 +249,44 @@ begin
 end;
 $;
 
+-- Reconcile legacy linked accounts before switching balance reads to profiles.
+-- For linked users, device balances reflect actual past spending; take the highest
+-- mirrored balance (never sum device rows), then normalize all linked device mirrors.
+with device_state as (
+  select auth_user_id,
+         max(credits) as max_credits,
+         max(plan_expires_at) as max_expiry
+  from public.device_accounts
+  where auth_user_id is not null
+  group by auth_user_id
+)
+update public.profiles p
+set credits = coalesce(s.max_credits, p.credits, 0),
+    plan_expires_at = greatest(
+      coalesce(p.plan_expires_at, 'epoch'::timestamptz),
+      coalesce(s.max_expiry, 'epoch'::timestamptz)
+    ),
+    plan = case
+      when s.max_expiry is not null and (p.plan_expires_at is null or s.max_expiry > p.plan_expires_at)
+        then coalesce((select d.plan from public.device_accounts d where d.auth_user_id = p.id and d.plan_expires_at = s.max_expiry order by d.updated_at desc nulls last limit 1), p.plan, 'free')
+      else coalesce(p.plan, 'free')
+    end,
+    signup_credits_transferred = true
+from device_state s
+where p.id = s.auth_user_id;
+
+update public.profiles
+set plan_expires_at = null
+where plan_expires_at = 'epoch'::timestamptz;
+
+update public.device_accounts d
+set credits = coalesce(p.credits, 0),
+    plan = coalesce(p.plan, 'free'),
+    plan_expires_at = p.plan_expires_at,
+    updated_at = now()
+from public.profiles p
+where d.auth_user_id = p.id;
+
 revoke all on function public.link_device_to_user(uuid, uuid) from public, anon, authenticated;
 grant execute on function public.link_device_to_user(uuid, uuid) to service_role;
 revoke all on function public.spend_account_credit(uuid, uuid) from public, anon, authenticated;
