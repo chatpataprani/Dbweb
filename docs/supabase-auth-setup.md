@@ -36,18 +36,14 @@ Existing users who originally created a password can still choose Password on th
 
 In Supabase → Authentication → Sign In / Providers → Google, enable Google and save the Google OAuth Client ID and Client Secret from Google Cloud. In Google Cloud, the authorized JavaScript origin is `https://webdd.freeddns.org`, and the authorized redirect URI must be the Supabase callback URL copied from Supabase.
 
-## 5. GitHub provider
+## 5. Referral rewards and sign-in gates
 
-The login page includes GitHub login, but Supabase must have a GitHub OAuth app configured:
-
-1. In GitHub, open Settings → Developer settings → OAuth Apps → New OAuth App.
-2. Homepage URL: `https://webdd.freeddns.org`.
-3. Authorization callback URL: copy the exact callback URL shown under Supabase → Authentication → Sign In / Providers → GitHub (usually `https://YOUR_PROJECT_REF.supabase.co/auth/v1/callback`).
-4. Create the app and copy its Client ID and generate a Client Secret.
-5. Enter both values in Supabase → Authentication → Sign In / Providers → GitHub, enable the provider, and save.
-6. Test GitHub login from the Vercel preview first.
-
-The Client ID and Client Secret are account-specific credentials, so they cannot be safely invented in code or committed to GitHub. If the provider is not configured in Supabase, the GitHub button will return a provider-disabled error.
+- Lookup API results are withheld until the visitor signs in; signed-out requests do not spend a credit.
+- Plan viewing and payment submission require a signed-in account.
+- Each new verified email account starts with 3 free searches.
+- Verified referrals earn 5 additional searches at each 10-referral milestone; the 50-referral milestone also grants 7 days of unlimited access, and the 100-referral milestone also grants 30 days of unlimited access.
+- Rewards are recorded in `referral_reward_events` to prevent the same milestone being granted twice.
+- The admin dashboard is available only at `/admin`, protected by `ADMIN_PANEL_PASSWORD`, and is not linked from the public navigation.
 
 ## 6. Database migrations
 
