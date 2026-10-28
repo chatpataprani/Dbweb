@@ -107,7 +107,7 @@ export default function LoginPage() {
 
         <div style={styles.socials}>
           <button type="button" style={styles.secondary} disabled={busy} onClick={() => social("google")}>Continue with Google</button>
-          <button type="button" style={styles.secondary} disabled={busy} onClick={() => social("github")}>Continue with GitHub</button>
+          
         </div>
         <div style={styles.divider}><span>or use email</span></div>
 
