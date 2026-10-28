@@ -3,6 +3,10 @@ alter table public.profiles
   alter column credits set default 3,
   add column if not exists signup_credits_transferred boolean not null default false;
 
+update public.profiles p
+set signup_credits_transferred = true
+where exists (select 1 from public.device_accounts d where d.auth_user_id = p.id);
+
 create table if not exists public.referral_reward_events (
   id bigint generated always as identity primary key,
   referrer_user_id uuid not null references public.profiles(id) on delete cascade,
