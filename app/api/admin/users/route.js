@@ -53,6 +53,7 @@ export async function GET(request){
         referral_count:profiles.filter(x=>x.referred_by===u.id&&verifiedIds.has(x.id)).length,
         linked_devices:linked.map(d=>({device_id:d.device_id,display_name:d.display_name||"",credits:d.credits,plan:d.plan||"free",plan_expires_at:d.plan_expires_at||null,created_at:d.created_at||null,updated_at:d.updated_at||null})),
         linked_device_count:linked.length,
+        referral_rewards:rewardsByUser.get(u.id)||[],
         total_device_credits:linked.reduce((sum,d)=>sum+Number(d.credits||0),0)
       };
     });
