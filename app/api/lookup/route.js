@@ -8,6 +8,9 @@ export async function POST(request){
   const deviceId=request.headers.get("x-device-id")||"";
   if(!UUID.test(deviceId))return NextResponse.json({error:"Device ID is missing. Refresh the page and try again."},{status:400});
   const client=db();
+  const bearer=(request.headers.get("authorization")||"").match(/^Bearer\\s+(.+)$/i)?.[1]||"";
+  let signedInUser=null;
+  if(bearer){const {data:authData,error:authError}=await client.auth.getUser(bearer);if(!authError&&authData?.user)signedInUser=authData.user;}
   const {data:terms,error:termsError}=await client.from("terms_acceptances").select("terms_version").eq("device_id",deviceId).maybeSingle();
   if(termsError)throw termsError;
   if(!terms||terms.terms_version!=="2026-10-09")return NextResponse.json({error:"Accept the Terms and Conditions before using the lookup API.",terms_required:true},{status:428});
@@ -43,6 +46,7 @@ export async function POST(request){
   catch(fetchError){if(fetchError?.name==="TimeoutError"||fetchError?.name==="AbortError")return NextResponse.json({error:"Lookup service timed out. Please try again."},{status:504});throw fetchError;}
   const body=await response.text();let data;try{data=JSON.parse(body)}catch{data=body}data=dedupeData(data);
   if(!response.ok)return NextResponse.json({error:"Upstream lookup failed.",status:response.status},{status:502});
+  if(!signedInUser)return NextResponse.json({error:"Search completed. Sign in or create an account to view the results. No search credit was charged.",login_required:true},{status:401});
   if(!premiumActive){
    const {data:updated,error:creditError}=await client.from("device_accounts").update({credits:device.credits-1,updated_at:new Date().toISOString()}).eq("device_id",deviceId).eq("credits",device.credits).select("credits").maybeSingle();
    if(creditError||!updated)return NextResponse.json({error:"Credit balance changed; please retry."},{status:409});
