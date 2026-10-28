@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "../../lib/supabase-browser";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [mode, setMode] = useState("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -12,6 +14,14 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    getSupabaseBrowserClient().auth.getSession().then(({ data }) => {
+      if (active && data.session) router.replace("/account");
+    }).catch(() => {});
+    return () => { active = false; };
+  }, [router]);
 
   const callbackUrl = () => `${window.location.origin}/auth/callback`;
 
