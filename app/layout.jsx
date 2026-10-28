@@ -2,7 +2,6 @@ import "./globals.css";
 import "./component-motion.css";
 import SpotlightSurfaces from "../components/ui/spotlight-surfaces";
 import OfflineServiceWorker from "../components/offline-service-worker";
-import AuthShortcut from "../components/auth-shortcut";
 
 export const metadata = {
   metadataBase: new URL("https://webdd.freeddns.org"),
@@ -39,7 +38,6 @@ export default function RootLayout({ children }) {
       <body>
         <OfflineServiceWorker />
         <SpotlightSurfaces />
-        <AuthShortcut />
         {children}
       </body>
     </html>
