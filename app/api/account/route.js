@@ -24,6 +24,8 @@ export async function GET(request){
       if(/auth_user_id/i.test(devicesError.message||""))return NextResponse.json({error:"Run the latest Dbweb Supabase migration to enable account linking."},{status:503});
       throw devicesError;
     }
+    const {data:profile,error:profileError}=await client.from("profiles").select("credits,plan,plan_expires_at").eq("id",authData.user.id).maybeSingle();
+    if(profileError)throw profileError;
     const ids=(devices||[]).map(d=>d.device_id);
     let payments=[];
     if(ids.length){
@@ -43,9 +45,9 @@ export async function GET(request){
       payments,
       summary:{
         linked_devices:(devices||[]).length,
-        total_credits:(devices||[]).reduce((sum,d)=>sum+Number(d.credits||0),0),
-        active_premium_devices:activeDevices.length,
-        premium_expires_at:activeDevices.map(d=>d.plan_expires_at).sort((a,b)=>new Date(b)-new Date(a))[0]||null
+        total_credits:Number(profile?.credits ?? Math.max(0,...(devices||[]).map(d=>Number(d.credits||0)))),
+        active_premium_devices:profile?.plan && profile.plan!=="free" && profile.plan_expires_at && new Date(profile.plan_expires_at).getTime()>now ? 1 : 0,
+        premium_expires_at:profile?.plan && profile.plan!=="free" && profile.plan_expires_at && new Date(profile.plan_expires_at).getTime()>now ? profile.plan_expires_at : null
       }
     });
   }catch(error){
