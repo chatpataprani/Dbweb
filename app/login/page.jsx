@@ -21,12 +21,13 @@ export default function LoginPage() {
   useEffect(() => {
     let active = true;
     getSupabaseBrowserClient().auth.getSession().then(({ data }) => {
-      if (active && data.session) router.replace("/account");
+      if (active && data.session) router.replace(destinationPath());
     }).catch(() => {});
     return () => { active = false; };
   }, [router]);
 
-  const callbackUrl = () => `${window.location.origin}/auth/callback`;
+  const destinationPath = () => { const next = new URLSearchParams(window.location.search).get("next") || "/account"; return next.startsWith("/") && !next.startsWith("//") ? next : "/account"; };
+  const callbackUrl = () => `${window.location.origin}/auth/callback?next=${encodeURIComponent(destinationPath())}`;
 
   async function submit(event) {
     event.preventDefault();
@@ -36,7 +37,7 @@ export default function LoginPage() {
       if (mode === "signin" && method === "password") {
         const { error: authError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         if (authError) throw authError;
-        window.location.assign("/account");
+        window.location.assign(destinationPath());
         return;
       }
       if (!otpSent) {
