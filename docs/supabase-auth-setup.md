@@ -52,8 +52,9 @@ Run these SQL files in the Supabase SQL Editor, in order, if they have not alrea
 - `202610280001_auth_profiles.sql`
 - `202610280002_link_auth_users_to_devices.sql`
 - `202610280003_profile_referrals.sql`
+- `202610280004_referral_rewards.sql`
 
-The migrations add account profiles, device linking, unique usernames, custom profile avatars, and referral links. The third migration creates the `profile-avatars` storage bucket and its per-user upload policies. Do not rerun a migration that has already succeeded unless you have reviewed it first.
+The migrations add account profiles, device linking, unique usernames, custom profile avatars, referral links, verification-gated reward milestones, and first-device balance transfer. Migration 003 creates the `profile-avatars` storage bucket and its per-user upload policies. Do not rerun a migration that has already succeeded unless you have reviewed it first.
 
 The device-linking migration only associates signed-in users with existing device accounts. Existing device plans, credits, payment records and redeem-code data are not deleted or converted.
 
@@ -62,7 +63,7 @@ The device-linking migration only associates signed-in users with existing devic
 1. Open `/login` and request an email code.
 2. Enter the code and verify that the account dashboard opens.
 3. Try legacy password login if the account already has a password.
-4. Test Google and GitHub login.
+4. Test Google login.
 5. Open `/account`, set a unique username, upload a JPG/PNG/WebP avatar (maximum 2 MB), and save.
 6. Copy the referral link and open it in a private window; create a test account to verify referral tracking.
 7. Check the Sign out button in both the account page and the main Dbweb sidebar.
