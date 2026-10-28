@@ -179,12 +179,13 @@ export default function AccountPage() {
 
       <div style={styles.section}>
         <h2 style={styles.sectionHeading}>Refer a friend</h2>
-        <p style={styles.note}>Share your personal link so friends can join Dbweb. Referral tracking starts when they create an account from your link.</p>
+        <p style={styles.note}>Share your personal link so friends can join Dbweb. Rewards count only after a referred account verifies its email.</p>
         <div style={styles.referralBox}>
           <div><span style={styles.hint}>Your referral code</span><strong style={styles.referralCode}>{profile?.referral_code || "Setting up…"}</strong></div>
           <div><span style={styles.hint}>Accounts referred</span><strong style={styles.referralCode}>{referralCount}</strong></div>
         </div>
         <button type="button" style={styles.secondary} onClick={copyReferral} disabled={!profile?.referral_code}>Copy referral link</button>
+        <p style={styles.note}>Rewards: every 10 verified referrals gives +5 searches. At 50 referrals you also get 7 days unlimited; at 100 referrals you also get 30 days unlimited. The 50- and 100-referral milestones also include the +5-search reward.</p>
       </div>
 
       <div style={styles.section}>
