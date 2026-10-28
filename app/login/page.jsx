@@ -74,6 +74,8 @@ export default function LoginPage() {
       const raw = e?.message || "Could not complete authentication.";
       if (/provider is not enabled|unsupported provider|provider.*disabled/i.test(raw)) {
         setError("This sign-in provider is not enabled in Supabase yet. Enable it in Authentication → Sign In / Providers.");
+      } else if (/profiles_username_unique|duplicate key.*username|username.*already/i.test(raw)) {
+        setError("That username is already taken. Please choose another one.");
       } else if (/invalid login credentials/i.test(raw)) {
         setError("Email or password is incorrect. If you never created a password for this account, switch to Email code sign-in.");
       } else {
