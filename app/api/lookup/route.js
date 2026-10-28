@@ -8,7 +8,7 @@ export async function POST(request){
   const deviceId=request.headers.get("x-device-id")||"";
   if(!UUID.test(deviceId))return NextResponse.json({error:"Device ID is missing. Refresh the page and try again."},{status:400});
   const client=db();
-  const bearer=(request.headers.get("authorization")||"").match(/^Bearer\\s+(.+)$/i)?.[1]||"";
+  const bearer=(request.headers.get("authorization")||"").match(/^Bearer\s+(.+)$/i)?.[1]||"";
   let signedInUser=null;
   if(bearer){const {data:authData,error:authError}=await client.auth.getUser(bearer);if(!authError&&authData?.user)signedInUser=authData.user;}
   const {data:terms,error:termsError}=await client.from("terms_acceptances").select("terms_version").eq("device_id",deviceId).maybeSingle();
