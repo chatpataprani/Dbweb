@@ -24,6 +24,6 @@ export async function POST(request){
    if(/function .*review_device_payment.* does not exist|could not find the function/i.test(message))return NextResponse.json({error:"Run migration 202610280005_account_wide_entitlements.sql in Supabase first."},{status:503});
    throw error;
   }
-  return NextResponse.json({ok:true,status:data?.status||action==="approve"?"approved":"rejected"});
+  return NextResponse.json({ok:true,status:data?.status||(action==="approve"?"approved":"rejected")});
  }catch(e){return NextResponse.json({error:e?.message||"Payment review failed."},{status:500});}
 }
