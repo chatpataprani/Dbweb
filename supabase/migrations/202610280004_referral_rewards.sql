@@ -136,5 +136,20 @@ create trigger on_verified_referral_reward
   when (old.email_confirmed_at is null and new.email_confirmed_at is not null)
   execute function public.grant_verified_referral_rewards();
 
+create or replace function public.count_verified_referrals(p_user_id uuid)
+returns integer
+language sql
+security definer
+set search_path = public
+as $
+  select count(*)::integer
+  from public.profiles p
+  join auth.users u on u.id = p.id
+  where p.referred_by = p_user_id
+    and u.email_confirmed_at is not null;
+$;
+revoke all on function public.count_verified_referrals(uuid) from public, anon, authenticated;
+grant execute on function public.count_verified_referrals(uuid) to service_role;
+
 alter table public.referral_reward_events enable row level security;
 revoke all on public.referral_reward_events from anon, authenticated;
