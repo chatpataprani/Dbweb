@@ -24,34 +24,16 @@ export async function POST(request){
   const {error:termsStampError}=await db.from("device_accounts").update({terms_accepted_at:new Date().toISOString(),terms_version:"2026-10-09"}).eq("device_id",id);
   if(termsStampError)throw termsStampError;
   if(authUser){
-   // A device can be linked to one account only. Never silently transfer premium
-   // or credits from a device already associated with a different user.
-   const linked=await db.from("device_accounts").select("auth_user_id").eq("device_id",id).maybeSingle();
-   if(!linked.error){
-    if(linked.data?.auth_user_id && linked.data.auth_user_id!==authUser.id){
-     return NextResponse.json({error:"This device is already linked to another Dbweb account."},{status:409});
-    }
-    if(!linked.data?.auth_user_id){
-     const {error:linkError}=await db.from("device_accounts").update({auth_user_id:authUser.id}).eq("device_id",id).is("auth_user_id",null);
-     if(linkError)throw linkError;
-    }
-   } else if(!/auth_user_id/i.test(linked.error.message||"")) throw linked.error;
-  }
-  if(authUser){
-   const {data:profile,error:profileError}=await db.from("profiles").select("credits,plan,plan_expires_at,signup_credits_transferred").eq("id",authUser.id).maybeSingle();
-   if(profileError)throw profileError;
-   if(profile&&!profile.signup_credits_transferred){
-    const {data:current,error:currentError}=await db.from("device_accounts").select("credits,plan,plan_expires_at").eq("device_id",id).single();
-    if(currentError)throw currentError;
-    const patch={credits:Math.max(Number(current.credits)||0,Number(profile.credits)||0),updated_at:new Date().toISOString()};
-    if(profile.plan_expires_at&&new Date(profile.plan_expires_at).getTime()>Date.now()&&(!current.plan_expires_at||new Date(profile.plan_expires_at).getTime()>new Date(current.plan_expires_at).getTime())){
-     patch.plan=profile.plan||"referral";
-     patch.plan_expires_at=profile.plan_expires_at;
-    }
-    const {error:creditSyncError}=await db.from("device_accounts").update(patch).eq("device_id",id);
-    if(creditSyncError)throw creditSyncError;
-    const {error:profileSyncError}=await db.from("profiles").update({signup_credits_transferred:true}).eq("id",authUser.id).eq("signup_credits_transferred",false);
-    if(profileSyncError)throw profileSyncError;
+   // Link through the database transaction so the account's canonical credits
+   // and premium expiry are synchronized to every device without duplicating them.
+   const {data:linkResult,error:linkError}=await db.rpc("link_device_to_user",{
+    p_device_id:id,p_user_id:authUser.id
+   });
+   if(linkError){
+    const message=String(linkError.message||"");
+    if(/already linked to another/i.test(message))return NextResponse.json({error:"This device is already linked to another Dbweb account."},{status:409});
+    if(/function .*link_device_to_user.* does not exist|could not find the function/i.test(message))return NextResponse.json({error:"Account sync migration is not applied yet. Please contact the Dbweb administrator."},{status:503});
+    throw linkError;
    }
   }
   let {data,error}=await db.from("device_accounts").select("device_id,display_name,credits,plan,plan_expires_at,created_at,updated_at,terms_accepted_at,terms_version").eq("device_id",id).single();
