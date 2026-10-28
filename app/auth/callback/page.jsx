@@ -21,7 +21,8 @@ export default function AuthCallbackPage() {
         const { data, error: userError } = await supabase.auth.getUser();
         if (userError) throw userError;
         if (!data.user) throw new Error("Sign-in was not completed. Please try again.");
-        window.location.replace("/account");
+        const next = url.searchParams.get("next") || "/account";
+        window.location.replace(next.startsWith("/") && !next.startsWith("//") ? next : "/account");
       } catch (e) {
         if (active) setError(e?.message || "Could not finish sign-in.");
       }
