@@ -141,13 +141,13 @@ returns integer
 language sql
 security definer
 set search_path = public
-as $
+as $$
   select count(*)::integer
   from public.profiles p
   join auth.users u on u.id = p.id
   where p.referred_by = p_user_id
     and u.email_confirmed_at is not null;
-$;
+$$;
 revoke all on function public.count_verified_referrals(uuid) from public, anon, authenticated;
 grant execute on function public.count_verified_referrals(uuid) to service_role;
 
