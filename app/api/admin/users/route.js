@@ -17,7 +17,7 @@ export async function GET(request){
     if(authError)throw authError;
     const authUsers=authResult?.users||[];
     const ids=authUsers.map(u=>u.id);
-    let profiles=[],devices=[],rewards=[];
+    let profiles=[],devices=[],rewards=[],payments=[],lookups=[];
     if(ids.length){
       const [profileResult,deviceResult,rewardResult]=await Promise.all([
         client.from("profiles").select("*").in("id",ids),
@@ -30,6 +30,17 @@ export async function GET(request){
       profiles=profileResult.data||[];
       devices=deviceResult.data||[];
       rewards=rewardResult.data||[];
+    }
+    const deviceIds=devices.map(d=>d.device_id);
+    if(deviceIds.length){
+      const [paymentResult,lookupResult]=await Promise.all([
+        client.from("device_payments").select("id,device_id,status,amount,plan_days,created_at,reviewed_at").in("device_id",deviceIds).order("created_at",{ascending:false}).limit(10000),
+        client.from("device_lookups").select("device_id,lookup_type,query_hash,created_at").in("device_id",deviceIds).order("created_at",{ascending:false}).limit(20000)
+      ]);
+      if(paymentResult.error)throw paymentResult.error;
+      if(lookupResult.error)throw lookupResult.error;
+      payments=paymentResult.data||[];
+      lookups=lookupResult.data||[];
     }
     const profileById=new Map(profiles.map(p=>[p.id,p]));
     const verifiedIds=new Set(authUsers.filter(u=>u.email_confirmed_at).map(u=>u.id));
@@ -51,7 +62,7 @@ export async function GET(request){
         user_metadata:{full_name:u.user_metadata?.full_name||u.user_metadata?.name||"",username:u.user_metadata?.username||p.username||"",avatar_url:u.user_metadata?.avatar_url||p.avatar_url||""},
         profile:{username:p.username||"",avatar_url:p.avatar_url||"",referral_code:p.referral_code||"",referred_by:p.referred_by||null,credits:p.credits??0,plan:p.plan||"free",plan_expires_at:p.plan_expires_at||null},
         referral_count:profiles.filter(x=>x.referred_by===u.id&&verifiedIds.has(x.id)).length,
-        linked_devices:linked.map(d=>({device_id:d.device_id,display_name:d.display_name||"",credits:d.credits,plan:d.plan||"free",plan_expires_at:d.plan_expires_at||null,created_at:d.created_at||null,updated_at:d.updated_at||null})),
+        linked_devices:linked.map(d=>({device_id:d.device_id,display_name:d.display_name||"",credits:d.credits,plan:d.plan||"free",plan_expires_at:d.plan_expires_at||null,created_at:d.created_at||null,updated_at:d.updated_at||null,payments:payments.filter(p=>p.device_id===d.device_id),lookups:lookups.filter(l=>l.device_id===d.device_id)})),
         linked_device_count:linked.length,
         referral_rewards:rewardsByUser.get(u.id)||[],
         total_device_credits:linked.reduce((sum,d)=>sum+Number(d.credits||0),0)
