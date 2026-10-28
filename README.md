@@ -122,6 +122,12 @@ npm run build
 npm start
 ```
 
+## Account-wide credits and premium
+
+Signed-in users have one account-level credit balance and premium expiry across linked devices. To enable account-wide synchronization on an existing Supabase project, apply `supabase/migrations/202610280005_account_wide_entitlements.sql` in the Supabase SQL Editor **after** the existing device-access schema and migrations `202610280001` through `202610280004`. This migration reconciles existing linked-device balances without summing duplicate device mirrors, then keeps linked devices synchronized with the account profile.
+
+The migration is required before deploying the updated account, lookup, redeem-code, and payment-review routes. Keep the Supabase service-role key server-side only.
+
 ## Background removal workflow
 
 1. Open Background Remover from the tools directory.

@@ -65,7 +65,7 @@ export async function GET(request){
         linked_devices:linked.map(d=>({device_id:d.device_id,display_name:d.display_name||"",credits:d.credits,plan:d.plan||"free",plan_expires_at:d.plan_expires_at||null,created_at:d.created_at||null,updated_at:d.updated_at||null,payments:payments.filter(p=>p.device_id===d.device_id),lookups:lookups.filter(l=>l.device_id===d.device_id)})),
         linked_device_count:linked.length,
         referral_rewards:rewardsByUser.get(u.id)||[],
-        total_device_credits:linked.reduce((sum,d)=>sum+Number(d.credits||0),0)
+        total_device_credits:Number(p.credits ?? Math.max(0,...linked.map(d=>Number(d.credits||0))))
       };
     });
     users.sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));

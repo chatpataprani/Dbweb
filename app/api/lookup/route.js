@@ -27,8 +27,16 @@ export async function POST(request){
    if(lookupQuery.length!==10)return NextResponse.json({error:"Enter a valid 10-digit phone number, with or without the +91 country code."},{status:400});
    if(lookupQuery.includes("7546085732"))return NextResponse.json({error:"You are not allowed to search this number."},{status:403});
   }
-  const {data:device,error}=await client.from("device_accounts").select("credits,plan,plan_expires_at").eq("device_id",deviceId).single();
+  let {data:device,error}=await client.from("device_accounts").select("device_id,auth_user_id,credits,plan,plan_expires_at").eq("device_id",deviceId).single();
   if(error||!device)return NextResponse.json({error:"Device profile not found. Refresh the page and try again."},{status:409});
+  let entitlement=device;
+  if(signedInUser){
+   const {error:linkError}=await client.rpc("link_device_to_user",{p_device_id:deviceId,p_user_id:signedInUser.id});
+   if(linkError){console.error("account link failed",linkError.message);return NextResponse.json({error:"Could not sync your account. Please retry in a moment."},{status:503});}
+   const {data:profile,error:profileError}=await client.from("profiles").select("credits,plan,plan_expires_at").eq("id",signedInUser.id).single();
+   if(profileError)throw profileError;
+   entitlement=profile||device;
+  }
   if(type==="number"){
    const phoneDigits=lookupQuery.replace(/\D/g,"");
    if(/^[0-9]{10,15}$/.test(phoneDigits)){
@@ -37,8 +45,8 @@ export async function POST(request){
     if(protectedNumber)return NextResponse.json({type,message:"This number is protected.",data:{message:"This number is protected."},protected:true});
    }
   }
-  const premiumActive=Boolean(device.plan&&device.plan_expires_at&&new Date(device.plan_expires_at).getTime()>Date.now());
-  if(!premiumActive&&device.credits<1)return NextResponse.json({error:"No credits left. Redeem a code or purchase a plan."},{status:402});
+  const premiumActive=Boolean(entitlement.plan&&entitlement.plan!=="free"&&entitlement.plan_expires_at&&new Date(entitlement.plan_expires_at).getTime()>Date.now());
+  if(!premiumActive&&Number(entitlement.credits||0)<1)return NextResponse.json({error:"No credits left. Redeem a code or purchase a plan."},{status:402});
   const base=type==="number"?process.env.NUMBER_API_BASE:process.env.AADHAAR_API_BASE;
   if(!base)return NextResponse.json({error:"Lookup API is not configured."},{status:503});
   let response;
@@ -47,7 +55,14 @@ export async function POST(request){
   const body=await response.text();let data;try{data=JSON.parse(body)}catch{data=body}data=dedupeData(data);
   if(!response.ok)return NextResponse.json({error:"Upstream lookup failed.",status:response.status},{status:502});
   if(!signedInUser)return NextResponse.json({error:"Search completed. Sign in or create an account to view the results. No search credit was charged.",login_required:true},{status:401});
-  if(!premiumActive){
+  if(signedInUser){
+   const {data:spent,error:spendError}=await client.rpc("spend_account_credit",{p_device_id:deviceId,p_user_id:signedInUser.id});
+   if(spendError)throw spendError;
+   if(!spent?.ok){
+    if(spent?.reason==="no_credits")return NextResponse.json({error:"No credits left. Redeem a code or purchase a plan."},{status:402});
+    return NextResponse.json({error:"Could not update your account balance. Please retry."},{status:409});
+   }
+  }else if(!premiumActive){
    const {data:updated,error:creditError}=await client.from("device_accounts").update({credits:device.credits-1,updated_at:new Date().toISOString()}).eq("device_id",deviceId).eq("credits",device.credits).select("credits").maybeSingle();
    if(creditError||!updated)return NextResponse.json({error:"Credit balance changed; please retry."},{status:409});
   }
