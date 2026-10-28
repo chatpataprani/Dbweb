@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { getSupabaseBrowserClient } from "../lib/supabase-browser";
 
 export default function AuthShortcut() {
+  const pathname = usePathname();
   const [signedIn, setSignedIn] = useState(false);
   const [ready, setReady] = useState(false);
 
@@ -35,7 +37,7 @@ export default function AuthShortcut() {
     };
   }, []);
 
-  if (!ready) return null;
+  if (!ready || pathname === "/login" || pathname === "/account" || pathname.startsWith("/auth/")) return null;
   return (
     <Link
       href={signedIn ? "/account" : "/login"}
