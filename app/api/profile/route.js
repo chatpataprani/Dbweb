@@ -26,9 +26,9 @@ export async function GET(request) {
       .select("id,email,username,avatar_url,referral_code,referred_by,credits,plan,plan_expires_at")
       .eq("id", user.id).maybeSingle();
     if (error) throw error;
-    let referralCount = 0;
-    const countResult = await db.from("profiles").select("id", { count: "exact", head: true }).eq("referred_by", user.id);
-    if (!countResult.error) referralCount = countResult.count || 0;
+    const countResult = await db.rpc("count_verified_referrals", { p_user_id: user.id });
+    if (countResult.error) throw countResult.error;
+    const referralCount = Number(countResult.data) || 0;
     return NextResponse.json({ profile: profile || { id: user.id, email: user.email, username: user.user_metadata?.username || "", avatar_url: user.user_metadata?.avatar_url || "", referral_code: "" }, referral_count: referralCount });
   } catch (error) {
     console.error("profile fetch failed", error?.message);
