@@ -37,6 +37,23 @@ export async function POST(request){
     }
    } else if(!/auth_user_id/i.test(linked.error.message||"")) throw linked.error;
   }
+  if(authUser){
+   const {data:profile,error:profileError}=await db.from("profiles").select("credits,plan,plan_expires_at,signup_credits_transferred").eq("id",authUser.id).maybeSingle();
+   if(profileError)throw profileError;
+   if(profile&&!profile.signup_credits_transferred){
+    const {data:current,error:currentError}=await db.from("device_accounts").select("credits,plan,plan_expires_at").eq("device_id",id).single();
+    if(currentError)throw currentError;
+    const patch={credits:Math.max(Number(current.credits)||0,Number(profile.credits)||0),updated_at:new Date().toISOString()};
+    if(profile.plan_expires_at&&new Date(profile.plan_expires_at).getTime()>Date.now()&&(!current.plan_expires_at||new Date(profile.plan_expires_at).getTime()>new Date(current.plan_expires_at).getTime())){
+     patch.plan=profile.plan||"referral";
+     patch.plan_expires_at=profile.plan_expires_at;
+    }
+    const {error:creditSyncError}=await db.from("device_accounts").update(patch).eq("device_id",id);
+    if(creditSyncError)throw creditSyncError;
+    const {error:profileSyncError}=await db.from("profiles").update({signup_credits_transferred:true}).eq("id",authUser.id).eq("signup_credits_transferred",false);
+    if(profileSyncError)throw profileSyncError;
+   }
+  }
   let {data,error}=await db.from("device_accounts").select("device_id,display_name,credits,plan,plan_expires_at,created_at,updated_at,terms_accepted_at,terms_version").eq("device_id",id).single();
   if(error&&String(error.message||"").toLowerCase().includes("display_name"))({data,error}=await db.from("device_accounts").select("device_id,credits,plan,plan_expires_at,created_at,updated_at,terms_accepted_at,terms_version").eq("device_id",id).single());
   if(error)throw error;
