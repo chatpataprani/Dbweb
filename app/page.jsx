@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useState} from "react";
 import {Search,CreditCard,History,Settings,Gift,Upload,Copy,Check,Download,Menu,RefreshCw,X,Sun,Moon,Wrench,CarFront,Camera,Mail,ArrowUpRight,Gamepad2,Play} from "lucide-react";
+import {getSupabaseBrowserClient} from "../lib/supabase-browser";
 const plans=[
  {name:"1 Day",price:30,days:1,short:"Daily access",protection:"Number protection not included",saving:0,rate:"₹30/day"},
  {name:"7 Days",price:100,days:7,short:"One week of premium",protection:"Number protection not included",saving:Math.round((1-100/(30*7))*100),rate:"₹14.29/day"},
@@ -8,7 +9,7 @@ const plans=[
  {name:"1 Year",price:1500,days:365,short:"Full year of premium",protection:"Unlimited phone-number protection",saving:Math.round((1-1500/(30*365))*100),rate:"About ₹125/month",featured:true}
 ];
 function getDeviceId(){let id=localStorage.getItem("dbweb_device_id");if(!id){id=crypto.randomUUID();localStorage.setItem("dbweb_device_id",id);}return id;}
-async function callApi(path,opts={}){const headers={...(opts.headers||{}),"x-device-id":getDeviceId()};if(!(opts.body instanceof FormData))headers["content-type"]="application/json";const r=await fetch(path,{...opts,headers});const d=await r.json().catch(()=>({error:"Invalid server response."}));if(!r.ok)throw new Error(d.error||"Request failed.");return d;}
+async function callApi(path,opts={}){const headers={...(opts.headers||{}),"x-device-id":getDeviceId()};if(!(opts.body instanceof FormData))headers["content-type"]="application/json";try{const {data}=await getSupabaseBrowserClient().auth.getSession();if(data.session?.access_token)headers.authorization="Bearer "+data.session.access_token;}catch{}const r=await fetch(path,{...opts,headers});const d=await r.json().catch(()=>({error:"Invalid server response."}));if(!r.ok)throw new Error(d.error||"Request failed.");return d;}
 export default function Home(){
  const [account,setAccount]=useState(null),[type,setType]=useState("number"),[query,setQuery]=useState(""),[result,setResult]=useState(null),[historyItems,setHistoryItems]=useState([]),[page,setPage]=useState("lookup"),[plan,setPlan]=useState(plans[0]),[receipt,setReceipt]=useState(null),[code,setCode]=useState(""),[message,setMessage]=useState(""),[error,setError]=useState(""),[busy,setBusy]=useState(false),[loading,setLoading]=useState(true),[menu,setMenu]=useState(false),[copied,setCopied]=useState(false),[refreshing,setRefreshing]=useState(false),[protectPhone,setProtectPhone]=useState(""),[termsAccepted,setTermsAccepted]=useState(false),[showJson,setShowJson]=useState(false),[termsBusy,setTermsBusy]=useState(false),[termsError,setTermsError]=useState(""),[showFullTerms,setShowFullTerms]=useState(false),[showConsent,setShowConsent]=useState(false),[userName,setUserName]=useState(""),[theme,setTheme]=useState("light");
  async function refresh(){setRefreshing(true);try{const t=await callApi("/api/terms");if(!t.accepted){setTermsAccepted(false);setShowConsent(true);setLoading(false);return;}setTermsAccepted(true);setShowConsent(false);const d=await callApi("/api/device",{method:"POST",body:JSON.stringify({})});setAccount(d.account);setError("");}catch(e){setError(e.message);}finally{setLoading(false);window.setTimeout(()=>setRefreshing(false),500);}}
