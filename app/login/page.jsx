@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -41,6 +42,7 @@ export default function LoginPage() {
         return;
       }
       if (!otpSent) {
+        if (mode === "signup" && !/^[a-z0-9_]{3,24}$/.test(username.trim().toLowerCase())) throw new Error("Choose a username of 3–24 characters using letters, numbers, or underscores.");
         const referredByCode = mode === "signup" ? (new URLSearchParams(window.location.search).get("ref") || "").trim().toLowerCase() : "";
         const { error: authError } = await supabase.auth.signInWithOtp({
           email: email.trim(),
@@ -49,6 +51,7 @@ export default function LoginPage() {
             emailRedirectTo: callbackUrl(),
             data: mode === "signup" ? {
               full_name: name.trim(),
+              username: username.trim().toLowerCase(),
               referred_by_code: referredByCode || null
             } : undefined
           }
@@ -71,6 +74,8 @@ export default function LoginPage() {
       const raw = e?.message || "Could not complete authentication.";
       if (/provider is not enabled|unsupported provider|provider.*disabled/i.test(raw)) {
         setError("This sign-in provider is not enabled in Supabase yet. Enable it in Authentication → Sign In / Providers.");
+      } else if (/profiles_username_unique|duplicate key.*username|username.*already/i.test(raw)) {
+        setError("That username is already taken. Please choose another one.");
       } else if (/invalid login credentials/i.test(raw)) {
         setError("Email or password is incorrect. If you never created a password for this account, switch to Email code sign-in.");
       } else {
@@ -118,7 +123,7 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={submit} style={styles.form}>
-          {mode === "signup" && !otpSent && <label style={styles.label}>Display name<input style={styles.input} autoComplete="name" value={name} onChange={e => setName(e.target.value)} required minLength={2} maxLength={80} /></label>}
+          {mode === "signup" && !otpSent && <><label style={styles.label}>Username<input style={styles.input} autoComplete="username" value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g,"").slice(0,24))} required minLength={3} maxLength={24} pattern="[a-z0-9_]{3,24}" placeholder="your_username" /></label><small style={{fontSize:12,opacity:.7,marginTop:-8}}>3–24 characters · letters, numbers and underscores</small><label style={styles.label}>Display name<input style={styles.input} autoComplete="name" value={name} onChange={e => setName(e.target.value)} required minLength={2} maxLength={80} /></label></>}
           <label style={styles.label}>Email address<input style={styles.input} type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required readOnly={otpSent} /></label>
           {mode === "signin" && method === "password" && <label style={styles.label}>Password<input style={styles.input} type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} required /></label>}
           {method === "otp" && otpSent && <label style={styles.label}>Email verification code<input style={styles.input} inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, "").slice(0,8))} required minLength={6} maxLength={8} placeholder="Enter the code from your email" /></label>}
