@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "../../lib/supabase-browser";
 
 export default function LoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [mode, setMode] = useState("signin");
   const [method, setMethod] = useState("otp");
   const [email, setEmail] = useState("");
@@ -41,7 +40,7 @@ export default function LoginPage() {
         return;
       }
       if (!otpSent) {
-        const referredByCode = mode === "signup" ? (searchParams.get("ref") || "").trim().toLowerCase() : "";
+        const referredByCode = mode === "signup" ? (new URLSearchParams(window.location.search).get("ref") || "").trim().toLowerCase() : "";
         const { error: authError } = await supabase.auth.signInWithOtp({
           email: email.trim(),
           options: {
