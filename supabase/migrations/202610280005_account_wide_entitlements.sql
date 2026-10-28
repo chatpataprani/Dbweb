@@ -194,9 +194,67 @@ begin
 end;
 $$;
 
+create or replace function public.review_device_payment(p_payment_id bigint, p_action text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $
+declare
+  v_payment public.device_payments%rowtype;
+  v_device public.device_accounts%rowtype;
+  v_profile public.profiles%rowtype;
+  v_expiry timestamptz;
+begin
+  if p_action not in ('approve', 'reject') then raise exception 'Invalid payment action'; end if;
+  select * into v_payment from public.device_payments where id = p_payment_id for update;
+  if not found then raise exception 'Payment not found'; end if;
+  if v_payment.status <> 'pending' then raise exception 'Payment already reviewed'; end if;
+
+  if p_action = 'approve' then
+    select * into v_device from public.device_accounts where device_id = v_payment.device_id for update;
+    if not found then raise exception 'Payment device not found'; end if;
+    v_expiry := greatest(coalesce(v_device.plan_expires_at, now()), now()) + make_interval(days => v_payment.plan_days);
+
+    if v_device.auth_user_id is not null then
+      select * into v_profile from public.profiles where id = v_device.auth_user_id for update;
+      if not found then raise exception 'Account profile not found'; end if;
+      v_expiry := greatest(coalesce(v_profile.plan_expires_at, now()), now()) + make_interval(days => v_payment.plan_days);
+      update public.profiles
+      set credits = coalesce(credits, 0) + 10,
+          plan = v_payment.plan_days || 'd',
+          plan_expires_at = v_expiry
+      where id = v_device.auth_user_id;
+      update public.device_accounts
+      set credits = (select credits from public.profiles where id = v_device.auth_user_id),
+          plan = (select plan from public.profiles where id = v_device.auth_user_id),
+          plan_expires_at = (select plan_expires_at from public.profiles where id = v_device.auth_user_id),
+          updated_at = now()
+      where auth_user_id = v_device.auth_user_id;
+    else
+      update public.device_accounts
+      set plan = v_payment.plan_days || 'd',
+          plan_expires_at = v_expiry,
+          credits = credits + 10,
+          updated_at = now()
+      where device_id = v_payment.device_id;
+    end if;
+  end if;
+
+  update public.device_payments
+  set status = case when p_action = 'approve' then 'approved' else 'rejected' end,
+      reviewed_at = now(), reviewed_by = 'admin'
+  where id = p_payment_id;
+  return jsonb_build_object('ok', true, 'status', case when p_action = 'approve' then 'approved' else 'rejected' end);
+end;
+$;
+
 revoke all on function public.link_device_to_user(uuid, uuid) from public, anon, authenticated;
 grant execute on function public.link_device_to_user(uuid, uuid) to service_role;
 revoke all on function public.spend_account_credit(uuid, uuid) from public, anon, authenticated;
 grant execute on function public.spend_account_credit(uuid, uuid) to service_role;
 revoke all on function public.redeem_device_code(uuid, text) from public, anon, authenticated;
 grant execute on function public.redeem_device_code(uuid, text) to service_role;
+
+revoke all on function public.review_device_payment(bigint, text) from public, anon, authenticated;
+grant execute on function public.review_device_payment(bigint, text) to service_role;
