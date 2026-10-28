@@ -154,11 +154,13 @@ begin
   end if;
 
   insert into public.device_accounts(device_id) values(p_device_id) on conflict(device_id) do nothing;
-  select * into v_account from public.device_accounts where device_id = p_device_id for update;
+  select * into v_account from public.device_accounts where device_id = p_device_id;
 
   if v_account.auth_user_id is not null then
     select * into v_profile from public.profiles where id = v_account.auth_user_id for update;
     if not found then raise exception 'Account profile not found'; end if;
+    select * into v_account from public.device_accounts where device_id = p_device_id for update;
+    if v_account.auth_user_id is distinct from v_profile.id then raise exception 'Device account changed; retry redemption'; end if;
     v_expiry := case when v_code.premium_days > 0
       then greatest(coalesce(v_profile.plan_expires_at, now()), now()) + make_interval(days => v_code.premium_days)
       else v_profile.plan_expires_at end;
@@ -174,6 +176,8 @@ begin
         updated_at = now()
     where auth_user_id = v_account.auth_user_id;
   else
+    select * into v_account from public.device_accounts where device_id = p_device_id for update;
+    if v_account.auth_user_id is not null then raise exception 'Device account changed; retry redemption'; end if;
     v_expiry := case when v_code.premium_days > 0
       then greatest(coalesce(v_account.plan_expires_at, now()), now()) + make_interval(days => v_code.premium_days)
       else v_account.plan_expires_at end;
@@ -212,13 +216,14 @@ begin
   if v_payment.status <> 'pending' then raise exception 'Payment already reviewed'; end if;
 
   if p_action = 'approve' then
-    select * into v_device from public.device_accounts where device_id = v_payment.device_id for update;
+    select * into v_device from public.device_accounts where device_id = v_payment.device_id;
     if not found then raise exception 'Payment device not found'; end if;
-    v_expiry := greatest(coalesce(v_device.plan_expires_at, now()), now()) + make_interval(days => v_payment.plan_days);
 
     if v_device.auth_user_id is not null then
       select * into v_profile from public.profiles where id = v_device.auth_user_id for update;
       if not found then raise exception 'Account profile not found'; end if;
+      select * into v_device from public.device_accounts where device_id = v_payment.device_id for update;
+      if v_device.auth_user_id is distinct from v_profile.id then raise exception 'Device account changed; retry payment review'; end if;
       v_expiry := greatest(coalesce(v_profile.plan_expires_at, now()), now()) + make_interval(days => v_payment.plan_days);
       update public.profiles
       set credits = coalesce(credits, 0) + 10,
@@ -232,6 +237,9 @@ begin
           updated_at = now()
       where auth_user_id = v_device.auth_user_id;
     else
+      select * into v_device from public.device_accounts where device_id = v_payment.device_id for update;
+      if v_device.auth_user_id is not null then raise exception 'Device account changed; retry payment review'; end if;
+      v_expiry := greatest(coalesce(v_device.plan_expires_at, now()), now()) + make_interval(days => v_payment.plan_days);
       update public.device_accounts
       set plan = v_payment.plan_days || 'd',
           plan_expires_at = v_expiry,
