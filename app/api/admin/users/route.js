@@ -72,6 +72,6 @@ export async function GET(request){
     return NextResponse.json({users,total:users.length,limit:1000});
   }catch(e){
     console.error("admin users failed",e?.message);
-    return NextResponse.json({error:"Could not load user details. Ensure migrations 001–003 are applied and auth_user_id exists."},{status:500});
+    return NextResponse.json({error:"Could not load user details. Ensure migrations 001–004 are applied and auth_user_id exists."},{status:500});
   }
 }
