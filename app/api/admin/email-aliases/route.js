@@ -72,8 +72,8 @@ export async function POST(request) {
     const { data: profile, error: profileError } = await client.from("profiles")
       .select("id,credits,plan_expires_at").eq("id", userId).maybeSingle();
     if (profileError) throw profileError;
-    if (profile && (credits > 0 || premiumDays > 0)) {
-      const patch = { credits: Number(profile.credits || 0) + credits };
+    if (profile) {
+      const patch = { credits };
       if (premiumDays > 0) {
         patch.plan = premiumDays + "d";
         patch.plan_expires_at = new Date(Math.max(Date.now(), profile.plan_expires_at ? new Date(profile.plan_expires_at).getTime() : 0) + premiumDays * 86400000).toISOString();
@@ -81,7 +81,7 @@ export async function POST(request) {
       const { error } = await client.from("profiles").update(patch).eq("id", userId);
       if (error) throw error;
     }
-    return NextResponse.json({ ok: true, alias: { user_id: userId, email, active: true, created_at: created.user.created_at, profile: { credits: Number(profile?.credits || 0) + credits, plan: premiumDays > 0 ? premiumDays + "d" : profile?.plan || "free" } }, password }, { status: 201 });
+    return NextResponse.json({ ok: true, alias: { user_id: userId, email, active: true, created_at: created.user.created_at, profile: { credits, plan: premiumDays > 0 ? premiumDays + "d" : profile?.plan || "free" } }, password }, { status: 201 });
   } catch (error) {
     if (userId) {
       try { await db().auth.admin.deleteUser(userId); } catch {}
