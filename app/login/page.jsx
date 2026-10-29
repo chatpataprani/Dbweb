@@ -27,6 +27,7 @@ export default function LoginPage() {
     return () => { active = false; };
   }, [router]);
 
+  const aliasLogin = email.trim().toLowerCase().endsWith("@dbweb.amir");
   const destinationPath = () => { const next = new URLSearchParams(window.location.search).get("next") || "/account"; return next.startsWith("/") && !next.startsWith("//") ? next : "/account"; };
   const callbackUrl = () => `${window.location.origin}/auth/callback?next=${encodeURIComponent(destinationPath())}`;
 
@@ -35,7 +36,7 @@ export default function LoginPage() {
     setBusy(true); setError(""); setMessage("");
     try {
       const supabase = getSupabaseBrowserClient();
-      if (mode === "signin" && method === "password") {
+      if (email.trim().toLowerCase().endsWith("@dbweb.amir") || (mode === "signin" && method === "password")) {
         const { error: authError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         if (authError) throw authError;
         window.location.assign(destinationPath());
@@ -123,12 +124,12 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={submit} style={styles.form}>
-          {mode === "signup" && !otpSent && <><label style={styles.label}>Username<input style={styles.input} autoComplete="username" value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g,"").slice(0,24))} required minLength={3} maxLength={24} pattern="[a-z0-9_]{3,24}" placeholder="your_username" /></label><small style={{fontSize:12,opacity:.7,marginTop:-8}}>3–24 characters · letters, numbers and underscores</small><label style={styles.label}>Display name<input style={styles.input} autoComplete="name" value={name} onChange={e => setName(e.target.value)} required minLength={2} maxLength={80} /></label></>}
+          {mode === "signup" && !otpSent && !aliasLogin && <><label style={styles.label}>Username<input style={styles.input} autoComplete="username" value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g,"").slice(0,24))} required minLength={3} maxLength={24} pattern="[a-z0-9_]{3,24}" placeholder="your_username" /></label><small style={{fontSize:12,opacity:.7,marginTop:-8}}>3–24 characters · letters, numbers and underscores</small><label style={styles.label}>Display name<input style={styles.input} autoComplete="name" value={name} onChange={e => setName(e.target.value)} required minLength={2} maxLength={80} /></label></>}
           <label style={styles.label}>Email address<input style={styles.input} type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required readOnly={otpSent} /></label>
-          {mode === "signin" && method === "password" && <label style={styles.label}>Password<input style={styles.input} type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} required /></label>}
+          {(aliasLogin || (mode === "signin" && method === "password")) && <label style={styles.label}>{aliasLogin ? "Password / access code" : "Password"}<input style={styles.input} type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} required /></label>}{aliasLogin && <small style={{fontSize:12,opacity:.75}}>Admin-generated @dbweb.amir accounts use a password/access code and do not receive email.</small>}
           {method === "otp" && otpSent && <label style={styles.label}>Email verification code<input style={styles.input} inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, "").slice(0,8))} required minLength={6} maxLength={8} placeholder="Enter the code from your email" /></label>}
           {mode === "signin" && method === "password" && <div style={{textAlign:"right"}}><Link style={styles.link} href="/auth/reset">Forgot password?</Link></div>}
-          <button type="submit" style={styles.primary} disabled={busy}>{busy ? "Please wait…" : method === "password" ? "Sign in" : otpSent ? "Verify code" : mode === "signup" ? "Send verification code" : "Send email code"}</button>
+          <button type="submit" style={styles.primary} disabled={busy}>{busy ? "Please wait…" : aliasLogin ? "Sign in with access code" : method === "password" ? "Sign in" : otpSent ? "Verify code" : mode === "signup" ? "Send verification code" : "Send email code"}</button>
         </form>
         {otpSent && <button type="button" style={styles.textButton} disabled={busy} onClick={() => {setOtpSent(false);setOtp("");setMessage("");setError("");}}>Use a different email</button>}
         {error && <p role="alert" style={styles.error}>{error}</p>}
