@@ -27,7 +27,8 @@ export default function Home(){
   const flatten=(value,path="")=>{
     if(Array.isArray(value)){value.forEach((item,index)=>flatten(item,path?path+" · "+(index+1):"Record "+(index+1)));return;}
     if(value&&typeof value==="object"){Object.entries(value).forEach(([key,item])=>flatten(item,path?path+" / "+labelize(key):labelize(key)));return;}
-    rows.push({label:path||"Result",value:value===null||value===undefined||String(value).trim()===""?"Not available":String(value)});
+    const cleanPath=(path||"Result").replace(/^Results\s*·\s*\d+\s*\/\s*/i,"").replace(/^Results\s*·\s*\d+$/i,"").trim();
+     rows.push({label:cleanPath||"Result",value:value===null||value===undefined||String(value).trim()===""?"Not available":String(value)});
   };
   flatten(reportData);
   const esc=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
