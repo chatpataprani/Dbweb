@@ -21,7 +21,7 @@ export async function GET(request) {
     const ids = (aliases || []).map(a => a.user_id);
     let profiles = [];
     if (ids.length) {
-      const result = await client.from("profiles").select("id,username,credits,plan,plan_expires_at").in("id", ids);
+      const result = await client.from("profiles").select("id,credits,plan,plan_expires_at").in("id", ids);
       if (result.error) throw result.error;
       profiles = result.data || [];
     }
