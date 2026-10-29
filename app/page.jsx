@@ -37,7 +37,7 @@ export default function Home(){
   const searchType=type==="aadhar"?"Aadhaar lookup":type==="vehicle"?"Vehicle lookup":"Phone number lookup";
   const site=window.location.origin;
   const rowMarkup=rows.map((row,index)=>'<tr><td class="index">'+String(index+1).padStart(2,"0")+'</td><td class="label">'+esc(row.label)+'</td><td class="value">'+esc(row.value)+'</td></tr>').join("");
-  const win=window.open("","_blank","noopener,noreferrer");
+  const win=window.open("","_blank");
   if(!win){setError("Your browser blocked the report window. Allow pop-ups for Dbweb and try again.");return;}
   win.document.open();
   win.document.write(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dbweb Lookup Report — ${esc(reportId)}</title><style>
