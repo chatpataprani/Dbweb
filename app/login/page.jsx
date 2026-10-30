@@ -8,7 +8,7 @@ import { getSupabaseBrowserClient } from "../../lib/supabase-browser";
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState("signin");
-  const [method, setMethod] = useState("otp");
+  const [method, setMethod] = useState("password");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -36,7 +36,33 @@ export default function LoginPage() {
     setBusy(true); setError(""); setMessage("");
     try {
       const supabase = getSupabaseBrowserClient();
-      if (email.trim().toLowerCase().endsWith("@dbweb.amir") || (mode === "signin" && method === "password")) {
+      if (email.trim().toLowerCase().endsWith("@dbweb.amir") || method === "password") {
+        if (mode === "signup") {
+          if (password.length < 8) throw new Error("Use at least 8 characters for your password.");
+          if (!/^[a-z0-9_]{3,24}$/.test(username.trim().toLowerCase())) throw new Error("Choose a username of 3–24 characters using letters, numbers, or underscores.");
+          const referredByCode = (new URLSearchParams(window.location.search).get("ref") || "").trim().toLowerCase();
+          const { data, error: authError } = await supabase.auth.signUp({
+            email: email.trim(),
+            password,
+            options: {
+              emailRedirectTo: callbackUrl(),
+              data: {
+                full_name: name.trim(),
+                username: username.trim().toLowerCase(),
+                referred_by_code: referredByCode || null
+              }
+            }
+          });
+          if (authError) throw authError;
+          if (data.session) {
+            window.location.assign(destinationPath());
+            return;
+          }
+          setMessage("Account created. Check your email for the verification link, then sign in.");
+          setMode("signin");
+          setMethod("password");
+          return;
+        }
         const { error: authError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         if (authError) throw authError;
         window.location.assign(destinationPath());
@@ -113,31 +139,31 @@ export default function LoginPage() {
         <p style={styles.sub}>{mode === "signup" ? "Create your Dbweb account using your email." : "Sign in to continue to Dbweb."}</p>
 
         <div style={styles.socials}>
-          <button type="button" style={styles.secondary} disabled={busy} onClick={() => social("google")}>Continue with Google</button>
+          <button type="button" style={styles.secondary} disabled={busy} onClick={() => social("google")}><svg aria-hidden="true" viewBox="0 0 48 48" width="19" height="19" style={{display:"inline-block",verticalAlign:"middle",marginRight:10}}><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.02 13.22l7.98 6.19C11.9 13.72 17.45 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.76 7.18l7.73 6C44.42 37.95 46.98 31.8 46.98 24.55z"/><path fill="#FBBC05" d="M10 28.59A14.4 14.4 0 0 1 9.22 24c0-1.59.27-3.13.76-4.59L2 13.22A23.9 23.9 0 0 0 0 24c0 3.86.92 7.51 2.54 10.78L10 28.59z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.91-5.8l-7.73-6c-2.14 1.44-4.88 2.3-8.18 2.3-6.55 0-12.1-4.22-14.09-10.09l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continue with Google</button>
           
         </div>
         <div style={styles.divider}><span>or use email</span></div>
 
         <div style={styles.methodRow}>
           <button type="button" style={method === "otp" ? styles.methodActive : styles.method} onClick={() => {setMethod("otp");setOtpSent(false);setOtp("");setError("");setMessage("");}}>Email code</button>
-          {mode === "signin" && <button type="button" style={method === "password" ? styles.methodActive : styles.method} onClick={() => {setMethod("password");setOtpSent(false);setError("");setMessage("");}}>Password</button>}
+          <button type="button" style={method === "password" ? styles.methodActive : styles.method} onClick={() => {setMethod("password");setOtpSent(false);setError("");setMessage("");}}>Password</button>
         </div>
 
         <form onSubmit={submit} style={styles.form}>
           {mode === "signup" && !otpSent && !aliasLogin && <><label style={styles.label}>Username<input style={styles.input} autoComplete="username" value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g,"").slice(0,24))} required minLength={3} maxLength={24} pattern="[a-z0-9_]{3,24}" placeholder="your_username" /></label><small style={{fontSize:12,opacity:.7,marginTop:-8}}>3–24 characters · letters, numbers and underscores</small><label style={styles.label}>Display name<input style={styles.input} autoComplete="name" value={name} onChange={e => setName(e.target.value)} required minLength={2} maxLength={80} /></label></>}
           <label style={styles.label}>Email address<input style={styles.input} type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required readOnly={otpSent} /></label>
-          {(aliasLogin || (mode === "signin" && method === "password")) && <label style={styles.label}>{aliasLogin ? "Password / access code" : "Password"}<input style={styles.input} type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} required /></label>}{aliasLogin && <small style={{fontSize:12,opacity:.75}}>Admin-generated @dbweb.amir accounts use a password/access code and do not receive email.</small>}
+          {(aliasLogin || method === "password") && <label style={styles.label}>Password<input style={styles.input} type="password" autoComplete={mode === "signup" ? "new-password" : "current-password"} value={password} onChange={e => setPassword(e.target.value)} required minLength={mode === "signup" ? 8 : undefined} /></label>}{aliasLogin && <small style={{fontSize:12,opacity:.75}}>Admin-generated @dbweb.amir accounts use a password/access code and do not receive email.</small>}
           {method === "otp" && otpSent && <label style={styles.label}>Email verification code<input style={styles.input} inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, "").slice(0,8))} required minLength={6} maxLength={8} placeholder="Enter the code from your email" /></label>}
           {mode === "signin" && method === "password" && <div style={{textAlign:"right"}}><Link style={styles.link} href="/auth/reset">Forgot password?</Link></div>}
           <button type="submit" style={styles.primary} disabled={busy}>{busy ? "Please wait…" : aliasLogin ? "Sign in with access code" : method === "password" ? "Sign in" : otpSent ? "Verify code" : mode === "signup" ? "Send verification code" : "Send email code"}</button>
         </form>
         {otpSent && <button type="button" style={styles.textButton} disabled={busy} onClick={() => {setOtpSent(false);setOtp("");setMessage("");setError("");}}>Use a different email</button>}
-        {error && <p role="alert" style={styles.error}>{error}</p>}
+        {error && <div role="alert" style={styles.error}>{error}{/email or password is incorrect/i.test(error) && <div style={{marginTop:8}}><Link href="/auth/reset" style={styles.link}>Forgot your password? Reset it here.</Link></div>}</div>}
         {message && <p role="status" style={styles.success}>{message}</p>}
 
         <p style={styles.switchText}>
           {mode === "signup" ? "Already have an account? " : "New to Dbweb? "}
-          <button type="button" style={styles.textButton} onClick={() => {setMode(mode === "signup" ? "signin" : "signup");setMethod("otp");setOtpSent(false);setOtp("");setError("");setMessage("");}}>
+          <button type="button" style={styles.textButton} onClick={() => {setMode(mode === "signup" ? "signin" : "signup");setMethod("password");setOtpSent(false);setOtp("");setError("");setMessage("");}}>
             {mode === "signup" ? "Sign in" : "Create account"}
           </button>
         </p>
