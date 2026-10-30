@@ -1057,3 +1057,29 @@ img, video, iframe, canvas, svg {
 @media(max-width:640px){.brandLogo{width:34px;height:46px}.footerBrandLogo{width:30px;height:42px}.dbDocsLogo{width:32px;height:45px}.legalBrandLogo{width:30px;height:42px}.dbInfoBrandLogo{width:28px;height:40px}}
 
 .steamBrandLogo{display:block;width:28px;height:40px;object-fit:contain}
+
+
+/* Clean mobile interaction: remove the browser's blue tap flash. */
+*,
+*::before,
+*::after {
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+button,
+a,
+[role="button"],
+input,
+textarea,
+select,
+label {
+  touch-action: manipulation;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
