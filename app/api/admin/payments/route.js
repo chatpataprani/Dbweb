@@ -35,7 +35,25 @@ export async function POST(request){
    const expiry=new Date(Math.max(Date.now(),acct.plan_expires_at?new Date(acct.plan_expires_at).getTime():0)+p.plan_days*86400000).toISOString();
    const {error:ue}=await client.from("device_accounts").update({plan:p.plan_days+"d",plan_expires_at:expiry,credits:acct.credits+10,updated_at:new Date().toISOString()}).eq("device_id",p.device_id);if(ue)throw ue;
   }
-  const {error:pe}=await client.from("device_payments").update({status:action==="approve"?"approved":"rejected",reviewed_at:new Date().toISOString(),reviewed_by:"admin"}).eq("id",id).eq("status","pending");if(pe)throw pe;
-  return NextResponse.json({ok:true});
+  const nextStatus=action==="approve"?"approved":"rejected";
+  const {error:pe}=await client.from("device_payments").update({status:nextStatus,reviewed_at:new Date().toISOString(),reviewed_by:"admin"}).eq("id",id).eq("status","pending");if(pe)throw pe;
+  try{
+   const {data:account}=await client.from("device_accounts").select("auth_user_id").eq("device_id",p.device_id).maybeSingle();
+   if(account?.auth_user_id){
+    const {data:userData}=await client.auth.admin.getUserById(account.auth_user_id);
+    const email=userData?.user?.email,host=process.env.SMTP_HOST,smtpUser=process.env.SMTP_USER,smtpPass=process.env.SMTP_PASS;
+    if(email&&host&&smtpUser&&smtpPass){
+     const nodemailer=(await import("nodemailer")).default;
+     const from=process.env.SMTP_FROM||smtpUser;
+     const transporter=nodemailer.createTransport({host,port:Number(process.env.SMTP_PORT||587),secure:Number(process.env.SMTP_PORT||587)===465,auth:{user:smtpUser,pass:smtpPass}});
+     const approved=nextStatus==="approved";
+     const subject=approved?"Dbweb payment approved — premium activated":"Dbweb payment update — payment not approved";
+     const body=approved?"Your Dbweb payment has been approved and your premium access has been activated. Thank you for choosing Dbweb.":"Your Dbweb payment was not approved. If you believe this was a mistake, please contact the developer using the link below.";
+     const html="<div style=\"font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#17191f;line-height:1.6\"><h2>"+(approved?"Payment approved":"Payment not approved")+"</h2><p>"+body+"</p><p>Plan: "+p.plan_days+" day(s) · Amount: ₹"+p.amount+"</p><p>Need help? <a href=\"mailto:lumenomore@hotmail.com\" style=\"color:#2583ff\">contact the developer</a>.</p><p>Dbweb</p></div>";
+     await transporter.sendMail({from:process.env.SMTP_FROM_NAME?{name:process.env.SMTP_FROM_NAME,address:from}:from,to:email,subject,text:body+"\n\nContact the developer: mailto:lumenomore@hotmail.com",html});
+    }
+   }
+  }catch(mailError){console.error("Dbweb payment decision email failed:",mailError?.message);}
+  return NextResponse.json({ok:true,email_notification:"attempted"});
  }catch(e){return NextResponse.json({error:e?.message||"Payment review failed."},{status:500});}
 }
