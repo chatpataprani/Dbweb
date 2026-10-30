@@ -47,7 +47,7 @@ export async function POST(request){
   if(file.size>8*1024*1024)return NextResponse.json({error:"Receipt must be 8 MB or smaller."},{status:400});
   if(!["image/jpeg","image/png","image/webp","application/pdf"].includes(file.type))return NextResponse.json({error:"Only JPG, PNG, WEBP or PDF receipts are allowed."},{status:400});
   const {error:initError}=await client.from("device_accounts").upsert({device_id:id,auth_user_id:authData.user.id},{onConflict:"device_id",ignoreDuplicates:true});if(initError)throw initError;
-  const orderId="DBW-"+new Date().toISOString().slice(0,10).replace(/-/g,"")+"-"+randomBytes(4).toString("hex").toUpperCase();
+  const orderId="#"+randomBytes(4).toString("hex").slice(0,5).toUpperCase();
   const {data:payment,error}=await client.from("device_payments").insert({device_id:id,order_id:orderId,plan_days:days,amount,receipt_name:file.name,status:"pending"}).select("id,order_id").single();if(error)throw error;
   const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,"_").slice(-100),path=id+"/"+payment.id+"-"+safe,buffer=Buffer.from(await file.arrayBuffer());
   const {error:bucketError}=await client.storage.createBucket(BUCKET,{public:false});if(bucketError&&!/already exists|duplicate/i.test(bucketError.message||""))throw bucketError;
