@@ -8,6 +8,8 @@ export default function AccountPage() {
   const [user, setUser] = useState(null);
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
+  const [usernameCheck, setUsernameCheck] = useState("");
+  const [checkingUsername, setCheckingUsername] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState("");
   const [profile, setProfile] = useState(null);
   const [referralCount, setReferralCount] = useState(0);
@@ -68,6 +70,21 @@ export default function AccountPage() {
     return () => { active = false; };
   }, []);
 
+  async function checkUsername() {
+    setCheckingUsername(true); setUsernameCheck(""); setError("");
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) throw new Error("Please sign in again.");
+      const response = await fetch(`/api/profile?check_username=${encodeURIComponent(username.trim().toLowerCase())}`, { headers: { authorization: "Bearer " + token } });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || "Could not check username.");
+      setUsernameCheck(result.available ? "Username is available." : result.owned ? "This is your current username." : "That username is already taken.");
+    } catch (e) { setError(e?.message || "Could not check username."); }
+    finally { setCheckingUsername(false); }
+  }
+
   async function saveProfile(event) {
     event.preventDefault(); setBusy(true); setError(""); setMessage("");
     try {
@@ -89,6 +106,7 @@ export default function AccountPage() {
       setUser(data.user);
       setProfile(result.profile);
       setUsername(result.profile.username || "");
+      setUsernameCheck("");
       setMessage("Profile saved successfully.");
     } catch (e) { setError(e?.message || "Could not update profile."); }
     finally { setBusy(false); }
@@ -169,7 +187,7 @@ export default function AccountPage() {
           </div>
         </div>
         <label style={styles.label}>Display name<input style={styles.input} value={name} onChange={e => setName(e.target.value)} minLength={2} maxLength={80} required /></label>
-        <label style={styles.label}>Username<input style={styles.input} value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g,"").slice(0,24))} minLength={3} maxLength={24} pattern="[a-z0-9_]{3,24}" placeholder="your_username" required /><span style={styles.hint}>3–24 characters: letters, numbers and underscores. Must be unique.</span></label>
+        <label style={styles.label}>Username<input style={styles.input} value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g,"").slice(0,24))} minLength={3} maxLength={24} pattern="[a-z0-9_]{3,24}" placeholder="your_username" required /><span style={styles.hint}>3–24 characters: letters, numbers and underscores. Use an email-related or random username.</span><button type="button" style={styles.secondary} onClick={checkUsername} disabled={checkingUsername || !/^[a-z0-9_]{3,24}$/.test(username.trim().toLowerCase())}>{checkingUsername ? "Checking…" : "Check username"}</button>{usernameCheck && <span role="status" style={styles.hint}>{usernameCheck}</span>}</label>
         <label style={styles.label}>Email address<input style={{...styles.input,opacity:.7}} value={user?.email || ""} readOnly /></label>
         <label style={styles.label}>Sign-in method<input style={{...styles.input,opacity:.7}} value={user?.app_metadata?.provider || "email"} readOnly /></label>
         <button style={styles.primary} disabled={busy || uploading}>{busy ? "Saving…" : "Save profile"}</button>
