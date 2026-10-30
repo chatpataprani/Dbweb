@@ -96,6 +96,20 @@ export async function PATCH(request) {
   try {
     const body = await request.json().catch(() => ({}));
     const userId = String(body.user_id || "");
+    const action = String(body.action || "");
+    if (action === "reset_password") {
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId)) {
+        return NextResponse.json({ error: "Invalid alias account." }, { status: 400 });
+      }
+      const client = db();
+      const { data: alias, error: findError } = await client.from("dbweb_email_aliases").select("user_id").eq("user_id", userId).maybeSingle();
+      if (findError) throw findError;
+      if (!alias) return NextResponse.json({ error: "Alias not found." }, { status: 404 });
+      const password = randomBytes(15).toString("base64url");
+      const { error: authError } = await client.auth.admin.updateUserById(userId, { password });
+      if (authError) throw authError;
+      return NextResponse.json({ ok: true, password });
+    }
     const active = body.active === true;
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId)) {
       return NextResponse.json({ error: "Invalid alias account." }, { status: 400 });
