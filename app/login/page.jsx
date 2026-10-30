@@ -15,6 +15,9 @@ export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [usernameEdited, setUsernameEdited] = useState(false);
+  const [usernameCheck, setUsernameCheck] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showNotice, setShowNotice] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -44,13 +47,13 @@ export default function LoginPage() {
         const email = identifier.trim().toLowerCase();
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Enter a valid email address.");
         if (password.length < 8) throw new Error("Use at least 8 characters for your password.");
-        const emailPrefix = (email.split("@")[0].toLowerCase().replace(/[^a-z0-9_]/g, "").replace(/^_+|_+$/g, "").slice(0, 15) || "user");
-        const generatedUsername = `${emailPrefix}_${crypto.randomUUID().replace(/-/g, "").slice(0, 6)}`;
+        const chosenUsername = username.trim().toLowerCase();
+        if (!/^[a-z0-9_]{3,24}$/.test(chosenUsername)) throw new Error("Username must be 3–24 characters using letters, numbers, or underscores.");
         const referredByCode = (new URLSearchParams(window.location.search).get("ref") || "").trim().toLowerCase();
         const { data, error: authError } = await supabase.auth.signUp({
           email, password,
           options: { emailRedirectTo: callbackUrl(), data: {
-            full_name: name.trim(), username: generatedUsername,
+            full_name: name.trim(), username: chosenUsername,
             referred_by_code: referredByCode || null
           }}
         });
@@ -133,10 +136,11 @@ export default function LoginPage() {
         <div style={styles.divider}><span>or use your account</span></div>
         <form onSubmit={submit} style={styles.form}>
           {mode === "signup" && <>
-            <p style={{margin:"-4px 0 0",fontSize:12,lineHeight:1.5,opacity:.7}}>Your username will be generated automatically from your email address with a random suffix. You can sign in using your email or generated username.</p>
+            <label style={styles.label}>Username<input style={styles.input} autoComplete="username" value={username} onChange={e => {setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g,"").slice(0,24));setUsernameEdited(true);setUsernameCheck("");}} required minLength={3} maxLength={24} pattern="[a-z0-9_]{3,24}" placeholder="emailname_a83f21" /></label>
+            <small style={{fontSize:12,opacity:.7,marginTop:-8}}>Choose an email-related or randomly generated username. You can change it later in Account settings.</small>
             <label style={styles.label}>Display name<input style={styles.input} autoComplete="name" value={name} onChange={e => setName(e.target.value)} required minLength={2} maxLength={80} /></label>
           </>}
-          <label style={styles.label}>{mode === "signup" ? "Email address" : "Email or username"}<input style={styles.input} type="text" autoComplete={mode === "signup" ? "email" : "username"} value={identifier} onChange={e => setIdentifier(e.target.value)} required placeholder={mode === "signup" ? "you@example.com" : "you@example.com or username"} /></label>
+          <label style={styles.label}>{mode === "signup" ? "Email address" : "Email or username"}<input style={styles.input} type="text" autoComplete={mode === "signup" ? "email" : "username"} value={identifier} onChange={e => {const value=e.target.value;setIdentifier(value);if(mode==="signup"&&!usernameEdited&&value.includes("@")){const prefix=(value.split("@")[0].toLowerCase().replace(/[^a-z0-9_]/g,"").replace(/^_+|_+$/g,"").slice(0,15)||"user");setUsername(`${prefix}_${crypto.randomUUID().replace(/-/g,"").slice(0,6)}`);}}} required placeholder={mode === "signup" ? "you@example.com" : "you@example.com or username"} /></label>
           <label style={styles.label}>Password
             <span style={styles.passwordWrap}>
               <input style={styles.passwordInput} type={showPassword ? "text" : "password"} autoComplete={mode === "signup" ? "new-password" : "current-password"} value={password} onChange={e => setPassword(e.target.value)} required minLength={mode === "signup" ? 8 : undefined} />
@@ -148,7 +152,7 @@ export default function LoginPage() {
         </form>
         {error && <div role="alert" style={styles.error}>{error}</div>}
         {message && <p role="status" style={styles.success}>{message}</p>}
-        <p style={styles.switchText}>{mode === "signup" ? "Already have an account? " : "New to Dbweb? "}<button type="button" style={styles.textButton} onClick={() => {setMode(mode === "signup" ? "signin" : "signup");setPassword("");setShowPassword(false);setError("");setMessage("");}}>{mode === "signup" ? "Sign in" : "Create account"}</button></p>
+        <p style={styles.switchText}>{mode === "signup" ? "Already have an account? " : "New to Dbweb? "}<button type="button" style={styles.textButton} onClick={() => {setMode(mode === "signup" ? "signin" : "signup");setPassword("");setUsernameEdited(false);setUsernameCheck("");setShowPassword(false);setError("");setMessage("");}}>{mode === "signup" ? "Sign in" : "Create account"}</button></p>
         <p style={styles.footer}>By continuing, you agree to Dbweb’s <Link style={styles.link} href="/terms">Terms</Link> and <Link style={styles.link} href="/privacy">Privacy Policy</Link>.</p>
         <Link href="/" style={styles.back}>← Back to Dbweb</Link>
       </section>
