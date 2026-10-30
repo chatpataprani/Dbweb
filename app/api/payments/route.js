@@ -11,14 +11,14 @@ async function notifyAdmin({client,payment,deviceId,days,amount}){
  if(account?.auth_user_id){
   const [{data:userData},{data:profileData}]=await Promise.all([
    client.auth.admin.getUserById(account.auth_user_id),
-   client.from("profiles").select("username,full_name,phone,avatar_url").eq("id",account.auth_user_id).maybeSingle()
+   client.from("profiles").select("username,avatar_url").eq("id",account.auth_user_id).maybeSingle()
   ]);
   authUser=userData?.user||null;profile=profileData||null;
  }
  const email=authUser?.email||"Not linked";
- const name=profile?.full_name||authUser?.user_metadata?.full_name||authUser?.user_metadata?.name||account?.display_name||"Not provided";
+ const name=authUser?.user_metadata?.full_name||authUser?.user_metadata?.name||account?.display_name||"Not provided";
  const username=profile?.username||authUser?.user_metadata?.username||"Not set";
- const phone=profile?.phone||authUser?.phone||"Not provided";
+ const phone=authUser?.phone||"Not provided";
  const to=process.env.ADMIN_EMAIL||"lumenomore@hotmail.com";
  const from=process.env.SMTP_FROM||user;
  const transporter=nodemailer.createTransport({host,port:Number(process.env.SMTP_PORT||587),secure:Number(process.env.SMTP_PORT||587)===465,auth:{user,pass}});
