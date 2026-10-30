@@ -72,7 +72,33 @@ export default function Home(){
  useEffect(()=>{if(typeof window==="undefined")return;setPage(pageForPath(window.location.pathname));const syncRoute=()=>setPage(pageForPath(window.location.pathname));window.addEventListener("popstate",syncRoute);try{if(new URLSearchParams(window.location.search).get("premium")==="1")setPage("plans");}catch{}window.history.scrollRestoration="manual";const resetScroll=()=>window.scrollTo({top:0,left:0,behavior:"instant"});requestAnimationFrame(resetScroll);window.addEventListener("pageshow",resetScroll);let authSubscription;try{const supabase=getSupabaseBrowserClient();supabase.auth.getSession().then(({data})=>{if(data.session){setAuthUser(data.session.user);rememberAccountSession(data.session);}}).catch(()=>{});const {data}=supabase.auth.onAuthStateChange((_event,session)=>{setAuthUser(session?.user||null);if(session)rememberAccountSession(session);});authSubscription=data.subscription;try{const stored=JSON.parse(localStorage.getItem("dbweb_saved_accounts")||"[]");setSavedAccounts(Array.isArray(stored)?stored:[]);}catch{setSavedAccounts([]);}}catch{}try{const savedTheme=localStorage.getItem("dbweb_theme");const initialTheme=savedTheme==="dark"||savedTheme==="light"?savedTheme:"device";const resolvedTheme=initialTheme==="device"?(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):initialTheme;setTheme(initialTheme);document.documentElement.dataset.theme=resolvedTheme;setUserName(localStorage.getItem("dbweb_user_name")||"");const saved=JSON.parse(localStorage.getItem("dbweb_lookup_history")||"[]");setHistoryItems(Array.isArray(saved)?saved:[]);}catch{setHistoryItems([]);}refresh();return()=>{authSubscription?.unsubscribe();window.removeEventListener("pageshow",resetScroll);window.removeEventListener("popstate",syncRoute);};},[]);
  function rememberAccountSession(session){if(!session?.user?.id||typeof window==="undefined")return;const user=session.user;const meta=user.user_metadata||{};const entry={userId:user.id,email:user.email||"",username:meta.username||"",fullName:meta.full_name||meta.name||"",avatarUrl:meta.avatar_url||meta.picture||"",accessToken:session.access_token,refreshToken:session.refresh_token};try{const current=JSON.parse(localStorage.getItem("dbweb_saved_accounts")||"[]");const list=[entry,...(Array.isArray(current)?current.filter(x=>x.userId!==user.id):[])].slice(0,10);localStorage.setItem("dbweb_saved_accounts",JSON.stringify(list));setSavedAccounts(list);}catch{}}
  function accountLabel(item){return item.username||item.fullName||item.email||"Dbweb account";}
- async function switchSavedAccount(item){if(!item?.refreshToken)return;setError("");setBusy(true);try{const {data,error:sessionError}=await getSupabaseBrowserClient().auth.setSession({access_token:item.accessToken,refresh_token:item.refreshToken});if(sessionError)throw sessionError;if(data.session)rememberAccountSession(data.session);setAccountMenuOpen(false);window.location.reload();}catch(e){setError(e?.message||"Could not switch accounts. Please sign in again.");}finally{setBusy(false);}}
+ async function switchSavedAccount(item){
+  if(!item?.userId)return;
+  setError("");setBusy(true);
+  const goToPasswordLogin=async()=>{
+   try{await getSupabaseBrowserClient().auth.signOut({scope:"local"});}catch{}
+   const params=new URLSearchParams({next:"/",account:item.email||""});
+   window.location.assign("/login?"+params.toString());
+  };
+  try{
+   const supabase=getSupabaseBrowserClient();
+   if(item.refreshToken){
+    // Refresh the selected account directly. Its access token may have expired
+    // while another account was active, and refresh tokens rotate on use.
+    const {data,error:refreshError}=await supabase.auth.refreshSession({refresh_token:item.refreshToken});
+    if(refreshError||!data?.session)throw refreshError||new Error("Saved sign-in expired.");
+    rememberAccountSession(data.session);
+    setAccountMenuOpen(false);
+    window.location.reload();
+    return;
+   }
+   await goToPasswordLogin();
+  }catch(e){
+   // Keep the saved account entry. Never delete it just because its token expired.
+   setError("This account needs you to sign in again. Your Dbweb account and data have not been deleted.");
+   await goToPasswordLogin();
+  }finally{setBusy(false);}
+ }
  async function addAnotherAccount(){setBusy(true);try{const {error:signOutError}=await getSupabaseBrowserClient().auth.signOut({scope:"local"});if(signOutError)throw signOutError;window.location.href="/login?next="+encodeURIComponent(window.location.pathname+window.location.search);}catch(e){setError(e?.message||"Could not add another account.");setBusy(false);}}
  async function logoutCurrentAccount(){setBusy(true);try{const id=authUser?.id;const list=savedAccounts.filter(item=>item.userId!==id);localStorage.setItem("dbweb_saved_accounts",JSON.stringify(list));setSavedAccounts(list);const {error:signOutError}=await getSupabaseBrowserClient().auth.signOut({scope:"local"});if(signOutError)throw signOutError;setAccountMenuOpen(false);setAuthUser(null);window.location.href="/";}catch(e){setError(e?.message||"Could not sign out.");setBusy(false);}}
  const routeForPage={lookup:"/",plans:"/plan",payment:"/plan",history:"/history",settings:"/settings",redeem:"/redeem-code"};
