@@ -5,7 +5,7 @@ const BUCKET="payment-receipts";
 function db(){return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY,{auth:{autoRefreshToken:false,persistSession:false}});}
 export async function GET(request){
  if(!validAdminRequest(request))return NextResponse.json({error:"Admin access required."},{status:403});
- const client=db();const {data,error}=await client.from("device_payments").select("*").order("created_at",{ascending:false}).limit(100);
+ const client=db();const orderId=(new URL(request.url).searchParams.get("order_id")||"").trim();let query=client.from("device_payments").select("*").order("created_at",{ascending:false});if(orderId)query=query.eq("order_id",orderId);const {data,error}=await query.limit(orderId?1:100);
  if(error)return NextResponse.json({error:error.message},{status:500});
  const deviceIds=[...new Set((data||[]).map(p=>p.device_id).filter(Boolean))];
  const {data:accounts,error:accountError}=deviceIds.length?await client.from("device_accounts").select("device_id,auth_user_id,display_name,credits,plan,plan_expires_at,created_at,updated_at").in("device_id",deviceIds):{data:[],error:null};
