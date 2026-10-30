@@ -7,7 +7,22 @@ export async function GET(request){
  if(!validAdminRequest(request))return NextResponse.json({error:"Admin access required."},{status:403});
  const client=db();const {data,error}=await client.from("device_payments").select("*").order("created_at",{ascending:false}).limit(100);
  if(error)return NextResponse.json({error:error.message},{status:500});
- const payments=[];for(const p of data||[]){let url=null;if(p.receipt_path){const s=await client.storage.from(BUCKET).createSignedUrl(p.receipt_path,600,{download:true});url=s.data?.signedUrl||null;}payments.push({...p,receipt_url:url});}
+ const deviceIds=[...new Set((data||[]).map(p=>p.device_id).filter(Boolean))];
+ const {data:accounts,error:accountError}=deviceIds.length?await client.from("device_accounts").select("device_id,auth_user_id,display_name,credits,plan,plan_expires_at,created_at,updated_at").in("device_id",deviceIds):{data:[],error:null};
+ if(accountError)return NextResponse.json({error:accountError.message},{status:500});
+ const accountByDevice=new Map((accounts||[]).map(a=>[a.device_id,a]));
+ const userIds=[...new Set((accounts||[]).map(a=>a.auth_user_id).filter(Boolean))];
+ const [{data:profiles,error:profileError},authResults]=await Promise.all([
+  userIds.length?client.from("profiles").select("id,username,full_name,phone,avatar_url,credits,plan,plan_expires_at").in("id",userIds):Promise.resolve({data:[],error:null}),
+  Promise.all(userIds.map(async id=>{const {data,error}=await client.auth.admin.getUserById(id);return error?null:data?.user||null;}))
+ ]);
+ if(profileError)return NextResponse.json({error:profileError.message},{status:500});
+ const profileById=new Map((profiles||[]).map(p=>[p.id,p]));
+ const userById=new Map(authResults.filter(Boolean).map(u=>[u.id,u]));
+ const payments=[];for(const p of data||[]){
+  let url=null;if(p.receipt_path){const s=await client.storage.from(BUCKET).createSignedUrl(p.receipt_path,600,{download:true});url=s.data?.signedUrl||null;}
+  const account=accountByDevice.get(p.device_id)||{},user=account.auth_user_id?userById.get(account.auth_user_id):null,profile=account.auth_user_id?profileById.get(account.auth_user_id):null;
+  payments.push({...p,receipt_url:url,user:{id:account.auth_user_id||null,email:user?.email||null,phone:profile?.phone||user?.phone||null,full_name:profile?.full_name||user?.user_metadata?.full_name||user?.user_metadata?.name||account.display_name||null,username:profile?.username||user?.user_metadata?.username||null,avatar_url:profile?.avatar_url||user?.user_metadata?.avatar_url||user?.user_metadata?.picture||null,email_confirmed_at:user?.email_confirmed_at||null,created_at:user?.created_at||null,last_sign_in_at:user?.last_sign_in_at||null},account:{display_name:account.display_name||null,credits:account.credits??null,plan:account.plan||"free",plan_expires_at:account.plan_expires_at||null,created_at:account.created_at||null,updated_at:account.updated_at||null}});}
  return NextResponse.json({payments});
 }
 export async function POST(request){
