@@ -22,6 +22,14 @@ export async function GET(request) {
     const auth = await getUser(request, db);
     if (auth.error) return auth.error;
     const user = auth.user;
+    const requestedUsername = new URL(request.url).searchParams.get("check_username");
+    if (requestedUsername !== null) {
+      const candidate = requestedUsername.trim().toLowerCase();
+      if (!/^[a-z0-9_]{3,24}$/.test(candidate)) return NextResponse.json({ error: "Username must be 3–24 characters using letters, numbers, or underscores." }, { status: 400 });
+      const { data: existing, error: checkError } = await db.from("profiles").select("id").eq("username", candidate).maybeSingle();
+      if (checkError) throw checkError;
+      return NextResponse.json({ available: !existing || existing.id === user.id, owned: existing?.id === user.id });
+    }
     const { data: profile, error } = await db.from("profiles")
       .select("id,email,username,avatar_url,referral_code,referred_by,credits,plan,plan_expires_at")
       .eq("id", user.id).maybeSingle();
