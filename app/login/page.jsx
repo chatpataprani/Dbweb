@@ -26,6 +26,9 @@ export default function LoginPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const savedAccount = params.get("account");
+    if (savedAccount) setIdentifier(savedAccount);
     let active = true;
     getSupabaseBrowserClient().auth.getSession().then(({ data }) => {
       if (active && data.session) router.replace(destinationPath());
