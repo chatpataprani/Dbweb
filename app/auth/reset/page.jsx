@@ -112,7 +112,7 @@ export default function ResetPasswordPage() {
     <form onSubmit={recovery ? updatePassword : requestReset} style={styles.form}>
       {!recovery && <>
         <label style={styles.label}>Email address<input style={styles.input} type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required /></label>
-        {otpSent && <label style={styles.label}>6-digit recovery code<input style={styles.input} type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6} pattern="[0-9]{6}" value={otp} onChange={e => setOtp(e.target.value.replace(/\\D/g, "").slice(0, 6))} placeholder="Enter code from email" /></label>}
+        {otpSent && <label style={styles.label}>6-digit recovery code<input style={styles.input} type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6} pattern="[0-9]{6}" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="Enter code from email" /></label>}
       </>}
       {recovery && <>
         {passwordField("New password", password, setPassword, showPassword, setShowPassword)}
