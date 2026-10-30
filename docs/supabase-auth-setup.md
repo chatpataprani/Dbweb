@@ -30,6 +30,16 @@ The login page supports email OTP and legacy email/password sign-in. To make the
 4. Check the Supabase Auth logs and SMTP/email delivery settings if no email arrives. Check spam too.
 5. If email confirmation is enabled, users must verify the code before the account can sign in.
 
+## 4. Password recovery email
+
+The login page supports email/password signup and sign-in. The reset page supports both a recovery link and a one-time recovery code.
+
+1. Open Supabase → Authentication → Email Templates → Reset Password.
+2. Keep the recovery link using `{{ .ConfirmationURL }}` and also include `{{ .Token }}` in the email so users can enter the OTP on Dbweb.
+3. Ensure the recovery email is sent from your configured SMTP provider. Check Auth logs and spam if delivery fails.
+4. In Supabase → Authentication → URL Configuration, allow `https://webdd.freeddns.org/auth/reset` as a redirect URL (or retain the existing `https://webdd.freeddns.org/**` wildcard).
+5. Users can open the reset link or enter the recovery code at `https://webdd.freeddns.org/auth/reset`. The reset flow requires an active recovery session before it allows a password change.
+
 Existing users who originally created a password can still choose Password on the login page. If a password login says “Invalid login credentials”, use Email code or reset the password.
 
 ## 4. Google provider
