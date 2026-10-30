@@ -59,7 +59,7 @@ export default function ResetPasswordPage() {
       });
       if (resetError) throw resetError;
       setOtpSent(true);
-      setMessage("If an account exists for this email, a reset email has been sent. Open its reset link, or enter the 6-digit recovery code from the email below.");
+      setMessage("If an account exists for this email, a reset email has been sent. Open its reset link, or enter the Recovery code from the email below.");
     } catch (e) {
       setError(e?.message || "Could not request a reset email.");
     } finally {
@@ -112,13 +112,13 @@ export default function ResetPasswordPage() {
     <form onSubmit={recovery ? updatePassword : requestReset} style={styles.form}>
       {!recovery && <>
         <label style={styles.label}>Email address<input style={styles.input} type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required /></label>
-        {otpSent && <label style={styles.label}>6-digit recovery code<input style={styles.input} type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6} pattern="[0-9]{6}" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="Enter code from email" /></label>}
+        {otpSent && <label style={styles.label}>6-digit recovery code<input style={styles.input} type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={8} pattern="[0-9]{6,8}" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, "").slice(0, 8))} placeholder="Enter code from email" /></label>}
       </>}
       {recovery && <>
         {passwordField("New password", password, setPassword, showPassword, setShowPassword)}
         {passwordField("Confirm new password", confirm, setConfirm, showConfirm, setShowConfirm)}
       </>}
-      {!recovery && otpSent && <button type="button" style={styles.primary} disabled={busy || otp.trim().length !== 6} onClick={verifyRecoveryOtp}>{busy ? "Please wait…" : "Verify code"}</button>}
+      {!recovery && otpSent && <button type="button" style={styles.primary} disabled={busy || (otp.trim().length < 6 || otp.trim().length > 8)} onClick={verifyRecoveryOtp}>{busy ? "Please wait…" : "Verify code"}</button>}
       <button style={styles.primary} disabled={busy}>{busy ? "Please wait…" : recovery ? "Update password" : otpSent ? "Resend reset email" : secureAccount ? "Send secure reset email" : "Send reset email"}</button>
     </form>
     {message && <p role="status" style={styles.success}>{message}</p>}
