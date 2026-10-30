@@ -11,6 +11,8 @@ function EyeIcon({ visible }) {
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState("");
   const [secureAccount, setSecureAccount] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -29,9 +31,14 @@ export default function ResetPasswordPage() {
         const supabase = getSupabaseBrowserClient();
         const url = new URL(window.location.href);
         const code = url.searchParams.get("code");
+        const tokenHash = url.searchParams.get("token_hash");
+        const type = url.searchParams.get("type");
         if (code) {
           const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
           if (exchangeError) throw exchangeError;
+        } else if (tokenHash && type === "recovery") {
+          const { error: verifyError } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: "recovery" });
+          if (verifyError) throw verifyError;
         }
         const { data } = await supabase.auth.getSession();
         if (active && data.session) setRecovery(true);
@@ -51,9 +58,26 @@ export default function ResetPasswordPage() {
         redirectTo: `${window.location.origin}/auth/reset`
       });
       if (resetError) throw resetError;
-      setMessage("If an account exists for this email, a password-reset link has been sent. Open that link to choose a new password.");
+      setOtpSent(true);
+      setMessage("If an account exists for this email, a reset email has been sent. Open its reset link, or enter the 6-digit recovery code from the email below.");
     } catch (e) {
       setError(e?.message || "Could not request a reset email.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function verifyRecoveryOtp(event) {
+    event.preventDefault();
+    setBusy(true); setError(""); setMessage("");
+    try {
+      const { error: verifyError } = await getSupabaseBrowserClient().auth.verifyOtp({ email: email.trim(), token: otp.trim(), type: "recovery" });
+      if (verifyError) throw verifyError;
+      setRecovery(true);
+      setOtp("");
+      setMessage("Code verified. Choose your new password.");
+    } catch (e) {
+      setError(e?.message || "That recovery code is invalid or expired. Request a new reset email.");
     } finally {
       setBusy(false);
     }
@@ -86,12 +110,16 @@ export default function ResetPasswordPage() {
     <h1 style={styles.heading}>{recovery ? "Choose a new password" : secureAccount ? "Secure your Dbweb account" : "Reset your password"}</h1>
     <p style={styles.sub}>{recovery ? "Choose a strong password you have not used before." : secureAccount ? "If you did not change your password, enter your account email below. We will send a secure password-reset link so you can choose a new password." : "Enter the email address linked to your account. We will send you a secure password-reset link."}</p>
     <form onSubmit={recovery ? updatePassword : requestReset} style={styles.form}>
-      {!recovery && <label style={styles.label}>Email address<input style={styles.input} type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required /></label>}
+      {!recovery && <>
+        <label style={styles.label}>Email address<input style={styles.input} type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required /></label>
+        {otpSent && <label style={styles.label}>6-digit recovery code<input style={styles.input} type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6} pattern="[0-9]{6}" value={otp} onChange={e => setOtp(e.target.value.replace(/\\D/g, "").slice(0, 6))} placeholder="Enter code from email" /></label>}
+      </>}
       {recovery && <>
         {passwordField("New password", password, setPassword, showPassword, setShowPassword)}
         {passwordField("Confirm new password", confirm, setConfirm, showConfirm, setShowConfirm)}
       </>}
-      <button style={styles.primary} disabled={busy}>{busy ? "Please wait…" : recovery ? "Update password" : secureAccount ? "Send secure reset link" : "Send reset link"}</button>
+      {!recovery && otpSent && <button type="button" style={styles.primary} disabled={busy || otp.trim().length !== 6} onClick={verifyRecoveryOtp}>{busy ? "Please wait…" : "Verify code"}</button>}
+      <button style={styles.primary} disabled={busy}>{busy ? "Please wait…" : recovery ? "Update password" : otpSent ? "Resend reset email" : secureAccount ? "Send secure reset email" : "Send reset email"}</button>
     </form>
     {message && <p role="status" style={styles.success}>{message}</p>}
     {error && <p role="alert" style={styles.error}>{error}</p>}
