@@ -15,7 +15,6 @@ export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showNotice, setShowNotice] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -45,12 +44,13 @@ export default function LoginPage() {
         const email = identifier.trim().toLowerCase();
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Enter a valid email address.");
         if (password.length < 8) throw new Error("Use at least 8 characters for your password.");
-        if (!/^[a-z0-9_]{3,24}$/.test(username.trim().toLowerCase())) throw new Error("Choose a username of 3–24 characters using letters, numbers, or underscores.");
+        const emailPrefix = (email.split("@")[0].toLowerCase().replace(/[^a-z0-9_]/g, "").replace(/^_+|_+$/g, "").slice(0, 15) || "user");
+        const generatedUsername = `${emailPrefix}_${crypto.randomUUID().replace(/-/g, "").slice(0, 6)}`;
         const referredByCode = (new URLSearchParams(window.location.search).get("ref") || "").trim().toLowerCase();
         const { data, error: authError } = await supabase.auth.signUp({
           email, password,
           options: { emailRedirectTo: callbackUrl(), data: {
-            full_name: name.trim(), username: username.trim().toLowerCase(),
+            full_name: name.trim(), username: generatedUsername,
             referred_by_code: referredByCode || null
           }}
         });
@@ -133,8 +133,7 @@ export default function LoginPage() {
         <div style={styles.divider}><span>or use your account</span></div>
         <form onSubmit={submit} style={styles.form}>
           {mode === "signup" && <>
-            <label style={styles.label}>Username<input style={styles.input} autoComplete="username" value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g,"").slice(0,24))} required minLength={3} maxLength={24} pattern="[a-z0-9_]{3,24}" placeholder="your_username" /></label>
-            <small style={{fontSize:12,opacity:.7,marginTop:-8}}>3–24 characters · letters, numbers and underscores</small>
+            <p style={{margin:"-4px 0 0",fontSize:12,lineHeight:1.5,opacity:.7}}>Your username will be generated automatically from your email address with a random suffix. You can sign in using your email or generated username.</p>
             <label style={styles.label}>Display name<input style={styles.input} autoComplete="name" value={name} onChange={e => setName(e.target.value)} required minLength={2} maxLength={80} /></label>
           </>}
           <label style={styles.label}>{mode === "signup" ? "Email address" : "Email or username"}<input style={styles.input} type="text" autoComplete={mode === "signup" ? "email" : "username"} value={identifier} onChange={e => setIdentifier(e.target.value)} required placeholder={mode === "signup" ? "you@example.com" : "you@example.com or username"} /></label>
