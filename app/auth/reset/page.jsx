@@ -10,6 +10,7 @@ function EyeIcon({ visible }) {
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState("");
+  const [secureAccount, setSecureAccount] = useState(false);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -21,6 +22,8 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     let active = true;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("secure") === "1") setSecureAccount(true);
     async function checkRecovery() {
       try {
         const supabase = getSupabaseBrowserClient();
@@ -80,15 +83,15 @@ export default function ResetPasswordPage() {
   return <main style={styles.page}><section style={styles.card}>
     <Link href="/" style={styles.brand}>Dbweb</Link>
     <p style={styles.eyebrow}>ACCOUNT SECURITY</p>
-    <h1 style={styles.heading}>{recovery ? "Choose a new password" : "Reset your password"}</h1>
-    <p style={styles.sub}>{recovery ? "Choose a strong password you have not used before." : "Enter the email address linked to your account. We will send you a secure password-reset link."}</p>
+    <h1 style={styles.heading}>{recovery ? "Choose a new password" : secureAccount ? "Secure your Dbweb account" : "Reset your password"}</h1>
+    <p style={styles.sub}>{recovery ? "Choose a strong password you have not used before." : secureAccount ? "If you did not change your password, enter your account email below. We will send a secure password-reset link so you can choose a new password." : "Enter the email address linked to your account. We will send you a secure password-reset link."}</p>
     <form onSubmit={recovery ? updatePassword : requestReset} style={styles.form}>
       {!recovery && <label style={styles.label}>Email address<input style={styles.input} type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required /></label>}
       {recovery && <>
         {passwordField("New password", password, setPassword, showPassword, setShowPassword)}
         {passwordField("Confirm new password", confirm, setConfirm, showConfirm, setShowConfirm)}
       </>}
-      <button style={styles.primary} disabled={busy}>{busy ? "Please wait…" : recovery ? "Update password" : "Send reset link"}</button>
+      <button style={styles.primary} disabled={busy}>{busy ? "Please wait…" : recovery ? "Update password" : secureAccount ? "Send secure reset link" : "Send reset link"}</button>
     </form>
     {message && <p role="status" style={styles.success}>{message}</p>}
     {error && <p role="alert" style={styles.error}>{error}</p>}
