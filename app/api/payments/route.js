@@ -3,7 +3,7 @@ import {createClient} from "@supabase/supabase-js";
 import nodemailer from "nodemailer";
 const BUCKET="payment-receipts";const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 function db(){return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY,{auth:{autoRefreshToken:false,persistSession:false}});}
-async function notifyAdmin({client,payment,deviceId,days,amount}){
+async function notifyAdmin({client,payment,deviceId,days,amount,receipt}){
  const host=process.env.SMTP_HOST,user=process.env.SMTP_USER,pass=process.env.SMTP_PASS;
  if(!host||!user||!pass)return {sent:false,reason:"smtp_not_configured"};
  const {data:account}=await client.from("device_accounts").select("auth_user_id,display_name,credits,plan,plan_expires_at").eq("device_id",deviceId).maybeSingle();
@@ -30,7 +30,7 @@ async function notifyAdmin({client,payment,deviceId,days,amount}){
   ["Device ID",deviceId],["Current credits",account?.credits??"Unknown"],["Current plan",account?.plan||"free"],["Current premium expiry",account?.plan_expires_at||"None"]
  ];
  const html="<div style=\"font-family:Arial,sans-serif;max-width:640px;margin:auto;color:#171717\"><h2>New Dbweb plan payment</h2><p>A user submitted a plan payment and receipt. Review it in the Dbweb admin panel.</p><table cellpadding=\"9\" cellspacing=\"0\" style=\"border-collapse:collapse;width:100%\">"+rows.map(([k,v])=>"<tr><td style=\"border:1px solid #ddd;font-weight:bold;width:38%\">"+String(k)+"</td><td style=\"border:1px solid #ddd;word-break:break-word\">"+String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))+"</td></tr>").join("")+"</table><p>Receipt is available in Admin → Payments.</p></div>";
- await transporter.sendMail({from:process.env.SMTP_FROM_NAME?{name:process.env.SMTP_FROM_NAME,address:from}:from,to,subject,text:rows.map(([k,v])=>k+": "+v).join("\n")+"\n\nReceipt is available in Admin → Payments.",html});
+ await transporter.sendMail({from:process.env.SMTP_FROM_NAME?{name:process.env.SMTP_FROM_NAME,address:from}:from,to,subject,text:rows.map(([k,v])=>k+": "+v).join("\n")+"\n\nThe customer receipt is attached to this email.",html,attachments:receipt?[{filename:receipt.filename,content:receipt.content,contentType:receipt.contentType}]:[]});
  return {sent:true};
 }
 export async function POST(request){
@@ -54,7 +54,7 @@ export async function POST(request){
   const saved=await client.from("device_payments").update({receipt_path:path}).eq("id",payment.id);
   if(saved.error)throw saved.error;
   let emailNotification={sent:false,reason:"not_attempted"};
-  try{emailNotification=await notifyAdmin({client,payment,deviceId:id,days,amount});}
+  try{emailNotification=await notifyAdmin({client,payment,deviceId:id,days,amount,receipt:{filename:safe,content:buffer,contentType:file.type}});}
   catch(mailError){console.error("Dbweb payment notification email failed:",mailError?.message);emailNotification={sent:false,reason:"send_failed"};}
   return NextResponse.json({ok:true,payment_id:payment.id,status:"pending",email_notification:emailNotification.sent?"sent":emailNotification.reason});
  }catch(e){return NextResponse.json({error:e?.message||"Could not submit payment."},{status:500});}
