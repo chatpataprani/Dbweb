@@ -36,7 +36,7 @@ async function notifyAdmin({client,payment,deviceId,days,amount,receipt}){
 export async function POST(request){
  try{
   const id=request.headers.get("x-device-id")||"";if(!UUID.test(id))return NextResponse.json({error:"Device ID is missing. Refresh and try again."},{status:400});
-  const bearer=(request.headers.get("authorization")||"").match(/^Bearer\\s+(.+)$/i)?.[1];
+  const bearer=(request.headers.get("authorization")||"").match(/^Bearer\s+(.+)$/i)?.[1];
   if(!bearer)return NextResponse.json({error:"Please sign in or create an account before buying a plan.",login_required:true},{status:401});
   const client=db();const {data:authData,error:authError}=await client.auth.getUser(bearer);
   if(authError||!authData?.user)return NextResponse.json({error:"Please sign in again before buying a plan.",login_required:true},{status:401});
