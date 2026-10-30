@@ -18,6 +18,7 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [usernameEdited, setUsernameEdited] = useState(false);
   const [usernameCheck, setUsernameCheck] = useState("");
+  const [checkingUsername, setCheckingUsername] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showNotice, setShowNotice] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -37,6 +38,21 @@ export default function LoginPage() {
     return next.startsWith("/") && !next.startsWith("//") ? next : "/account";
   };
   const callbackUrl = () => `${window.location.origin}/auth/callback?next=${encodeURIComponent(destinationPath())}`;
+
+  useEffect(() => {
+    if (mode !== "signup" || !/^[a-z0-9_]{3,24}$/.test(username)) { setUsernameCheck(""); setCheckingUsername(false); return; }
+    let active = true;
+    const timer = setTimeout(async () => {
+      setCheckingUsername(true);
+      try {
+        const response = await fetch(`/api/username/check?username=${encodeURIComponent(username)}`);
+        const result = await response.json().catch(() => ({}));
+        if (active) setUsernameCheck(response.ok ? (result.available ? "Available" : "Already taken") : "Could not check right now");
+      } catch { if (active) setUsernameCheck("Could not check right now"); }
+      finally { if (active) setCheckingUsername(false); }
+    }, 350);
+    return () => { active = false; clearTimeout(timer); };
+  }, [username, mode]);
 
   async function submit(event) {
     event.preventDefault();
@@ -137,7 +153,7 @@ export default function LoginPage() {
         <form onSubmit={submit} style={styles.form}>
           {mode === "signup" && <>
             <label style={styles.label}>Username<input style={styles.input} autoComplete="username" value={username} onChange={e => {setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g,"").slice(0,24));setUsernameEdited(true);setUsernameCheck("");}} required minLength={3} maxLength={24} pattern="[a-z0-9_]{3,24}" placeholder="emailname_a83f21" /></label>
-            <small style={{fontSize:12,opacity:.7,marginTop:-8}}>Choose an email-related or randomly generated username. You can change it later in Account settings.</small>
+            <small aria-live="polite" style={{fontSize:12,opacity:.72,marginTop:-8}}>{checkingUsername ? "Checking availability…" : usernameCheck || "Choose an email-related or random username. You can change it later in Account settings."}</small>
             <label style={styles.label}>Display name<input style={styles.input} autoComplete="name" value={name} onChange={e => setName(e.target.value)} required minLength={2} maxLength={80} /></label>
           </>}
           <label style={styles.label}>{mode === "signup" ? "Email address" : "Email or username"}<input style={styles.input} type="text" autoComplete={mode === "signup" ? "email" : "username"} value={identifier} onChange={e => {const value=e.target.value;setIdentifier(value);if(mode==="signup"&&!usernameEdited&&value.includes("@")){const prefix=(value.split("@")[0].toLowerCase().replace(/[^a-z0-9_]/g,"").replace(/^_+|_+$/g,"").slice(0,15)||"user");setUsername(`${prefix}_${crypto.randomUUID().replace(/-/g,"").slice(0,6)}`);}}} required placeholder={mode === "signup" ? "you@example.com" : "you@example.com or username"} /></label>
