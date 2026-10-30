@@ -1,6 +1,7 @@
 import {NextResponse} from "next/server";
 import {createClient} from "@supabase/supabase-js";
 import nodemailer from "nodemailer";
+import {randomBytes} from "node:crypto";
 const BUCKET="payment-receipts";const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 function db(){return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY,{auth:{autoRefreshToken:false,persistSession:false}});}
 async function notifyAdmin({client,payment,deviceId,days,amount,receipt}){
@@ -23,9 +24,9 @@ async function notifyAdmin({client,payment,deviceId,days,amount,receipt}){
  const from=process.env.SMTP_FROM||user;
  const transporter=nodemailer.createTransport({host,port:Number(process.env.SMTP_PORT||587),secure:Number(process.env.SMTP_PORT||587)===465,auth:{user,pass}});
  const when=new Date().toLocaleString("en-IN",{timeZone:"Asia/Kolkata"});
- const subject="Dbweb: New plan payment submitted (#"+payment.id+")";
+ const subject="Dbweb: New plan payment submitted ("+payment.order_id+")";
  const rows=[
-  ["Payment ID",payment.id],["Amount","₹"+amount],["Plan",days+" day(s)"],["Status","Pending review"],["Submitted",when],
+  ["Order ID",payment.order_id],["Payment ID",payment.id],["Amount","₹"+amount],["Plan",days+" day(s)"],["Status","Pending review"],["Submitted",when],
   ["Account email",email],["Name",name],["Username",username],["Phone",phone],["User ID",account?.auth_user_id||"Guest/device-only"],
   ["Device ID",deviceId],["Current credits",account?.credits??"Unknown"],["Current plan",account?.plan||"free"],["Current premium expiry",account?.plan_expires_at||"None"]
  ];
@@ -46,7 +47,7 @@ export async function POST(request){
   if(file.size>8*1024*1024)return NextResponse.json({error:"Receipt must be 8 MB or smaller."},{status:400});
   if(!["image/jpeg","image/png","image/webp","application/pdf"].includes(file.type))return NextResponse.json({error:"Only JPG, PNG, WEBP or PDF receipts are allowed."},{status:400});
   const {error:initError}=await client.from("device_accounts").upsert({device_id:id,auth_user_id:authData.user.id},{onConflict:"device_id",ignoreDuplicates:true});if(initError)throw initError;
-  const {data:payment,error}=await client.from("device_payments").insert({device_id:id,plan_days:days,amount,receipt_name:file.name,status:"pending"}).select("id").single();if(error)throw error;
+  const orderId="DBW-"+new Date().toISOString().slice(0,10).replace(/-/g,"")+"-"+randomBytes(4).toString("hex").toUpperCase();\n  const {data:payment,error}=await client.from("device_payments").insert({device_id:id,order_id:orderId,plan_days:days,amount,receipt_name:file.name,status:"pending"}).select("id,order_id").single();if(error)throw error;
   const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,"_").slice(-100),path=id+"/"+payment.id+"-"+safe,buffer=Buffer.from(await file.arrayBuffer());
   const {error:bucketError}=await client.storage.createBucket(BUCKET,{public:false});if(bucketError&&!/already exists|duplicate/i.test(bucketError.message||""))throw bucketError;
   const upload=await client.storage.from(BUCKET).upload(path,buffer,{contentType:file.type,upsert:false});
@@ -56,6 +57,6 @@ export async function POST(request){
   let emailNotification={sent:false,reason:"not_attempted"};
   try{emailNotification=await notifyAdmin({client,payment,deviceId:id,days,amount,receipt:{filename:safe,content:buffer,contentType:file.type}});}
   catch(mailError){console.error("Dbweb payment notification email failed:",mailError?.message);emailNotification={sent:false,reason:"send_failed"};}
-  return NextResponse.json({ok:true,payment_id:payment.id,status:"pending",email_notification:emailNotification.sent?"sent":emailNotification.reason});
+  return NextResponse.json({ok:true,payment_id:payment.id,order_id:payment.order_id,status:"pending",email_notification:emailNotification.sent?"sent":emailNotification.reason});
  }catch(e){return NextResponse.json({error:e?.message||"Could not submit payment."},{status:500});}
 }
