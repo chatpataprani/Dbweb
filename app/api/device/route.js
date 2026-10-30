@@ -24,18 +24,20 @@ export async function POST(request){
   const {error:termsStampError}=await db.from("device_accounts").update({terms_accepted_at:new Date().toISOString(),terms_version:"2026-10-09"}).eq("device_id",id);
   if(termsStampError)throw termsStampError;
   if(authUser){
-   // A device can be linked to one account only. Never silently transfer premium
-   // or credits from a device already associated with a different user.
-   const linked=await db.from("device_accounts").select("auth_user_id").eq("device_id",id).maybeSingle();
-   if(!linked.error){
-    if(linked.data?.auth_user_id && linked.data.auth_user_id!==authUser.id){
-     return NextResponse.json({error:"This device is already linked to another Dbweb account."},{status:409});
+   // Keep a separate association for every account using this device.
+   // The legacy auth_user_id column is retained for older admin/reporting code.
+   const {error:linkError}=await db.from("device_account_users").upsert(
+    {device_id:id,user_id:authUser.id},
+    {onConflict:"device_id,user_id",ignoreDuplicates:true}
+   );
+   if(linkError){
+    if(/device_account_users|relation .* does not exist/i.test(linkError.message||"")){
+     return NextResponse.json({error:"Multi-account support needs the latest Supabase migration. Run 202610300001_multi_account_device_links.sql in the Supabase SQL Editor."},{status:503});
     }
-    if(!linked.data?.auth_user_id){
-     const {error:linkError}=await db.from("device_accounts").update({auth_user_id:authUser.id}).eq("device_id",id).is("auth_user_id",null);
-     if(linkError)throw linkError;
-    }
-   } else if(!/auth_user_id/i.test(linked.error.message||"")) throw linked.error;
+    throw linkError;
+   }
+   const {error:legacyLinkError}=await db.from("device_accounts").update({auth_user_id:authUser.id}).eq("device_id",id).is("auth_user_id",null);
+   if(legacyLinkError&&!/auth_user_id/i.test(legacyLinkError.message||""))throw legacyLinkError;
   }
   if(authUser){
    const {data:profile,error:profileError}=await db.from("profiles").select("credits,plan,plan_expires_at,signup_credits_transferred").eq("id",authUser.id).maybeSingle();
