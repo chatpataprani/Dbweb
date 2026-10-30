@@ -57,8 +57,8 @@ export default function ResetPasswordPage() {
     event.preventDefault();
     setBusy(true); setError(""); setMessage("");
     try {
-      const token = otp.replace(/\\s/g, "");
-      if (!/^\\d{6,8}$/.test(token)) throw new Error("Enter the 6–8 digit recovery code from your email.");
+      const token = otp.replace(/\s/g, "");
+      if (!/^\d{6,8}$/.test(token)) throw new Error("Enter the 6–8 digit recovery code from your email.");
       const { error: verifyError } = await getSupabaseBrowserClient().auth.verifyOtp({
         email: email.trim(),
         token,
@@ -103,7 +103,7 @@ export default function ResetPasswordPage() {
     <form onSubmit={recovery ? updatePassword : otpSent ? verifyRecoveryCode : requestReset} style={styles.form}>
       {!recovery && <>
         <label style={styles.label}>Email address<input style={styles.input} type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required readOnly={otpSent} /></label>
-        {otpSent && <label style={styles.label}>Recovery code<input style={styles.input} inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={e => setOtp(e.target.value.replace(/\\D/g, "").slice(0,8))} minLength={6} maxLength={8} required placeholder="Enter the code from your email" /></label>}
+        {otpSent && <label style={styles.label}>Recovery code<input style={styles.input} inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, "").slice(0,8))} minLength={6} maxLength={8} required placeholder="Enter the code from your email" /></label>}
       </>}
       {recovery && <>
         <label style={styles.label}>New password<input style={styles.input} type="password" autoComplete="new-password" value={password} onChange={e => setPassword(e.target.value)} minLength={8} required /></label>
