@@ -15,14 +15,31 @@ export async function GET(request){
     const client=db();
     const {data:authData,error:authError}=await client.auth.getUser(token);
     if(authError||!authData?.user)return NextResponse.json({error:"Your sign-in session expired. Please sign in again."},{status:401});
-    const {data:devices,error:devicesError}=await client.from("device_accounts")
-      .select("device_id,display_name,credits,plan,plan_expires_at,created_at,updated_at")
-      .eq("auth_user_id",authData.user.id)
-      .order("created_at",{ascending:false})
+    const {data:links,error:linksError}=await client.from("device_account_users")
+      .select("device_id")
+      .eq("user_id",authData.user.id)
       .limit(100);
-    if(devicesError){
-      if(/auth_user_id/i.test(devicesError.message||""))return NextResponse.json({error:"Run the latest Dbweb Supabase migration to enable account linking."},{status:503});
-      throw devicesError;
+    if(linksError){
+      if(/device_account_users|relation .* does not exist/i.test(linksError.message||""))return NextResponse.json({error:"Run the latest Dbweb Supabase migration to enable multi-account device linking."},{status:503});
+      throw linksError;
+    }
+    const linkedIds=[...new Set((links||[]).map(link=>link.device_id))];
+    // Include legacy links for accounts created before the multi-account migration.
+    const {data:legacyDevices,error:legacyError}=await client.from("device_accounts")
+      .select("device_id")
+      .eq("auth_user_id",authData.user.id)
+      .limit(100);
+    if(legacyError&&!/auth_user_id/i.test(legacyError.message||""))throw legacyError;
+    const allIds=[...new Set([...linkedIds,...(legacyDevices||[]).map(device=>device.device_id)])];
+    let devices=[];
+    if(allIds.length){
+      const {data,error:devicesError}=await client.from("device_accounts")
+        .select("device_id,display_name,credits,plan,plan_expires_at,created_at,updated_at")
+        .in("device_id",allIds)
+        .order("created_at",{ascending:false})
+        .limit(100);
+      if(devicesError)throw devicesError;
+      devices=data||[];
     }
     const ids=(devices||[]).map(d=>d.device_id);
     let payments=[];
