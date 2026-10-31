@@ -13,10 +13,10 @@ export default function OpenGraphImage() {
     (
       <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", background: "#f4f3ef", color: "#18191c", padding: "46px 58px", fontFamily: "Arial, Helvetica, sans-serif", position: "relative" }}>
         <div style={{ position: "absolute", inset: 18, border: "2px solid #deddd7", borderRadius: 30, display: "flex" }} />
-        <div style={{ width: 270, height: 390, borderRadius: 28, background: "#3d5bd9", display: "flex", alignItems: "center", justifyContent: "center", marginRight: 58, zIndex: 1 }}>
+        <div style={{ width: 270, height: 390, borderRadius: 28, background: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", marginRight: 58, zIndex: 1 }}>
           <svg width="174" height="300" viewBox="0 0 830 1434" fill="none">
-            <path d={logoPath} fill="#ffffff" fillRule="evenodd" />
-            <path d={logoInnerPath} fill="#3d5bd9" />
+            <path d={logoPath} fill="#18191c" fillRule="evenodd" />
+            <path d={logoInnerPath} fill="#ffffff" />
           </svg>
         </div>
         <div style={{ display: "flex", flexDirection: "column", flex: 1, zIndex: 1, height: "100%", justifyContent: "center" }}>
