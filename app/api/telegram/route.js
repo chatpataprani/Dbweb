@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const USERNAME=/^@?[A-Za-z][A-Za-z0-9_]{3,31}$/;
+const USERNAME=/^@?[A-Za-z][A-Za-z0-9_]{4,31}$/;
 const ACCOUNT_ID=/^\d{5,15}$/;
 
 function db(){
@@ -16,7 +16,7 @@ function hasLookupData(value){
  if(!value||typeof value!=="object"||Array.isArray(value))return false;
  const status=String(value.status||"").toLowerCase();
  if(["not_found","not found","error","failed"].includes(status))return false;
- return Object.entries(value).some(([key,item])=>key!=="status"&&key!=="developer"&&key!=="lookup_ms"&&item!==null&&item!==undefined&&String(item).trim()!=="");
+ return Object.entries(value).some(([key,item])=>key!=="status"&&key!=="developer"&&key!=="lookup_ms"&&key!=="account_id"&&item!==null&&item!==undefined&&String(item).trim()!=="");
 }
 export async function POST(request){
  try{
