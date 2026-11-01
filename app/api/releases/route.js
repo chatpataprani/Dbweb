@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { validAdminRequest } from "../../../../lib/admin-auth";
+import { validAdminRequest } from "../../../lib/admin-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
