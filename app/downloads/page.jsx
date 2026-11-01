@@ -146,7 +146,7 @@ export default function DownloadsPage() {
               const Icon = iconFor(item.kind);
               return <article className="rp-card" key={item.id}>
                 <div className="rp-cardtop"><div className="rp-icon"><Icon size={20} /></div><span className="rp-badge">{kindLabel[item.kind] || "Package"}</span></div>
-                <h2>{item.title}</h2><p>{item.description}</p>
+                <h2>{item.title}</h2><p>{item.description}</p>{item.changelog && <details style={{fontSize:12,color:"var(--rp-muted)",marginBottom:8}}><summary style={{cursor:"pointer",fontWeight:700}}>What&apos;s new in this version</summary><p style={{marginTop:7,whiteSpace:"pre-wrap"}}>{item.changelog}</p></details>}
                 <div className="rp-meta"><span>v{item.version}</span>{item.platform && <span>{item.platform}</span>}<span>{formatSize(item.fileSize)}</span><span>{new Date(item.createdAt).toLocaleDateString()}</span></div>
                 <a className="rp-download" href={item.fileUrl} download={item.fileName}><ArrowDownToLine size={15} /> Download {item.fileName}</a>
                 {admin && <button className="rp-delete" onClick={() => removeRelease(item.id)}><Trash2 size={14} /> Remove release</button>}
