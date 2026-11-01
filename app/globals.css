@@ -1118,3 +1118,10 @@ html {
  .app .historyInfo{flex-basis:calc(100% - 50px)}
  .app .historyAgain{margin-left:46px;height:34px}
 }
+
+/* Give lookup type selectors clear separation */
+.app .seg{display:flex;flex-wrap:wrap;align-items:center;gap:7px;padding:0;background:transparent;border-radius:0}
+.app .seg button{position:relative;min-height:39px;padding:8px 15px;border:1px solid var(--bd);border-radius:9px;background:var(--s2);color:var(--mu);line-height:1.2;white-space:nowrap}
+.app .seg button.on{border-color:color-mix(in srgb,var(--ac) 55%,var(--bd));background:var(--s1);color:var(--tx);box-shadow:0 2px 7px #0000000a}
+.app .seg button:disabled{opacity:.62;cursor:not-allowed}
+@media(max-width:420px){.app .seg{gap:6px}.app .seg button{padding:8px 11px;font-size:12px}}
