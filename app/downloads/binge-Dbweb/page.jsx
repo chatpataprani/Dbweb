@@ -122,7 +122,7 @@ export default function DownloadsPage() {
         <section className="rp-hero">
           <div>
             <div className="rp-kicker">Dbweb downloads & marketplace</div>
-            <h1>Apps, plugins<br />and extensions.</h1>
+            <h1>Binge Dbweb</h1>
             <p>One place for official Dbweb releases. Find the main app, add new features with plugins, and install browser extensions. Every release includes its version, platform and notes.</p>
           </div>
           {admin && <button className="rp-admin" onClick={() => setUploadOpen(true)}><FilePlus2 size={16} /> Upload a release</button>}
