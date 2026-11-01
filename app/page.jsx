@@ -139,7 +139,7 @@ export default function Home(){
 <footer className="siteFooter">
   <div className="footerBrand"><img className="footerBrandLogo" src="/dbweb-logo.svg" alt="" /><strong>Dbweb</strong><span>Useful tools in one place.</span></div>
   <div className="footerColumns">
-    <section><h3>Explore</h3><a href="/tools">All Tools</a><a href="/bg-remove">Background Remover</a><a href="/dbweb-mail/">Temporary Mail</a><a href="/steam">Steam Tools</a><a href="/streaming">Streaming</a><a href="/downloads">Apps &amp; Extensions</a></section>
+    <section><h3>Explore</h3><a href="/tools">All Tools</a><a href="/bg-remove">Background Remover</a><a href="/dbweb-mail/">Temporary Mail</a><a href="/steam">Steam Tools</a><a href="/streaming">Streaming</a><a href="/downloads/binge-Dbweb">Apps &amp; Extensions</a></section>
     <section><h3>Account</h3><button type="button" onClick={()=>go("credits")}>Buy Credits</button><button type="button" onClick={()=>go("redeem")}>Redeem Code</button><button type="button" onClick={()=>go("history")}>Recent Searches</button><button type="button" onClick={()=>go("settings")}>Settings</button></section>
     <section><h3>Legal & Info</h3><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/tools/quick-tools">Quick Tools</a></section>
   </div>
