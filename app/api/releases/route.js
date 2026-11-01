@@ -8,7 +8,7 @@ const BUCKET = "dbweb-releases";
 const MANIFEST = "releases.json";
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
 const EXTENSIONS = new Set([".apk", ".aab", ".zip", ".crx", ".xpi", ".js", ".json", ".css"]);
-const MIME_TYPES = ["application/vnd.android.package-archive", "application/octet-stream", "application/zip", "application/x-chrome-extension", "application/x-xpinstall", "application/javascript", "application/json", "text/css"];
+const MIME_TYPES = ["application/vnd.android.package-archive", "application/octet-stream", "application/zip", "application/x-zip-compressed", "application/x-chrome-extension", "application/x-xpinstall", "application/javascript", "text/javascript", "application/json", "text/css"];
 
 function config() {
   return {
@@ -109,7 +109,7 @@ export async function POST(request) {
     if (!EXTENSIONS.has(extension)) return NextResponse.json({ error: "Supported files: APK, AAB, ZIP, CRX, XPI, JS, JSON and CSS." }, { status: 415 });
 
     const objectName = Date.now() + "-" + crypto.randomUUID().slice(0, 8) + "-" + fileName;
-    const mime = file.type && file.type !== "application/octet-stream" ? file.type : "application/octet-stream";
+    const mimeByExtension = { ".apk": "application/vnd.android.package-archive", ".aab": "application/octet-stream", ".zip": "application/zip", ".crx": "application/octet-stream", ".xpi": "application/zip", ".js": "text/javascript", ".json": "application/json", ".css": "text/css" };\n    const mime = mimeByExtension[extension] || "application/octet-stream";
     const { url } = config();
     await storage("/object/" + BUCKET + "/" + encodeURIComponent(objectName), {
       method: "POST",
