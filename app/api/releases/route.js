@@ -42,13 +42,15 @@ async function ensureBucket() {
       });
     } catch (error) {
       if (!String(error.message).toLowerCase().includes("already")) throw error;
-      await storage("/bucket/" + BUCKET, {
-        method: "PUT",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ public: true, file_size_limit: MAX_FILE_SIZE, allowed_mime_types: MIME_TYPES })
-      });
     }
   }
+
+  // Update existing buckets too; fetching an existing bucket does not change its old size limit.
+  await storage("/bucket/" + BUCKET, {
+    method: "PUT",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ public: true, file_size_limit: MAX_FILE_SIZE, allowed_mime_types: MIME_TYPES })
+  });
 }
 
 async function readManifest() {
