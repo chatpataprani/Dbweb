@@ -1083,3 +1083,38 @@ html {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 }
+
+
+/* Search history */
+.app .historyCard{padding:22px}
+.app .historyHeader{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-bottom:18px;border-bottom:1px solid var(--bd)}
+.app .historyEyebrow{font-size:10px;font-weight:750;letter-spacing:1.15px;color:var(--ac);margin-bottom:5px}
+.app .historyHeader h2{font-size:20px;letter-spacing:-.4px}
+.app .historyHeader .hint{margin-top:4px}
+.app .historyHeaderActions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.app .historyCount{font-size:12px;font-weight:700;color:var(--mu);background:var(--s2);border:1px solid var(--bd);padding:7px 10px;border-radius:999px}
+.app .historyList{display:grid}
+.app .historyRow{display:flex;align-items:center;gap:14px;padding:16px 10px;border-bottom:1px solid var(--bd);border-radius:0}
+.app .historyRow:last-child{border-bottom:0}
+.app .historyTypeIcon{width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center;border-radius:12px;background:var(--acs);color:var(--ac)}
+.app .historyInfo{min-width:0;flex:1;display:grid;gap:4px}
+.app .historyItemTop{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.app .historyItemTop strong{font-size:14px}
+.app .historyTypeBadge{font-size:9px;line-height:1;font-weight:750;letter-spacing:.55px;color:var(--mu);background:var(--s2);padding:5px 7px;border-radius:5px}
+.app .historyQuery{font-size:14px;font-weight:650;overflow-wrap:anywhere}
+.app .historyInfo small{font-size:11px;color:var(--mu)}
+.app .historyAgain{height:36px;white-space:nowrap;font-size:12px}
+.app .historyEmpty{min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:34px 16px}
+.app .historyEmptyIcon{width:54px;height:54px;display:grid;place-items:center;border-radius:16px;background:var(--acs);color:var(--ac);margin-bottom:14px}
+.app .historyEmpty h3{font-size:16px;margin-bottom:5px}
+.app .historyEmpty p{font-size:12px;max-width:290px;margin-bottom:16px}
+.app .historyEmpty .primary{height:38px}
+@media(max-width:560px){
+ .app .historyCard{padding:16px}
+ .app .historyHeader{align-items:flex-start}
+ .app .historyHeaderActions{flex-direction:column;align-items:flex-end;gap:7px}
+ .app .historyRow{gap:10px;padding:14px 2px;flex-wrap:wrap}
+ .app .historyTypeIcon{width:36px;height:36px;flex-basis:36px}
+ .app .historyInfo{flex-basis:calc(100% - 50px)}
+ .app .historyAgain{margin-left:46px;height:34px}
+}
