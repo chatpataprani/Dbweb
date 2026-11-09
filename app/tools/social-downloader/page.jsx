@@ -1,10 +1,38 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowLeft, Download, Link2, LoaderCircle, ShieldCheck, Video, AlertCircle, ExternalLink, Instagram, Youtube, Facebook, Music2, Clipboard } from "lucide-react";
 
 const platforms = [{name:"Instagram",Icon:Instagram},{name:"YouTube",Icon:Youtube},{name:"TikTok",Icon:Music2},{name:"Facebook",Icon:Facebook},{name:"X / Twitter",Icon:Link2},{name:"Pinterest",Icon:Link2},{name:"Reddit",Icon:Link2}];
+
+function DbwebVideoPlayer({src,poster}) {
+  const videoRef=useRef(null);
+  useEffect(()=>{
+    let player; let cancelled=false;
+    const loadPlayer=()=>{
+      if(!document.querySelector('link[data-videojs-css]')){
+        const css=document.createElement("link");css.rel="stylesheet";css.href="https://vjs.zencdn.net/8.23.4/video-js.css";css.dataset.videojsCss="1";document.head.appendChild(css);
+      }
+      const init=()=>{
+        if(cancelled||!videoRef.current||!window.videojs)return;
+        player=window.videojs(videoRef.current,{controls:true,fluid:true,responsive:true,preload:"metadata",playsinline:true,playbackRates:[0.5,0.75,1,1.25,1.5,2],controlBar:{pictureInPictureToggle:true}});
+        player.src({src,type:""});
+      };
+      if(window.videojs)init();
+      else if(window.__dbwebVideoJsLoading)window.__dbwebVideoJsLoading.then(init);
+      else{
+        window.__dbwebVideoJsLoading=new Promise((resolve,reject)=>{
+          const script=document.createElement("script");script.src="https://vjs.zencdn.net/8.23.4/video.min.js";script.onload=resolve;script.onerror=reject;document.head.appendChild(script);
+        });
+        window.__dbwebVideoJsLoading.then(init).catch(()=>{});
+      }
+    };
+    loadPlayer();
+    return()=>{cancelled=true;if(player&&!player.isDisposed())player.dispose();};
+  },[src]);
+  return <video ref={videoRef} className="video-js vjs-big-play-centered sdPlayer" controls playsInline preload="metadata" poster={poster||undefined}><source src={src}/></video>;
+}
 
 export default function SocialDownloaderPage() {
   const [url,setUrl]=useState(""); const [busy,setBusy]=useState(false); const [result,setResult]=useState(null); const [error,setError]=useState("");
@@ -17,7 +45,7 @@ export default function SocialDownloaderPage() {
       {error&&<div className="error sdError" role="alert"><AlertCircle size={17}/>{error}</div>}
     </section>
     {busy&&<section className="card sdLoading" role="status" aria-live="polite"><div className="sdLoadingIcon"><LoaderCircle className="sdSpin" size={23}/></div><strong>Getting your media ready</strong><p>Checking the link and available download formats…</p><div className="sdProgress"><span/></div></section>}
-    {result&&<section className="card sdResult"><div className="sdResultTop"><span className="sdReady"><ShieldCheck size={17}/> MEDIA READY</span><span className="sdCount">{(result.links||[]).length} option(s)</span></div>{result.title&&<h2 className="sdTitle">{result.title}</h2>}{(result.links||[]).map((item,i)=><div className="sdMediaBlock" key={i}>{item.type==="image"?<img className="sdThumb" src={item.url} alt={result.title||"Post image"}/>:item.type==="audio"?<audio className="sdPlayer" controls preload="metadata" src={item.url}>Your browser does not support audio playback.</audio>:<video className="sdPlayer" controls playsInline preload="metadata" poster={result.thumbnail||undefined} src={item.url}>Your browser does not support video playback.</video>}<a className="sdDownloadItem" href={`/api/social-download/file?url=${encodeURIComponent(item.url)}`} download><span className="sdDownloadIcon"><Download size={18}/></span><span className="sdDownloadText"><strong>{item.label||(item.type==="audio"?"Audio download":item.type==="image"?"Image download":"Download file")}</strong><small>{item.type==="audio"?"Audio file":item.type==="image"?"Image file":"Video / media file"} · Save to device</small></span><Download size={15}/></a></div>) }<p className="sdFootnote">Downloads are provided by the source service. Available formats and quality depend on the original post.</p></section>}
+    {result&&<section className="card sdResult"><div className="sdResultTop"><span className="sdReady"><ShieldCheck size={17}/> MEDIA READY</span><span className="sdCount">{(result.links||[]).length} option(s)</span></div>{result.title&&<h2 className="sdTitle">{result.title}</h2>}{(result.links||[]).map((item,i)=><div className="sdMediaBlock" key={i}>{item.type==="image"?<img className="sdThumb" src={item.url} alt={result.title||"Post image"}/>:item.type==="audio"?<audio className="sdPlayer" controls preload="metadata" src={item.url}>Your browser does not support audio playback.</audio>:<DbwebVideoPlayer src={item.url} poster={result.thumbnail}/>}<a className="sdDownloadItem" href={`/api/social-download/file?url=${encodeURIComponent(item.url)}`} download><span className="sdDownloadIcon"><Download size={18}/></span><span className="sdDownloadText"><strong>{item.label||(item.type==="audio"?"Audio download":item.type==="image"?"Image download":"Download file")}</strong><small>{item.type==="audio"?"Audio file":item.type==="image"?"Image file":"Video / media file"} · Save to device</small></span><Download size={15}/></a></div>) }<p className="sdFootnote">Downloads are provided by the source service. Available formats and quality depend on the original post.</p></section>}
     {!result&&!busy&&<section className="card sdEmpty"><div className="sdEmptyIcon"><Video size={25}/></div><h2>Ready when you are</h2><p>Paste a public media link above and tap Download. Your available files will appear here.</p></section>}
     <section className="sdPlatforms"><span className="sdPlatformsLabel">SUPPORTED SOURCES</span><div>{platforms.map(({name,Icon})=><span className="sdPlatform" key={name}><Icon size={15}/>{name}</span>)}</div></section>
     <div className="sdNotice"><ShieldCheck size={17}/><p>Only download content you own or have permission to save. Private, login-gated, DRM-protected, or restricted media is not supported.</p></div>
