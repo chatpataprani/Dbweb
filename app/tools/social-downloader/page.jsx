@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, Download, Link2, LoaderCircle, ShieldCheck, Video, AlertCircle, ExternalLink, Instagram, Youtube, Facebook, Music2, Clipboard } from "lucide-react";
+import { ArrowLeft, Download, Link2, LoaderCircle, ShieldCheck, Video, AlertCircle, ExternalLink, Instagram, Youtube, Facebook, Music2, Clipboard, X } from "lucide-react";
 
 const platforms = [{name:"Instagram",Icon:Instagram},{name:"YouTube",Icon:Youtube},{name:"TikTok",Icon:Music2},{name:"Facebook",Icon:Facebook},{name:"X / Twitter",Icon:Link2},{name:"Pinterest",Icon:Link2},{name:"Reddit",Icon:Link2}];
 
@@ -40,7 +40,7 @@ export default function SocialDownloaderPage() {
   return <main className="igPage sdPage">
     <Link href="/tools" className="igBack"><ArrowLeft size={16}/> All tools</Link>
     <section className="igHero sdHero"><span className="igBadge"><Download size={15}/> DBWEB TOOL</span><h1>Social Media Downloader</h1><p>Download public videos and media from your favorite platforms with one link.</p>
-      <form className="igSearch sdSearch" onSubmit={submit}><span className="igAt"><Link2 size={18}/></span><input value={url} onChange={e=>{setUrl(e.target.value);setError("");}} placeholder="Paste a video or post URL" aria-label="Media URL" type="url" required/><button type="button" className="sdPaste" onClick={pasteLink} title="Paste from clipboard"><Clipboard size={16}/><span>Paste</span></button><button className="primary sdSubmit" disabled={busy}>{busy?<LoaderCircle className="sdSpin" size={17}/>:<Download size={17}/>} {busy?"Processing…":"Download"}</button></form>
+      <form className="igSearch sdSearch" onSubmit={submit}><span className="igAt"><Link2 size={18}/></span><input value={url} onChange={e=>{setUrl(e.target.value);setError("");}} placeholder="Paste a video or post URL" aria-label="Media URL" type="url" required/><button type="button" className="sdPaste" onClick={()=>url.trim()?setUrl(""):pasteLink()} title={url.trim()?"Clear link":"Paste from clipboard"} aria-label={url.trim()?"Clear link":"Paste from clipboard"}>{url.trim()?<X size={17}/>:<><Clipboard size={16}/><span>Paste</span></>}</button><button className="primary sdSubmit" disabled={busy||!url.trim()}>{busy?<LoaderCircle className="sdSpin" size={17}/>:<Download size={17}/>} {busy?"Analyzing…":"Analyze"}</button></form>
       {error&&<div className="error sdError" role="alert"><AlertCircle size={17}/>{error}</div>}
     </section>
     {busy&&<section className="card sdLoading" role="status" aria-live="polite"><div className="sdLoadingIcon"><LoaderCircle className="sdSpin" size={23}/></div><strong>Getting your media ready</strong><p>Checking the link and available download formats…</p><div className="sdProgress"><span/></div></section>}
@@ -52,7 +52,10 @@ export default function SocialDownloaderPage() {
       .sdPage{max-width:850px;margin:0 auto;padding-bottom:60px}.sdHero{margin-bottom:25px}.sdHero h1{letter-spacing:-.035em}
       .sdSearch{max-width:760px;display:flex;align-items:center;gap:7px;padding:7px;border-radius:16px}.sdSearch .igAt{width:38px;flex:0 0 38px}.sdSearch input{min-width:0}
       .sdPaste{height:42px;display:flex;align-items:center;gap:6px;padding:0 11px;border:1px solid var(--border,#e5e7eb);border-radius:10px;background:var(--card,transparent);color:var(--foreground,inherit);cursor:pointer;font-size:13px}
-      .sdSubmit{height:42px;white-space:nowrap;display:flex;align-items:center;gap:7px}.sdError{display:flex;align-items:center;justify-content:center;gap:8px}
+      .sdSubmit{height:42px;white-space:nowrap;display:flex;align-items:center;gap:7px;border-radius:10px;padding:0 18px;font-weight:650}
+      .sdPaste{width:42px;justify-content:center;padding:0;flex-shrink:0}
+      .sdPaste span{display:inline}
+      .sdError{display:flex;align-items:center;justify-content:center;gap:8px}
       .sdLoading,.sdEmpty,.sdResult{max-width:700px;margin:22px auto;padding:clamp(18px,4vw,26px);border-radius:20px}
       .sdResult{overflow:hidden;border:1px solid var(--border,rgba(127,127,127,.18));box-shadow:0 12px 35px rgba(0,0,0,.04)}
       .sdPostHeader{display:flex;align-items:center;gap:11px;margin:18px 0 14px;padding:12px 0;border-bottom:1px solid var(--border,rgba(127,127,127,.12))}
