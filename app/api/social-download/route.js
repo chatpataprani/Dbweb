@@ -24,8 +24,8 @@ export async function POST(request) {
     }, { status: 503 });
 
     // YouTube uses SaveAPI's separate info -> create flow (not /v1/download medias[]).
-    if (/\\b(youtube\\.com|youtu\\.be|youtube-nocookie\\.com)\\b/i.test(url)) {
-      const call = async (path, params={}) => {
+    const host = new URL(url).hostname.toLowerCase();
+    if (host === "youtu.be" || host.endsWith("youtube.com") || host.endsWith("youtube-nocookie.com")) {
         const endpoint = new URL("https://api.saveapi.org/v1/"+path);
         for (const [key,value] of Object.entries(params)) endpoint.searchParams.set(key,value);
         const response = await fetch(endpoint,{headers:{Authorization:`Bearer ${SAVE_API_KEY}`,Accept:"application/json"},signal:AbortSignal.timeout(15000),cache:"no-store"});
