@@ -16,7 +16,7 @@ function DbwebVideoPlayer({src,poster}) {
       }
       const init=()=>{
         if(cancelled||!videoRef.current||!window.videojs)return;
-        player=window.videojs(videoRef.current,{controls:true,fluid:true,responsive:true,preload:"metadata",playsinline:true,playbackRates:[0.5,0.75,1,1.25,1.5,2],controlBar:{pictureInPictureToggle:true}});
+        player=window.videojs(videoRef.current,{controls:true,fluid:true,responsive:true,preload:"metadata",playsinline:true,playbackRates:[0.5,0.75,1,1.25,1.5,2],controlBar:{pictureInPictureToggle:true}});\n        player.src({src,type:"video/mp4"});
       };
       if(window.videojs)init();
       else if(window.__dbwebVideoJsLoading)window.__dbwebVideoJsLoading.then(init);
@@ -30,7 +30,7 @@ function DbwebVideoPlayer({src,poster}) {
     loadPlayer();
     return()=>{cancelled=true;if(player&&!player.isDisposed())player.dispose();};
   },[src]);
-  return <video ref={videoRef} className="video-js vjs-big-play-centered sdPlayer" controls playsInline preload="metadata" poster={poster||undefined}><source src={src}/></video>;
+  return <video ref={videoRef} className="video-js vjs-big-play-centered sdPlayer" controls playsInline preload="metadata" poster={poster||undefined}><source src={src} type="video/mp4"/></video>;
 }
 
 export default function SocialDownloaderPage() {
