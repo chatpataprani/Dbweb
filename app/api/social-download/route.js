@@ -39,14 +39,8 @@ export async function POST(request) {
         const videoQuality=formats.find(f=>f.type==="video"&&String(f.format||"").includes("720"))?.format
           ||formats.find(f=>f.type==="video")?.format||"720";
         const audioQuality=formats.find(f=>f.type==="audio")?.format||"mp3";
-        const [video,audio]=await Promise.all([
-          call("youtube/create",{url,quality:videoQuality}),
-          call("youtube/create",{url,quality:audioQuality})
-        ]);
-        const links=[
-          {url:video.url||video.download_url,label:video.label||video.filename||"YouTube video",type:"video"},
-          {url:audio.url||audio.download_url,label:audio.filename||"YouTube audio (MP3)",type:"audio"}
-        ].filter(x=>x.url);
+        const video=await call("youtube/create",{url,quality:videoQuality});
+        const links=[{url:video.url||video.download_url,label:video.label||video.filename||"YouTube video",type:"video"}].filter(x=>x.url);
         if(!links.length)throw new Error("YouTube returned no download links.");
         return NextResponse.json({title:info.title||info.meta?.title||"YouTube video",thumbnail:info.thumbnail||info.meta?.thumbnail||"",links});
       } catch(e) {
