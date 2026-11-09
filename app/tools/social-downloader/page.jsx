@@ -17,7 +17,6 @@ function DbwebVideoPlayer({src,poster}) {
       const init=()=>{
         if(cancelled||!videoRef.current||!window.videojs)return;
         player=window.videojs(videoRef.current,{controls:true,fluid:true,responsive:true,preload:"metadata",playsinline:true,playbackRates:[0.5,0.75,1,1.25,1.5,2],controlBar:{pictureInPictureToggle:true}});
-        player.src({src,type:""});
       };
       if(window.videojs)init();
       else if(window.__dbwebVideoJsLoading)window.__dbwebVideoJsLoading.then(init);
