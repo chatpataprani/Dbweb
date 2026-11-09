@@ -23,6 +23,37 @@ export async function POST(request) {
       error: "Downloader API key is not configured. Add SAVEAPI_KEY in Vercel Environment Variables."
     }, { status: 503 });
 
+    // YouTube uses SaveAPI's separate info -> create flow (not /v1/download medias[]).
+    if (/\\b(youtube\\.com|youtu\\.be|youtube-nocookie\\.com)\\b/i.test(url)) {
+      const call = async (path, params={}) => {
+        const endpoint = new URL("https://api.saveapi.org/v1/"+path);
+        for (const [key,value] of Object.entries(params)) endpoint.searchParams.set(key,value);
+        const response = await fetch(endpoint,{headers:{Authorization:`Bearer ${SAVE_API_KEY}`,Accept:"application/json"},signal:AbortSignal.timeout(15000),cache:"no-store"});
+        const data=await response.json().catch(()=>({}));
+        if(!response.ok||data?.success===false) throw new Error(data?.error?.message||data?.message||"YouTube provider failed.");
+        return data;
+      };
+      try {
+        const info=await call("youtube/info",{url});
+        const formats=Array.isArray(info.formats)?info.formats:[];
+        const videoQuality=formats.find(f=>f.type==="video"&&String(f.format||"").includes("720"))?.format
+          ||formats.find(f=>f.type==="video")?.format||"720";
+        const audioQuality=formats.find(f=>f.type==="audio")?.format||"mp3";
+        const [video,audio]=await Promise.all([
+          call("youtube/create",{url,quality:videoQuality}),
+          call("youtube/create",{url,quality:audioQuality})
+        ]);
+        const links=[
+          {url:video.url||video.download_url,label:video.label||video.filename||"YouTube video",type:"video"},
+          {url:audio.url||audio.download_url,label:audio.filename||"YouTube audio (MP3)",type:"audio"}
+        ].filter(x=>x.url);
+        if(!links.length)throw new Error("YouTube returned no download links.");
+        return NextResponse.json({title:info.title||info.meta?.title||"YouTube video",thumbnail:info.thumbnail||info.meta?.thumbnail||"",links});
+      } catch(e) {
+        return NextResponse.json({error:e.message||"YouTube download failed. Try a public video."},{status:422});
+      }
+    }
+
     const endpoint = new URL(SAVE_API_URL);
     endpoint.searchParams.set("url", url);
     const upstream = await fetch(endpoint, {
