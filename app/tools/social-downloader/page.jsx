@@ -8,8 +8,7 @@ const platforms = ["Instagram", "YouTube", "TikTok", "Facebook", "X / Twitter", 
 
 export default function SocialDownloaderPage() {
   const [url, setUrl] = useState("");
-  const [platform, setPlatform] = useState("Auto detect");
-  const [busy, setBusy] = useState(false);
+    const [busy, setBusy] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
 
@@ -19,7 +18,7 @@ export default function SocialDownloaderPage() {
     try {
       const response = await fetch("/api/social-download", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url, platform })
+        body: JSON.stringify({ url })
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Could not process this link.");
@@ -41,8 +40,6 @@ export default function SocialDownloaderPage() {
         <form onSubmit={submit}>
           <label className="socialdl-label" htmlFor="social-url">Media link</label>
           <div className="socialdl-input"><Link2 size={18}/><input id="social-url" type="url" placeholder="https://…" value={url} onChange={e=>setUrl(e.target.value)} required/></div>
-          <label className="socialdl-label" htmlFor="social-platform">Platform (optional)</label>
-          <select id="social-platform" value={platform} onChange={e=>setPlatform(e.target.value)}><option>Auto detect</option>{platforms.map(p=><option key={p}>{p}</option>)}</select>
           <button className="socialdl-submit" disabled={busy}>{busy?<><LoaderCircle className="socialdl-spin" size={18}/> Processing link…</>:<><Download size={18}/> Find media</>}</button>
         </form>
         {error && <div className="socialdl-alert"><AlertCircle size={18}/><span>{error}</span></div>}
