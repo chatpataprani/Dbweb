@@ -6,9 +6,10 @@ import BorderTrail from "../../components/ui/border-trail";
 import MagneticButton from "../../components/ui/magnetic-button";
 import SkiperLink from "../../components/ui/skiper-link";
 import AmbientBackdrop from "../../components/ui/ambient-backdrop";
-import { Search, ArrowUpRight, Wrench, FileText, Instagram, Link2, Fingerprint, Image, Smartphone, Phone, GitCompare, ScanFace, FileSearch, Activity, CreditCard, QrCode, ScanText, ShieldCheck, KeyRound, Globe, Type, CarFront, CalendarDays, Landmark, FileBadge, FileImage, Sparkles, Scissors, Braces, Code2, CaseSensitive, Regex, Palette } from "lucide-react";
+import { Search, ArrowUpRight, Wrench, FileText, Instagram, Link2, Fingerprint, Image, Smartphone, Phone, GitCompare, ScanFace, FileSearch, Activity, CreditCard, QrCode, ScanText, ShieldCheck, KeyRound, Globe, Type, CarFront, CalendarDays, Landmark, FileBadge, FileImage, Sparkles, Scissors, Braces, Code2, CaseSensitive, Regex, Palette, Download } from "lucide-react";
 
 const tools = [
+  { name: "Social Media Downloader", description: "Download supported public videos and media from social links in one place.", href: "/tools/social-downloader", category: "Social", Icon: Download },
   { name: "Instagram Profile Analyzer", description: "Analyze public profile stats, bio, profile picture and available business details without Instagram login.", href: "/tools/instagram", category: "Social", Icon: Instagram },
   { name: "Short Link Resolver", description: "Expand public shortened links and inspect their redirect path.", href: "/tools/shortlink", category: "Links", Icon: Link2 },
   { name: "Background Remover", description: "Remove image backgrounds and export transparent PNGs with automatic device-to-online fallback.", href: "/tool", category: "Images", Icon: Scissors },
