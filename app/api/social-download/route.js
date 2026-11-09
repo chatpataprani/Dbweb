@@ -19,7 +19,6 @@ export async function POST(request) {
     const body = await request.json();
     const url = normalizeUrl(String(body?.url || "").trim());
     if (!url) return NextResponse.json({ error: "Enter a valid http(s) media URL." }, { status: 400 });
-    const platform = String(body?.platform || "Auto detect").slice(0, 40);
     const upstream = await fetch(`${COBALT_API}/api/json`, {
       method: "POST",
       headers: {
@@ -27,7 +26,7 @@ export async function POST(request) {
         "Accept": "application/json",
         "User-Agent": "Dbweb-SocialDownloader/1.0"
       },
-      body: JSON.stringify({ url, videoQuality: "720", audioFormat: "mp3", filenameStyle: "basic", downloadMode: "auto", platform }),
+      body: JSON.stringify({ url, videoQuality: "720", audioFormat: "mp3", filenameStyle: "basic", downloadMode: "auto" }),
       signal: AbortSignal.timeout(15000),
       cache: "no-store"
     });
@@ -37,6 +36,7 @@ export async function POST(request) {
     if (status === "error" || status === "failed") return NextResponse.json({ error: payload?.text || "This link is unsupported or unavailable." }, { status: 422 });
     const rawLinks = [];
     if (payload?.url) rawLinks.push({ url: payload.url, label: payload.filename || "Download media", type: payload?.type || "video" });
+    if (Array.isArray(payload?.picker)) payload.picker.forEach((item,i)=>rawLinks.push({url:item.url,label:item.type || item.label || `Option ${i+1}`,type:item.type || "video"}));
     if (Array.isArray(payload?.urls)) payload.urls.forEach((u,i)=>rawLinks.push({url:typeof u==="string"?u:u.url,label:u.label||`Download ${i+1}`,type:u.type||"video"}));
     const links = rawLinks.filter(x => { try { return ["http:","https:"].includes(new URL(x.url).protocol); } catch { return false; } });
     if (!links.length) return NextResponse.json({ error: "No downloadable media was returned for this link." }, { status: 422 });
