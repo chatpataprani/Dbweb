@@ -8,7 +8,9 @@ const platforms = [{name:"Instagram",Icon:Instagram},{name:"YouTube",Icon:Youtub
 
 function getPlatform(url){const host=(()=>{try{return new URL(url).hostname.toLowerCase().replace("www.","")}catch{return ""}})();if(host.includes("youtube")||host==="youtu.be")return {name:"YouTube",Icon:Youtube,color:"yt"};if(host.includes("instagram"))return {name:"Instagram",Icon:Instagram,color:"ig"};if(host.includes("pinterest")||host==="pin.it")return {name:"Pinterest",Icon:Link2,color:"pin"};if(host.includes("tiktok"))return {name:"TikTok",Icon:Music2,color:"tt"};if(host.includes("facebook")||host==="fb.watch")return {name:"Facebook",Icon:Facebook,color:"fb"};if(host.includes("twitter")||host.includes("x.com"))return {name:"X / Twitter",Icon:Link2,color:"x"};if(host.includes("reddit"))return {name:"Reddit",Icon:Link2,color:"rd"};return {name:"Media",Icon:Video,color:"generic"};}
 
-function PlatformIcon({url}){const Icon=getPlatform(url).Icon;return <Icon size={20}/>;}\n\nfunction DbwebVideoPlayer({src,poster}) {
+function PlatformIcon({url}){const Icon=getPlatform(url).Icon;return <Icon size={20}/>;}
+
+function DbwebVideoPlayer({src,poster}) {
   const videoRef=useRef(null);
   useEffect(()=>{
     let player; let cancelled=false;
