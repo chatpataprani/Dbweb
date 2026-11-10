@@ -275,3 +275,15 @@ Built and maintained by **@chatpataprani**. Bug reports, ideas and shoutouts all
 [**Launch Dbweb ↗**](https://webdd.freeddns.org/) · [**Instagram ↗**](https://instagram.com/chatpataprani)
 
 </div>
+
+## 🎵 Dbweb Music
+
+Dbweb Music lives at `/music` and includes NuB YT-powered search, an audio player, queue, shuffle/repeat, seeking, volume, and audio/video download controls.
+
+### Configure the music API
+
+1. Add `NUB_YT_API_KEY` to your Vercel project's **Environment Variables** (Production and Preview as needed).
+2. Use your NuB YT API token as the value. Keep it server-side—never name it `NEXT_PUBLIC_*` or commit it.
+3. Redeploy Dbweb and open `/music`.
+
+The API routes are server-side at `/api/music/search`, `/api/music/info`, and `/api/music/stream`. Downloads are subject to the source platform's rules and rights: save only media you own, are licensed to download, or have explicit permission to save. Third-party API uptime, availability, and rate limits apply.
