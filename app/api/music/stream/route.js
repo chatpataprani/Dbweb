@@ -21,7 +21,7 @@ export async function GET(request) {
     const url = new URL("https://api.nubcoders.com/stream");
     url.searchParams.set("q", q);
     url.searchParams.set("mode", mode);
-    url.searchParams.set("redirect", "false");
+    url.searchParams.set("redirect", "true");
     if (quality) url.searchParams.set("quality", quality);
 
     const requestHeaders = { Authorization: "Bearer " + token, Accept: "*/*" };
@@ -33,6 +33,19 @@ export async function GET(request) {
       signal: AbortSignal.timeout(90000),
     });
 
+    // Some NuB deployments return a JSON resolver instead of media bytes.
+    // Resolve that JSON payload and fetch its stream_url before passing audio to the browser.
+    let contentType = (upstream.headers.get("content-type") || "").toLowerCase();
+    if (contentType.includes("json")) {
+      const payload = await upstream.json().catch(() => null);
+      const resolved = payload?.stream_url || payload?.stream || payload?.url;
+      if (!resolved) return fail(payload?.error || payload?.message || "NuB returned no playable stream URL.");
+      upstream = await fetch(resolved, {
+        headers: range ? { Range: range } : {},
+        cache: "no-store", redirect: "follow", signal: AbortSignal.timeout(90000),
+      });
+      contentType = (upstream.headers.get("content-type") || "").toLowerCase();
+    }
     if (!upstream.ok && upstream.status !== 206) {
       const body = await upstream.text().catch(() => "");
       let detail = body.slice(0, 220);
