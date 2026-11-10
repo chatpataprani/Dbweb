@@ -834,6 +834,8 @@ icons();
  // Load real API tracks immediately; never leave the fabricated sample catalogue on the home screen.
  const qInput=$("#q");
  if(qInput&&!qInput.value.trim())qInput.value="trending music";
+ // Remove the sample catalogue from the visible home screen; populate it only with real API tracks.
+ $("#secTitle").textContent="Trending now";$("#count").textContent="";$("#grid").innerHTML='<div class="empty"><h3>Loading real trending music…</h3><p>Fetching live tracks</p></div>';
  window.__dbwebLive={search,play,audio};
  setTimeout(search,250);
 })();
