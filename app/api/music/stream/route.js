@@ -28,7 +28,7 @@ export async function GET(request) {
     const range = request.headers.get("range");
     if (range) requestHeaders.Range = range;
 
-    const upstream = await fetch(url, {
+    let upstream = await fetch(url, {
       headers: requestHeaders, cache: "no-store", redirect: "follow",
       signal: AbortSignal.timeout(90000),
     });
