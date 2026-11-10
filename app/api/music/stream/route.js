@@ -55,7 +55,7 @@ export async function GET(request) {
       if (value) outHeaders.set(name, value);
     }
     outHeaders.set("Cache-Control", "no-store");
-    if (download) outHeaders.set("Content-Disposition", `attachment; filename="dbweb-${mode}.${mode === "audio" ? "mp3" : "mp4"}`);
+    if (download) outHeaders.set("Content-Disposition", `attachment; filename="dbweb-${mode}.${mode === "audio" ? "mp3" : "mp4"}"`);
     if (!outHeaders.has("Content-Type")) outHeaders.set("Content-Type", mode === "audio" ? "audio/webm" : "video/mp4");
 
     return new Response(media.body, { status: media.status, headers: outHeaders });
