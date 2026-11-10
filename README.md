@@ -1,56 +1,53 @@
+<div align="center">
+
 # Dbweb
 
-A responsive web workspace bringing image editing, background removal, developer utilities, file tools, and everyday productivity features into one place.
+### One web. Too many tools. Zero tab chaos.
 
-<p align="center">
-  <a href="https://webdd.freeddns.org/"><strong>Visit Dbweb →</strong></a>
-</p>
+[![Live](https://img.shields.io/badge/Live-Dbweb-111827?style=for-the-badge&logo=vercel&logoColor=white)](https://webdd.freeddns.org/)
+[![License](https://img.shields.io/badge/License-MIT-22c55e?style=for-the-badge)](LICENSE)
 
-![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+**Your browser's multitool era starts here.**
 
-## Overview
+[Website](https://webdd.freeddns.org/) · [Tools](https://webdd.freeddns.org/tools) · [Photo Studio](https://webdd.freeddns.org/photo-studio/) · [Instagram](https://instagram.com/chatpataprani)
 
-Dbweb is built for quick, browser-based workflows across desktop and mobile. Its tools and features are organized into dedicated pages, with availability depending on browser capabilities and service configuration.
+</div>
 
-### What you can do
+---
 
-- **Photo Studio:** Edit images with creative filters, adjustments, collage tools, text, and export options.
-- **Background removal:** Process images and export transparent PNGs, using compatible on-device processing with an online fallback where configured.
-- **Developer utilities:** Format JSON, encode or decode Base64, test regular expressions, inspect URLs, and work with Markdown.
-- **Image and file utilities:** Compress images, compare files, inspect metadata, and use supported file workflows.
-- **Validation and lookup tools:** Use supported Aadhaar, PAN, GST, vehicle, IFSC, age/date, QR, and other utilities.
-- **Social media tools:** Use supported public-media download and profile-analysis workflows, subject to provider availability and platform restrictions.
-- **Accounts and workspace:** Access configured plans, payment submission, redeem codes, settings, and search history.
-- **Administration:** Access administrative workflows when authorized.
+## The vibe
 
-## Explore Dbweb
+Dbweb brings useful browser tools together—because opening 17 tabs for one task is not the move.
 
-| Destination | Link |
-| --- | --- |
-| Main website | [webdd.freeddns.org](https://webdd.freeddns.org/) |
-| Tools directory | [Tools](https://webdd.freeddns.org/tools) |
-| Photo Studio | [Photo Studio](https://webdd.freeddns.org/photo-studio/) |
+- **Photo Studio** — edit, filter, collage, add text. Cook your visuals.
+- **Background Remover** — remove backgrounds, export transparent PNGs. Clean cut, no drama.
+- **Dev tools** — JSON, Base64, regex, URL inspection, Markdown. Nerd mode: ON.
+- **Image & file tools** — compress, compare, inspect metadata. Less file chaos.
+- **Validators & utilities** — supported Aadhaar, PAN, GST, vehicle, IFSC, QR and date tools.
+- **Social tools** — supported public-media workflows. Provider rules still apply.
+- **Workspace** — plans, history, redeem codes, settings and account features.
+- **Admin** — management tools for authorized admins only.
 
-The live website is the source of truth for the current tools, features, and availability.
+> Features can depend on browser support, configuration and third-party providers. The live site has the latest lineup.
 
-## Technology
+## Built with
 
-- Next.js 15
-- React 19
-- JavaScript and JSX
-- HTML and CSS
-- Lucide icons
-- Node.js and npm
+<div align="center">
 
-## Run locally
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=000)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
+[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=black)](https://supabase.com/)
+[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
 
-### Prerequisites
+</div>
 
-- Node.js version supported by the project's dependencies
-- npm
-- A modern browser
+## Run it locally
 
-### Installation
+**Prerequisites:** Node.js + npm. That's the setup arc.
 
 ```bash
 git clone https://github.com/chatpataprani/Dbweb.git
@@ -58,98 +55,66 @@ cd Dbweb
 npm install
 ```
 
-### Environment configuration
-
-Create a local environment file from the example:
+Create your local env file:
 
 ```bash
 cp .env.example .env.local
 ```
 
-Add only the configuration required for the features you want to run. Keep secrets in local environment files or your hosting provider's environment settings.
+Add the environment values your setup needs. Keep secrets private—never push tokens, passwords, keys or real credentials.
 
-> **Never commit real credentials, passwords, access tokens, private keys, or populated local environment files.**
-
-### Development
+Start dev mode:
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open **http://localhost:3000**. You're in.
 
-### Production build
+Production build:
 
 ```bash
 npm run build
 npm start
 ```
 
-## Background remover
+## Deploy
 
-1. Open Background Remover from the tools directory.
-2. Upload or select an image.
-3. Start background removal.
-4. Let the application use compatible on-device processing or its configured online fallback.
-5. Preview and download the result as a transparent PNG.
+Dbweb is built for Next.js-compatible hosting.
 
-Processing support depends on browser capabilities, device memory, model availability, and server configuration. The first run may take longer while assets load.
-
-## Project structure
-
-The repository is organized around the Next.js application, reusable components, shared libraries, static assets, and Supabase configuration. The exact structure may change as the project evolves.
-
-## Deployment
-
-Dbweb is designed to run on platforms supporting Next.js.
-
-1. Import the repository into your hosting platform.
-2. Configure the required environment variables securely.
+1. Import the repo into your hosting platform.
+2. Add required environment variables securely.
 3. Build with `npm run build`.
-4. Deploy using the platform's Next.js workflow.
-5. Verify the main workspace and any configured services after deployment.
+4. Deploy and test the routes/features you use.
 
-Environment-variable changes may require a new deployment.
+Env changes may need a fresh deployment. Classic.
 
-## Security and responsible use
+## Quick notes
 
-- Use Dbweb only for lawful purposes and access information you are authorized to use.
-- Respect privacy, consent, data-protection requirements, and third-party terms.
-- Do not use the tools to harass, stalk, impersonate, defraud, expose, or harm others.
-- Keep server-side secrets out of client-side code and public repositories.
-- Apply appropriate access controls, rate limits, and monitoring before exposing sensitive features.
-- Do not upload confidential or personal files unless you have the right to process them.
-- Review configuration and test changes before production deployment.
+- Background removal may use on-device processing or a configured online fallback.
+- Browser, hardware and provider support can affect results.
+- Keep server secrets server-side.
+- Use Dbweb lawfully; respect privacy, consent and third-party terms.
+- Don't use tools to stalk, harass, impersonate, defraud or harm anyone.
 
-## Troubleshooting
+## Contribute
 
-**The app does not start**
-- Check your Node.js and npm versions.
-- Run `npm install` to install dependencies.
-- Review the first error reported by the terminal.
+Found a bug? Got a feature idea? Let's cook.
 
-**A feature reports missing configuration**
-- Check the environment variables configured locally or on your hosting platform.
-- Confirm the variable names match the project's configuration.
-- Redeploy after changing hosted environment variables.
-
-**Background removal fails or uses a fallback**
-- Try an updated browser and a smaller image.
-- Check device memory and browser compatibility.
-- Confirm online processing is configured if required.
-
-## Contributing
-
-Bug reports and contributions are welcome.
-
-1. Fork the repository.
-2. Create a focused branch for your change.
-3. Do not commit secrets or private user data.
-4. Test the affected feature and run `npm run build` when possible.
-5. Open a pull request with a clear description and testing details.
+1. Fork the repo.
+2. Make a focused branch.
+3. Keep secrets and personal data out of commits.
+4. Test your changes (run `npm run build` when possible).
+5. Open a PR with the details.
 
 ## License
 
-Dbweb is released under the [MIT License](LICENSE).
+MIT — see [LICENSE](LICENSE).
 
-For bugs or feature requests, [open an issue](https://github.com/chatpataprani/Dbweb/issues). Never include passwords, access tokens, private keys, or personal data in an issue.
+<div align="center">
+
+### Made for the web. Built with a little chaos.
+
+[**Launch Dbweb ↗**](https://webdd.freeddns.org/) · [**Instagram ↗**](https://instagram.com/chatpataprani)
+
+</div>
