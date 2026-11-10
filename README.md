@@ -1,8 +1,6 @@
 <div align="center">
 
-<a href="https://webdd.freeddns.org/">
-  <img src="docs/banner.svg" alt="Dbweb — One web. Too many tools. Zero tab chaos." width="100%" />
-</a>
+<a href="https://webdd.freeddns.org/"><img src="https://readme-typing-svg.demolab.com?font=Space+Grotesk&weight=700&size=34&pause=1200&color=6366F1&center=true&vCenter=true&width=800&lines=Dbweb;One+web.+Too+many+tools.;Zero+tab+chaos." alt="Dbweb — One web. Too many tools. Zero tab chaos." /></a>
 
 <h1>Dbweb</h1>
 
@@ -17,11 +15,11 @@
 
 <br />
 
-<img src="docs/screenshots/tools-hub.png" alt="Dbweb tools hub with search and category filters" width="880" />
+<a href="https://webdd.freeddns.org/tools"><img src="https://img.shields.io/badge/Explore-Dbweb_Tools-6366f1?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Explore Dbweb tools" /></a>
 
 </div>
 
-<img src="docs/divider.svg" alt="" width="100%" />
+<hr />
 
 
 ## 📖 Table of contents
@@ -51,37 +49,37 @@ It is a single Next.js app that hosts a Photo Studio, a background remover, doze
 <table>
   <tr>
     <td colspan="2" align="center">
-      <img src="docs/screenshots/tools-hub.png" alt="Tools hub" width="80%" /><br />
+      <a href="https://webdd.freeddns.org/">Open Dbweb ↗</a><br />
       <sub><b>Tools hub</b> — 37 tools with instant search and category filters</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <img src="docs/screenshots/photo-studio.png" alt="Photo Studio start screen" /><br />
+      <a href="https://webdd.freeddns.org/">Open Dbweb ↗</a><br />
       <sub><b>Photo Studio</b> — retro start screen: upload, sample photo, restore work</sub>
     </td>
     <td width="50%" align="center">
-      <img src="docs/screenshots/photo-editor.png" alt="Photo Studio editor with the built-in sample photo and filters" height="420" /><br />
+      <a href="https://webdd.freeddns.org/">Open Dbweb ↗</a><br />
       <sub><b>Photo Studio editor</b> — built-in sample photo with dozens of filters, effects, text and collage</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <img src="docs/screenshots/file-tools.png" alt="PDF and image tools" /><br />
+      <a href="https://webdd.freeddns.org/">Open Dbweb ↗</a><br />
       <sub><b>PDF &amp; image tools</b> — merge, split, compress, convert, all client-side</sub>
     </td>
     <td width="50%" align="center">
-      <img src="docs/screenshots/qr-tools.png" alt="QR code tools" /><br />
+      <a href="https://webdd.freeddns.org/">Open Dbweb ↗</a><br />
       <sub><b>QR tools</b> — generate, scan and decode QR codes, plus UPI QR</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <img src="docs/screenshots/password-generator.png" alt="Password generator" /><br />
+      <a href="https://webdd.freeddns.org/">Open Dbweb ↗</a><br />
       <sub><b>Password generator</b> — Web Crypto powered, with an entropy meter</sub>
     </td>
     <td width="50%" align="center">
-      <img src="docs/screenshots/temp-mail.png" alt="Dbweb Mail" /><br />
+      <a href="https://webdd.freeddns.org/">Open Dbweb ↗</a><br />
       <sub><b>Dbweb Mail</b> — temporary inboxes for non-sensitive email</sub>
     </td>
   </tr>
