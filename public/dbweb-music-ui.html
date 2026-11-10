@@ -609,7 +609,7 @@ function setBg(t){
 }
 function tick(){
   const t=cur(),pct=Math.min(100,S.pos/t.dur*100);
-  $$('[data-b=cur]').forEach(e=>e.textContent=fm(S.pos));
+  $$$('[data-b=cur]').forEach(e=>e.textContent=fm(S.pos));
   $$('.seekrng').forEach(r=>{if(!S.drag)r.value=pct*10;r.style.setProperty('--p',pct+'%')});
   $('#mini').style.setProperty('--p',pct+'%');
 }
@@ -618,10 +618,10 @@ function sync(){
   document.body.classList.toggle('playing',S.playing);
   document.body.classList.toggle('muted',S.muted||S.vol===0);
   document.body.classList.toggle('rep1',S.repeat===2);
-  $$('[data-b=title]').forEach(e=>e.textContent=t.title);
-  $$('[data-b=artist]').forEach(e=>e.textContent=t.artist);
+  $$$('[data-b=title]').forEach(e=>e.textContent=t.title);
+  $$$('[data-b=artist]').forEach(e=>e.textContent=t.artist);
   $$('[data-b=genre]').forEach(e=>e.textContent=t.genre);
-  $$('[data-b=dur]').forEach(e=>e.textContent=fm(t.dur));
+  $$$('[data-b=dur]').forEach(e=>e.textContent=fm(t.dur));
   $$('[data-b=art]').forEach(e=>e.src=art(t));
   $$('[data-act=like-cur]').forEach(b=>b.classList.toggle('liked',S.liked.has(t.id)));
   $$('[data-act=dl-cur]').forEach(b=>b.classList.toggle('on',S.dl.has(t.id)));
@@ -823,13 +823,13 @@ icons();
   if(b.dataset.liveVideo){const modal=document.createElement("div");modal.style="position:fixed;inset:0;z-index:99999;background:#000;display:grid;place-items:center;padding:12px";
    const v=document.createElement("video");v.controls=true;v.autoplay=true;v.playsInline=true;v.style="width:100%;height:100%;object-fit:contain";v.src="/api/music/stream?q="+encodeURIComponent(t.url)+"&mode=video";modal.append(v);modal.onclick=e=>{if(e.target===modal){v.pause();modal.remove()}};document.body.append(modal);videoEl=v;v.addEventListener("dblclick",()=>{if(!document.fullscreenElement)v.requestFullscreen?.();else document.exitFullscreen?.()});v.play().catch(()=>message("Video stream could not start. Check provider support."));}
  },true);
- audio.addEventListener("timeupdate",()=>{$('[data-b=cur]').forEach(e=>e.textContent=fmt(audio.currentTime));$(".seekrng").forEach(r=>{r.max=audio.duration||100;r.value=audio.currentTime||0})});
+ audio.addEventListener("timeupdate",()=>{$('[data-b=cur]').forEach(e=>e.textContent=fmt(audio.currentTime));$$(".seekrng").forEach(r=>{r.max=audio.duration||100;r.value=audio.currentTime||0})});
  audio.addEventListener("loadedmetadata",()=>{$('[data-b=dur]').forEach(e=>e.textContent=fmt(audio.duration))});
  audio.addEventListener("play",()=>{document.body.classList.add("playing");$('[data-b=title]').forEach(e=>e.textContent=active?.title||"");$('[data-b=artist]').forEach(e=>e.textContent=active?.artist||"")});
  audio.addEventListener("pause",()=>document.body.classList.remove("playing"));
  audio.addEventListener("ended",()=>{if(active){const i=live.findIndex(t=>t.id===active.id);play(live[(i+1)%live.length])}});
  $(".seekrng").forEach(r=>{r.addEventListener("input",()=>{if(audio.duration)audio.currentTime=Number(r.value)})});
- $(".volrng").forEach(r=>r.addEventListener("input",()=>audio.volume=Number(r.value)/100));
+ $$(".volrng").forEach(r=>r.addEventListener("input",()=>audio.volume=Number(r.value)/100));
  document.addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b)return;const a=b.dataset.act;if(!["toggle","next","prev"].includes(a))return;e.preventDefault();e.stopImmediatePropagation();if(a==="toggle"){if(!active&&live[0])play(live[0]);else if(audio.paused)audio.play().catch(()=>message("Tap play again"));else audio.pause()}else if(a==="next"&&live.length){const i=live.findIndex(t=>t.id===active?.id);play(live[(i+1)%live.length])}else if(a==="prev"&&active){if(audio.currentTime>3)audio.currentTime=0;else{const i=live.findIndex(t=>t.id===active.id);play(live[(i-1+live.length)%live.length])}}},true);
  // Load real API tracks immediately; never leave the fabricated sample catalogue on the home screen.
  const qInput=$("#q");
