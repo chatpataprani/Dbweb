@@ -8,11 +8,34 @@ const pick = (x) => ({ title:x.title||x.name||"Untitled track", channel:x.channe
 export default function DbwebMusic() {
  const [query,setQuery]=useState(""); const [items,setItems]=useState([]); const [busy,setBusy]=useState(false); const [error,setError]=useState("");
  const [current,setCurrent]=useState(null); const [playing,setPlaying]=useState(false); const [loadingTrack,setLoadingTrack]=useState(false); const [stream,setStream]=useState(""); const [progress,setProgress]=useState(0); const [duration,setDuration]=useState(0); const [volume,setVolume]=useState(0.85); const [queue,setQueue]=useState([]); const [showQueue,setShowQueue]=useState(false); const [shuffle,setShuffle]=useState(false); const [repeat,setRepeat]=useState(false);
- const audio=useRef(null); const searchRef=useRef(null);
+ const audio=useRef(null); const searchRef=useRef(null); const playRequest=useRef(0);
  useEffect(()=>{const a=new Audio();a.preload="metadata";a.volume=volume;audio.current=a;const time=()=>setProgress(a.currentTime||0);const dur=()=>setDuration(a.duration||0);const ended=()=>next();const failed=()=>{setPlaying(false);setLoadingTrack(false);setError("This track could not be played. The source may be blocked, unavailable, or not audio-compatible.")};a.addEventListener("timeupdate",time);a.addEventListener("loadedmetadata",dur);a.addEventListener("ended",ended);a.addEventListener("error",failed);return()=>{a.pause();a.src="";a.removeEventListener("timeupdate",time);a.removeEventListener("loadedmetadata",dur);a.removeEventListener("ended",ended);a.removeEventListener("error",failed)}},[]);
  useEffect(()=>{if(audio.current)audio.current.volume=volume},[volume]);
  async function search(e){e?.preventDefault();if(!query.trim()){setError("Type a song, artist, or YouTube link first.");searchRef.current?.focus();return}setBusy(true);setError("");try{const r=await fetch("/api/music/search?q="+encodeURIComponent(query.trim()));const d=await r.json();if(!r.ok)throw Error(d.error||"Search failed");const list=(d.results||[]).map(pick).filter(x=>x.url);setItems(list);setQueue(list);if(!list.length)setError("No tracks found. Try another search.");}catch(e){setError(e.message||"Could not search.");}finally{setBusy(false)}}
- async function play(track){if(!track)return;setCurrent(track);setLoadingTrack(true);setError("");setPlaying(false);try{const src="/api/music/stream?q="+encodeURIComponent(track.url)+"&mode=audio&play=1";const a=audio.current;a.pause();a.src=src;a.load();await a.play();setPlaying(true);setStream(src);setDuration(Number(track.duration)||0);}catch(e){setPlaying(false);setError(e.message||"Playback failed. This track may be unavailable or restricted.");}finally{setLoadingTrack(false)}}
+ async function play(track){
+  if(!track)return;
+  const requestId=++playRequest.current;
+  setCurrent(track);setLoadingTrack(true);setError("");setPlaying(false);
+  const src="/api/music/stream?q="+encodeURIComponent(track.url)+"&mode=audio";
+  try{
+    const a=audio.current;
+    if(!a)throw new Error("Audio player is not ready. Try again.");
+    a.pause();
+    a.src=src; // assigning src starts loading; calling load() here can cancel play() on some browsers
+    setStream(src);setDuration(Number(track.duration)||0);
+    await a.play();
+    if(requestId===playRequest.current)setPlaying(true);
+  }catch(e){
+    // Rapid track changes intentionally interrupt the previous play() promise.
+    if(requestId===playRequest.current){
+      setPlaying(false);
+      if(e?.name!=="AbortError" && !/interrupted/i.test(e?.message||""))
+        setError(e.message||"Playback failed. This track may be unavailable or restricted.");
+    }
+  }finally{
+    if(requestId===playRequest.current)setLoadingTrack(false);
+  }
+}
  function next(){if(!queue.length)return;let i=queue.findIndex(x=>x.url===current?.url);let n=shuffle?Math.floor(Math.random()*queue.length):(i+1)%queue.length;if(!repeat&&i===queue.length-1&&!shuffle){setPlaying(false);return}play(queue[n])}
  function previous(){if(audio.current?.currentTime>3){audio.current.currentTime=0;return}let i=queue.findIndex(x=>x.url===current?.url);play(queue[(i-1+queue.length)%queue.length])}
  function toggle(){if(!audio.current||!stream){if(current)play(current);return}if(audio.current.paused){audio.current.play().then(()=>setPlaying(true)).catch(()=>setError("Playback was blocked. Tap Play again."))}else{audio.current.pause();setPlaying(false)}}
