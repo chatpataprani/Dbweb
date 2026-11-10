@@ -67,7 +67,7 @@ img{display:block}
 .shell.qopen{grid-template-columns:248px minmax(0,1fr) 340px}
 .side{border-radius:var(--r-lg);padding:20px 14px;display:flex;flex-direction:column;gap:22px;min-height:0;overflow:auto}
 .brand{display:flex;align-items:center;gap:10px;padding:0 8px;font:700 19px var(--f-display);letter-spacing:-.02em}
-.logo{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,#A78BFA,#7C3AED 60%,#5B21B6);box-shadow:0 8px 20px -6px rgba(139,92,246,.75)}
+.logo{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,#A78BFA,#7C3AED 60%,#5B21B6);box-shadow:0 8px 20px -6px rgba(139,92,246,.75)}.dbweb-logo{background:transparent!important;box-shadow:none!important;border-radius:0!important}.dbweb-logo img{width:36px;height:36px;object-fit:contain;display:block}
 .nav,.pl{display:flex;flex-direction:column;gap:4px}
 .nav button,.pl button{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 12px;border-radius:14px;color:var(--muted);font-weight:500;text-align:left;transition:background .2s,color .2s}
 .nav button:hover,.pl button:hover{background:var(--hover);color:var(--fg)}
@@ -282,8 +282,8 @@ body.muted .i-vol,body.rep1 .i-rep{display:none}
     padding:calc(20px + env(safe-area-inset-top,0px)) 14px calc(20px + env(safe-area-inset-bottom,0px)) calc(14px + env(safe-area-inset-left,0px));
     transform:translateX(-105%);visibility:hidden;transition:transform .35s cubic-bezier(.32,.72,0,1),visibility 0s .35s}
   .side.open{transform:none;visibility:visible;transition-delay:0s}
-  .scrim{display:block;position:fixed;inset:0;z-index:55;background:rgba(5,3,15,.55);opacity:0;pointer-events:none;transition:opacity .3s}
-  .scrim.on{opacity:1;pointer-events:auto}
+  .scrim{display:block;position:fixed;inset:0;z-index:55;background:transparent;opacity:0;pointer-events:none;transition:opacity .3s}
+  .scrim.on{opacity:1;pointer-events:auto;background:transparent}
 
   /* mini-player */
   .mini{display:grid;grid-template-columns:48px minmax(0,1fr) auto auto;align-items:center;gap:10px;position:fixed;z-index:50;
@@ -349,7 +349,7 @@ body.muted .i-vol,body.rep1 .i-rep{display:none}
 
 <div class="shell" id="shell">
   <aside class="side glass" id="side" aria-label="Main navigation">
-    <div class="brand"><span class="logo"><i data-lucide="audio-lines"></i></span>Dbweb Music</div>
+    <div class="brand"><span class="logo dbweb-logo"><img src="/dbweb-logo.svg" alt="Dbweb"></span><span>Dbweb Music</span></div>
     <nav class="nav" id="nav">
       <button class="on" data-act="view" data-view="home"><i data-lucide="house"></i>Home</button>
       <button data-act="view" data-view="search"><i data-lucide="search"></i>Search</button>
