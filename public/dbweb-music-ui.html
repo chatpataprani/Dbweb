@@ -791,7 +791,7 @@ icons();
 <script>
 /* Dbweb live music layer: replaces the demo catalogue with the existing API. */
 (()=> {
- const $=s=>document.querySelector(s), $=s=>[...document.querySelectorAll(s)];
+ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
  const audio=new Audio();audio.preload="metadata";audio.crossOrigin="anonymous";
  let live=[],active=null,searchTimer,req=0,videoEl=null;
  const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
