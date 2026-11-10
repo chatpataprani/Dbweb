@@ -4,7 +4,8 @@ export const dynamic = "force-dynamic";
 export async function GET(request) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q")?.trim();
-  const mode = url.searchParams.get("mode") === "video" ? "video" : "audio";\n  const playback = url.searchParams.get("play") === "1";
+  const mode = url.searchParams.get("mode") === "video" ? "video" : "audio";
+  const playback = url.searchParams.get("play") === "1";
   if (!q) return NextResponse.json({ error: "Missing media URL." }, { status: 400 });
   const token = process.env.NUB_YT_API_KEY;
   if (!token) return NextResponse.json({ error: "Music API is not configured." }, { status: 503 });
@@ -17,7 +18,7 @@ export async function GET(request) {
     const headers = new Headers();
     headers.set("Content-Type", upstream.headers.get("content-type") || (mode === "audio" ? "audio/mpeg" : "video/mp4"));
     headers.set("Cache-Control", "no-store");
-    headers.set("Content-Disposition", `attachment; filename="dbweb-music.${mode === "audio" ? "mp3" : "mp4"}"`);
+    headers.set("Content-Disposition", `${playback ? "inline" : "attachment"}; filename="dbweb-music.${mode === "audio" ? "mp3" : "mp4"}`);
     const range = upstream.headers.get("content-range"); if (range) headers.set("Content-Range", range);
     const length = upstream.headers.get("content-length"); if (length) headers.set("Content-Length", length);
     headers.set("Accept-Ranges", upstream.headers.get("accept-ranges") || "bytes");
