@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Search, Play, Pause, SkipBack, SkipForward, Download, Video, Music2, Volume2, ListMusic, ExternalLink, LoaderCircle, X, Shuffle, Repeat, Headphones } from "lucide-react";
 
-const fmt = (v) => { if (typeof v === "string" && v.includes(":")) return v; if (!Number.isFinite(Number(v))) return "—"; const n=Math.max(0,Number(v)); return n>=3600?Math.floor(n/3600)+":"+String(Math.floor(n%3600/60)).padStart(2,"0")+":"+String(Math.floor(n%60)).padStart(2,"0"):Math.floor(n/60)+":"+String(Math.floor(n%60).padStart(2,"0")); };
+const fmt = (v) => { if (typeof v === "string" && v.includes(":")) return v; if (!Number.isFinite(Number(v))) return "—"; const n=Math.max(0,Number(v)); return n>=3600?Math.floor(n/3600)+":"+String(Math.floor(n%3600/60)).padStart(2,"0")+":"+String(Math.floor(n%60)).padStart(2,"0"):Math.floor(n/60)+":"+String(String(Math.floor(n%60)).padStart(2,"0")); };
 const pick = (x) => ({ title:x.title||x.name||"Untitled track", channel:x.channel||x.artist||x.channel_name||"YouTube", url:x.url||x.youtube_link||x.link||"", thumbnail:x.thumbnail||x.thumbnails?.[0]?.url||"", duration:x.duration||x.duration_seconds||0, views:x.views||"" });
 
 export default function DbwebMusic() {
