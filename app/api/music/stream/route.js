@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 export async function GET(request) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q")?.trim();
-  const mode = url.searchParams.get("mode") === "video" ? "video" : "audio";
+  const mode = url.searchParams.get("mode") === "video" ? "video" : "audio";\n  const playback = url.searchParams.get("play") === "1";
   if (!q) return NextResponse.json({ error: "Missing media URL." }, { status: 400 });
   const token = process.env.NUB_YT_API_KEY;
   if (!token) return NextResponse.json({ error: "Music API is not configured." }, { status: 503 });
