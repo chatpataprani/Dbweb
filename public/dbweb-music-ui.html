@@ -831,7 +831,11 @@ icons();
  $(".seekrng").forEach(r=>{r.addEventListener("input",()=>{if(audio.duration)audio.currentTime=Number(r.value)})});
  $(".volrng").forEach(r=>r.addEventListener("input",()=>audio.volume=Number(r.value)/100));
  document.addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b)return;const a=b.dataset.act;if(!["toggle","next","prev"].includes(a))return;e.preventDefault();e.stopImmediatePropagation();if(a==="toggle"){if(!active&&live[0])play(live[0]);else if(audio.paused)audio.play().catch(()=>message("Tap play again"));else audio.pause()}else if(a==="next"&&live.length){const i=live.findIndex(t=>t.id===active?.id);play(live[(i+1)%live.length])}else if(a==="prev"&&active){if(audio.currentTime>3)audio.currentTime=0;else{const i=live.findIndex(t=>t.id===active.id);play(live[(i-1+live.length)%live.length])}}},true);
+ // Load real API tracks immediately; never leave the fabricated sample catalogue on the home screen.
+ const qInput=$("#q");
+ if(qInput&&!qInput.value.trim())qInput.value="trending music";
  window.__dbwebLive={search,play,audio};
+ setTimeout(search,250);
 })();
 </script>
 </body></html>
