@@ -15,7 +15,8 @@ export async function GET(request) {
     });
     const data = await upstream.json();
     if (!upstream.ok) return NextResponse.json({ error: data?.detail || data?.error || "Music search failed." }, { status: upstream.status });
-    const raw = Array.isArray(data) ? data : (data.results || data.main_results || data.items || []);\n    const results = raw.map((x) => ({\n      title: x.title || x.name || x.video_title || "Untitled track",\n      channel: x.channel || x.artist || x.channel_name || x.uploader || "YouTube",\n      url: x.url || x.youtube_link || x.link || (x.video_id ? "https://www.youtube.com/watch?v=" + x.video_id : ""),\n      thumbnail: x.thumbnail || x.thumbnails?.[0]?.url || x.thumbnails?.high?.url || x.thumbnail_url || "",\n      duration: x.duration || x.duration_seconds || 0, views: x.views || ""\n    })).filter(x => x.url);
+    const raw = Array.isArray(data) ? data : (data.results || data.main_results || data.items || []);
+    const results = raw.map((x) => ({\n      title: x.title || x.name || x.video_title || "Untitled track",\n      channel: x.channel || x.artist || x.channel_name || x.uploader || "YouTube",\n      url: x.url || x.youtube_link || x.link || (x.video_id ? "https://www.youtube.com/watch?v=" + x.video_id : ""),\n      thumbnail: x.thumbnail || x.thumbnails?.[0]?.url || x.thumbnails?.high?.url || x.thumbnail_url || "",\n      duration: x.duration || x.duration_seconds || 0, views: x.views || ""\n    })).filter(x => x.url);
     return NextResponse.json({ results, suggested: data.suggested || [], query: q });
   } catch {
     return NextResponse.json({ error: "Music API timed out or is unavailable. Try again." }, { status: 502 });
