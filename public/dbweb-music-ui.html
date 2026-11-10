@@ -795,7 +795,7 @@ icons();
  const audio=new Audio();audio.preload="metadata";audio.crossOrigin="anonymous";
  let live=[],active=null,searchTimer,req=0,videoEl=null;
  const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
- const fmt=n=>{n=Number(n)||0;return Math.floor(n/60)+":"+String(Math.floor(n%60)).padStart(2,"0")};
+ const fmt=n=>{if(typeof n==="string"&&n.includes(":"))return n;const m=String(n||"").match(/^PT(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+)S)?$/);if(m)n=(+m[1]||0)*3600+(+m[2]||0)*60+(+m[3]||0);n=Number(n)||0;return Math.floor(n/60)+":"+String(Math.floor(n%60)).padStart(2,"0")};
  const id=t=>t._id;
  function message(s){let el=$("#toast");if(el){el.textContent=s;el.classList.add("on");setTimeout(()=>el.classList.remove("on"),3500)}else alert(s)}
  function renderResults(list){
@@ -811,7 +811,7 @@ icons();
    renderResults(rows);window.__dbweb.S.q=q;
   }catch(e){if(n===req){$("#secTitle").textContent="Search failed";$("#grid").innerHTML='<div class="empty"><h3>Music search unavailable</h3><p>'+esc(e.message)+'</p></div>';message(e.message)}}
  }
- $("#q").addEventListener("input",()=>{clearTimeout(searchTimer);searchTimer=setTimeout(search,550)});
+ $("#q").addEventListener("input",e=>{e.stopImmediatePropagation();clearTimeout(searchTimer);searchTimer=setTimeout(search,500)},true);
  $("#q").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();search()}});
  $("#qClear").addEventListener("click",e=>{e.preventDefault();$("#q").value="";live=[];$("#grid").innerHTML="";$("#count").textContent="";$("#secTitle").textContent="Trending now"});
  function play(t){if(!t)return;active=t;audio.pause();audio.src="/api/music/stream?q="+encodeURIComponent(t.url)+"&mode=audio";audio.load();audio.play().then(()=>message("Now playing: "+t.title)).catch(e=>message("Playback error: "+e.message));}
