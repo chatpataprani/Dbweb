@@ -8,7 +8,7 @@ const fail = (message, status = 502) => NextResponse.json({ error: message }, { 
 export async function GET(request) {
   const params = new URL(request.url).searchParams;
   const q = params.get("q")?.trim();
-  const mode = params.get("mode") === "video" ? "video" : "audio";
+  const mode = params.get("mode") === "video" ? "video" : "audio";\n  const quality = params.get("quality")?.trim();\n  const download = params.get("download") === "1";
   if (!q) return fail("Missing YouTube URL.", 400);
 
   const token = process.env.NUB_YT_API_KEY;
@@ -17,7 +17,7 @@ export async function GET(request) {
   try {
     // NuB /stream returns JSON containing its range-capable media proxy URL.
     const apiUrl = new URL("https://api.nubcoders.com/stream");
-    apiUrl.search = new URLSearchParams({ q, mode }).toString();
+    const upstreamParams = new URLSearchParams({ q, mode });\n    if (quality) upstreamParams.set("quality", quality);\n    apiUrl.search = upstreamParams.toString();
     const resolved = await fetch(apiUrl, {
       headers: { Authorization: "Bearer " + token },
       cache: "no-store",
@@ -50,7 +50,7 @@ export async function GET(request) {
       const value = media.headers.get(name);
       if (value) outHeaders.set(name, value);
     }
-    outHeaders.set("Cache-Control", "no-store");
+    outHeaders.set("Cache-Control", "no-store");\n    if (download) outHeaders.set("Content-Disposition", `attachment; filename="dbweb-${mode}.${mode === "audio" ? "mp3" : "mp4"}`);
     if (!outHeaders.has("Content-Type")) outHeaders.set("Content-Type", mode === "audio" ? "audio/webm" : "video/mp4");
 
     return new Response(media.body, { status: media.status, headers: outHeaders });
