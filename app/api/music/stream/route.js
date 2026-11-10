@@ -49,14 +49,17 @@ export async function GET(request) {
       return fail("NuB media proxy returned HTTP " + media.status + (detail ? ": " + detail.slice(0, 180) : ""), 502);
     }
 
+    // Some upstream proxies label audio as application/octet-stream or video/mp4.
+    // Normalize the audio response so browsers do not reject it as an unsupported source.
+    const upstreamType = (media.headers.get("content-type") || "").split(";")[0].toLowerCase();
     const outHeaders = new Headers();
-    for (const name of ["content-type", "content-length", "content-range", "accept-ranges", "cache-control"]) {
+    for (const name of ["content-length", "content-range", "accept-ranges", "cache-control"]) {
       const value = media.headers.get(name);
       if (value) outHeaders.set(name, value);
     }
     outHeaders.set("Cache-Control", "no-store");
     if (download) outHeaders.set("Content-Disposition", `attachment; filename="dbweb-${mode}.${mode === "audio" ? "mp3" : "mp4"}"`);
-    if (!outHeaders.has("Content-Type")) outHeaders.set("Content-Type", mode === "audio" ? "audio/webm" : "video/mp4");
+    outHeaders.set("Content-Type", mode === "audio" ? (upstreamType.startsWith("audio/") ? upstreamType : "audio/mpeg") : (upstreamType.startsWith("video/") ? upstreamType : "video/mp4"));
 
     return new Response(media.body, { status: media.status, headers: outHeaders });
   } catch (error) {
