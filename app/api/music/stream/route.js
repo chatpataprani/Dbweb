@@ -38,7 +38,7 @@ export async function GET(request) {
     let contentType = (upstream.headers.get("content-type") || "").toLowerCase();
     if (contentType.includes("json")) {
       const payload = await upstream.json().catch(() => null);
-      const resolved = payload?.stream_url || payload?.stream || payload?.url;
+      const resolved = payload?.redirect_url || payload?.stream_url || payload?.stream;
       if (!resolved) return fail(payload?.error || payload?.message || "NuB returned no playable stream URL.");
       upstream = await fetch(resolved, {
         headers: range ? { Range: range } : {},
