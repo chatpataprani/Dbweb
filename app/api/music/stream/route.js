@@ -59,7 +59,12 @@ export async function GET(request) {
     }
     outHeaders.set("Cache-Control", "no-store");
     if (download) outHeaders.set("Content-Disposition", `attachment; filename="dbweb-${mode}.${mode === "audio" ? "mp3" : "mp4"}"`);
-    outHeaders.set("Content-Type", mode === "audio" ? (upstreamType.startsWith("audio/") ? upstreamType : "audio/mpeg") : (upstreamType.startsWith("video/") ? upstreamType : "video/mp4"));
+    // Do not label unknown audio bytes as MP3: YouTube/NuB commonly returns
+    // Opus/WebM, and a false audio/mpeg MIME makes Chromium reject the source.
+    const fallbackAudioType = /\\.(mp3|m4a|aac)(?:$|\\?)/i.test(data.stream_url) ? "audio/mpeg" : "audio/webm";
+    outHeaders.set("Content-Type", mode === "audio"
+      ? (upstreamType.startsWith("audio/") ? upstreamType : fallbackAudioType)
+      : (upstreamType.startsWith("video/") ? upstreamType : "video/mp4"));
 
     return new Response(media.body, { status: media.status, headers: outHeaders });
   } catch (error) {
