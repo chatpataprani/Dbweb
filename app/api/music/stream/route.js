@@ -21,7 +21,7 @@ export async function GET(request) {
     const url = new URL("https://api.nubcoders.com/stream");
     url.searchParams.set("q", q);
     url.searchParams.set("mode", mode);
-    url.searchParams.set("redirect", "true");
+    url.searchParams.set("redirect", "false");
     if (quality) url.searchParams.set("quality", quality);
 
     const requestHeaders = { Authorization: "Bearer " + token, Accept: "*/*" };
@@ -38,10 +38,10 @@ export async function GET(request) {
     let contentType = (upstream.headers.get("content-type") || "").toLowerCase();
     if (contentType.includes("json")) {
       const payload = await upstream.json().catch(() => null);
-      const resolved = payload?.redirect_url || payload?.stream_url || payload?.stream;
+      const resolved = payload?.stream_url || payload?.redirect_url || payload?.stream;
       if (!resolved) return fail(payload?.error || payload?.message || "NuB returned no playable stream URL.");
       upstream = await fetch(resolved, {
-        headers: range ? { Range: range } : {},
+        headers: { Authorization: "Bearer " + token, Accept: "*/*", ...(range ? { Range: range } : {}) },
         cache: "no-store", redirect: "follow", signal: AbortSignal.timeout(90000),
       });
       contentType = (upstream.headers.get("content-type") || "").toLowerCase();
