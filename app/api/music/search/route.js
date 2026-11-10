@@ -10,14 +10,14 @@ export async function GET(request) {
   if (!q) return jsonError("Enter a song, artist, or YouTube URL.", 400);
   if (q.length > 180) return jsonError("Search is too long (180 characters maximum).", 400);
 
+  // NuB's /search endpoint is public; authentication is only needed for stream/info.
   const token = process.env.NUB_YT_API_KEY;
-  if (!token) return jsonError("Music API is not configured. Add NUB_YT_API_KEY in Vercel Environment Variables.", 503);
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort("NuB search timed out"), 20000);
   try {
     const upstream = await fetch("https://api.nubcoders.com/search?" + new URLSearchParams({ q, limit: "10" }), {
-      headers: { Authorization: "Bearer " + token, Accept: "application/json" },
+      headers: { ...(token ? { Authorization: "Bearer " + token } : {}), Accept: "application/json" },
       cache: "no-store",
       signal: controller.signal,
     });
@@ -40,12 +40,12 @@ export async function GET(request) {
       return jsonError("NuB search failed (HTTP " + upstream.status + ")" + (detail ? ": " + String(detail).slice(0, 180) : "."), 502);
     }
 
-    const raw = Array.isArray(data) ? data : (data.results || data.main_results || data.items || []);
+    const raw = Array.isArray(data) ? data : (data.results || data.main_results || data.items || data.videos || []);
     const results = raw.map((x) => ({
       title: x.title || x.name || x.video_title || "Untitled track",
       channel: x.channel || x.artist || x.channel_name || x.uploader || "YouTube",
       url: x.url || x.youtube_link || x.link || (x.video_id ? "https://www.youtube.com/watch?v=" + x.video_id : ""),
-      thumbnail: x.thumbnail || x.thumbnails?.[0]?.url || x.thumbnails?.high?.url || x.thumbnail_url || "",
+      thumbnail: x.thumbnail || x.thumbnails?.[0]?.url || x.thumbnails?.high?.url || x.thumbnail_url || x.thumbnailUrl || "",
       duration: x.duration || x.duration_seconds || 0,
       views: x.views || ""
     })).filter(x => x.url);
