@@ -16,6 +16,7 @@ export async function POST(request){
   if(!terms||terms.terms_version!=="2026-10-09")return NextResponse.json({error:"Accept the Terms and Conditions before using the lookup API.",terms_required:true},{status:428});
   const {type,query}=await request.json();
   if(!["number","aadhar"].includes(type)||typeof query!=="string"||!query.trim())return NextResponse.json({error:"Invalid lookup request."},{status:400});
+  return NextResponse.json({error:"Number and Aadhaar lookup are temporarily unavailable because the upstream database is offline.",service_unavailable:true,status_page:"/database-unavailable"},{status:503});
   let lookupQuery=query.trim();
   if(type==="number"){
    const digits=lookupQuery.replace(/\D/g,"");
