@@ -1166,3 +1166,8 @@ html {
 .dbUnavailableFooter{max-width:1120px;margin:0 auto;padding:17px 0 24px;border-top:1px solid var(--db-line);display:flex;justify-content:space-between;gap:12px;font-size:11px;color:var(--db-muted)}
 .dbUnavailableFooter a{display:inline-flex;align-items:center;gap:5px;color:var(--db-muted);text-decoration:none}
 @media(max-width:560px){.dbUnavailableHero{padding:52px 0 46px}.dbUnavailableHero h1{font-size:35px}.dbUnavailableLead{font-size:13px}.dbUnavailableRow{padding:15px 13px;gap:10px}.dbUnavailableRow small{font-size:10px}.dbUnavailableState{font-size:9px}.dbUnavailableFooter{font-size:10px}}
+
+
+@keyframes dbStatusRefreshSpin{to{transform:rotate(360deg)}}
+.dbStatusSpin{animation:dbStatusRefreshSpin .7s linear infinite}
+.dbUnavailableSecondary:disabled{opacity:.7;cursor:wait}
