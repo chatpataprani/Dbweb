@@ -385,6 +385,10 @@ body.muted .i-vol,body.rep1 .i-rep{display:none}
           <input id="q" type="search" placeholder="Search songs, artists, moods" autocomplete="off" enterkeyhint="search">
           <button class="ibtn" id="qClear" data-act="clear" aria-label="Clear search" hidden><i data-lucide="x"></i></button>
         </label>
+        <div class="music-sources" style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button type="button" class="btn source-on" id="sourceDbweb" style="padding:8px 14px" aria-pressed="true">Dbweb Music · Audio</button>
+          <button type="button" class="btn" id="sourceSpotify" style="padding:8px 14px" aria-pressed="false">Spotify catalog</button>
+        </div>
       </section>
 
       <div class="chips" id="chips" role="tablist" aria-label="Genres"></div>
@@ -793,7 +797,7 @@ icons();
 (()=> {
  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
  const audio=new Audio();audio.preload="metadata";audio.crossOrigin="anonymous";
- let live=[],active=null,searchTimer,req=0,videoEl=null;
+ let live=[],active=null,searchTimer,req=0,videoEl=null,sourceMode="dbweb";
  const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const fmt=n=>{if(typeof n==="string"&&n.includes(":"))return n;const m=String(n||"").match(/^PT(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+)S)?$/);if(m)n=(+m[1]||0)*3600+(+m[2]||0)*60+(+m[3]||0);n=Number(n)||0;return Math.floor(n/60)+":"+String(Math.floor(n%60)).padStart(2,"0")};
  const id=t=>t._id;
@@ -801,24 +805,25 @@ icons();
  function renderResults(list){
   live=list;window.__dbweb.T=list;window.__dbweb.byId=Object.fromEntries(list.map(t=>[t.id,t]));
   const grid=$("#grid");$("#secTitle").textContent="Search results";$("#count").textContent=list.length+" tracks";
-  grid.innerHTML=list.length?list.map(t=>'<article class="card" data-live-id="'+t.id+'"><button class="art" data-live-play="'+t.id+'" aria-label="Play"><img src="'+esc(t.thumbnail||"")+'" alt="" onerror="this.style.opacity=0"><span class="pbtn"><i data-lucide="play"></i></span></button><div class="meta"><div class="txt"><h3>'+esc(t.title)+'</h3><p>'+esc(t.artist)+'</p><span class="tag">'+fmt(t.dur)+'</span></div><div class="acts"><button class="ibtn" data-live-video="'+t.id+'" title="Play video"><i data-lucide="video"></i></button><button class="ibtn" data-live-download="'+t.id+'" title="Download"><i data-lucide="download"></i></button></div></div></article>').join(""):'<div class="empty"><h3>No results</h3><p>Try another title or artist.</p></div>';
+  grid.innerHTML=list.length?list.map(t=>'<article class="card" data-live-id="'+t.id+'"><button class="art" data-live-play="'+t.id+'" aria-label="Play"><img src="'+esc(t.thumbnail||"")+'" alt="" onerror="this.style.opacity=0"><span class="pbtn"><i data-lucide="play"></i></span></button><div class="meta"><div class="txt"><h3>'+esc(t.title)+'</h3><p>'+esc(t.artist)+'</p><span class="tag">'+fmt(t.dur)+(t.spotify?' · Spotify':'')+'</span></div><div class="acts">'+(t.spotify?'<button class="ibtn" data-spotify-open="'+t.id+'" title="Open on Spotify"><i data-lucide="external-link"></i></button>':'<button class="ibtn" data-live-video="'+t.id+'" title="Play video"><i data-lucide="video"></i></button><button class="ibtn" data-live-download="'+t.id+'" title="Download"><i data-lucide="download"></i></button>')+'</div></div></article>').join(""):'<div class="empty"><h3>No results</h3><p>Try another title or artist.</p></div>';
   try{window.lucide?.createIcons()}catch{}
  }
  async function search(){
   const q=$("#q").value.trim();if(!q)return;const n=++req;$("#secTitle").textContent="Searching…";$("#count").textContent="";$("#grid").innerHTML='<div class="empty"><h3>Searching music…</h3></div>';
-  try{const r=await fetch("/api/music/search?q="+encodeURIComponent(q),{cache:"no-store"});const d=await r.json();if(!r.ok)throw Error(d.error||"Search failed (HTTP "+r.status+")");if(n!==req)return;
-   const rows=(d.results||[]).map((x,i)=>({id:i+1,_id:i+1,title:x.title||x.name||"Untitled",artist:x.channel||x.artist||x.uploader||"YouTube",url:x.url||x.youtube_link||x.link,thumbnail:x.thumbnail||x.thumbnail_url||x.thumbnails?.high?.url||x.thumbnails?.[0]?.url||"",dur:x.duration||x.duration_seconds||0})).filter(x=>x.url);
+  try{const endpoint=sourceMode==="spotify"?"/api/music/spotify-search":"/api/music/search";const r=await fetch(endpoint+"?q="+encodeURIComponent(q),{cache:"no-store"});const d=await r.json();if(!r.ok)throw Error(d.error||"Search failed (HTTP "+r.status+")");if(n!==req)return;
+   const rows=(d.results||[]).map((x,i)=>sourceMode==="spotify"?({id:i+1,_id:i+1,title:x.title||"Untitled",artist:x.artist||"Spotify",url:x.spotifyUrl||"",thumbnail:x.thumbnail||"",dur:x.duration||0,spotify:true,spotifyUrl:x.spotifyUrl||"",album:x.album||""}):({id:i+1,_id:i+1,title:x.title||x.name||"Untitled",artist:x.channel||x.artist||x.uploader||"YouTube",url:x.url||x.youtube_link||x.link,thumbnail:x.thumbnail||x.thumbnail_url||x.thumbnails?.high?.url||x.thumbnails?.[0]?.url||"",dur:x.duration||x.duration_seconds||0})).filter(x=>sourceMode==="spotify"?x.spotifyUrl:x.url);
    renderResults(rows);window.__dbweb.S.q=q;
   }catch(e){if(n===req){$("#secTitle").textContent="Search failed";$("#grid").innerHTML='<div class="empty"><h3>Music search unavailable</h3><p>'+esc(e.message)+'</p></div>';message(e.message)}}
  }
  $("#q").addEventListener("input",e=>{e.stopImmediatePropagation();clearTimeout(searchTimer);searchTimer=setTimeout(search,500)},true);
  $("#q").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();search()}});
  $("#qClear").addEventListener("click",e=>{e.preventDefault();$("#q").value="";live=[];$("#grid").innerHTML="";$("#count").textContent="";$("#secTitle").textContent="Trending now"});
- function play(t){if(!t)return;active=t;audio.pause();audio.src="/api/music/stream?q="+encodeURIComponent(t.url)+"&mode=audio";audio.load();audio.play().then(()=>message("Now playing: "+t.title)).catch(e=>message("Playback error: "+e.message));}
+ async function play(t){if(!t)return;active=t;audio.pause();let streamQuery=t.url;if(t.spotify){message("Finding playable audio for "+t.title+"…");try{const r=await fetch("/api/music/search?q="+encodeURIComponent(t.title+" "+t.artist),{cache:"no-store"});const d=await r.json();streamQuery=d.results?.find(x=>x.url)?.url;if(!streamQuery)throw Error("No matching audio provider result");}catch(e){message("Spotify is catalog-only; audio provider could not find this track.");return}}audio.src="/api/music/stream?q="+encodeURIComponent(streamQuery)+"&mode=audio";audio.load();audio.play().then(()=>message("Now playing: "+t.title)).catch(e=>message("Playback error: "+e.message));}
  document.addEventListener("click",e=>{
-  const b=e.target.closest("[data-live-play],[data-live-video],[data-live-download]");if(!b)return;e.preventDefault();e.stopImmediatePropagation();
+  const b=e.target.closest("[data-live-play],[data-live-video],[data-live-download],[data-spotify-open]");if(!b)return;e.preventDefault();e.stopImmediatePropagation();
   const t=live.find(x=>x.id===Number(b.dataset.livePlay||b.dataset.liveVideo||b.dataset.liveDownload));if(!t)return;
   if(b.dataset.livePlay)play(t);
+  if(b.dataset.spotifyOpen){window.open(t.spotifyUrl,"_blank","noopener,noreferrer");return}
   if(b.dataset.liveDownload){const quality=prompt("Audio quality (best, 128, 192, 320). Leave blank for provider default:","");const u="/api/music/stream?q="+encodeURIComponent(t.url)+"&mode=audio&download=1"+(quality?"&quality="+encodeURIComponent(quality):"");const a=document.createElement("a");a.href=u;a.download="dbweb-audio";document.body.append(a);a.click();a.remove()}
   if(b.dataset.liveVideo){const modal=document.createElement("div");modal.style="position:fixed;inset:0;z-index:99999;background:#000;display:grid;place-items:center;padding:12px";
    const v=document.createElement("video");v.controls=true;v.autoplay=true;v.playsInline=true;v.style="width:100%;height:100%;object-fit:contain";v.src="/api/music/stream?q="+encodeURIComponent(t.url)+"&mode=video";modal.append(v);modal.onclick=e=>{if(e.target===modal){v.pause();modal.remove()}};document.body.append(modal);videoEl=v;v.addEventListener("dblclick",()=>{if(!document.fullscreenElement)v.requestFullscreen?.();else document.exitFullscreen?.()});v.play().catch(()=>message("Video stream could not start. Check provider support."));}
@@ -836,7 +841,7 @@ icons();
  if(qInput&&!qInput.value.trim())qInput.value="trending music";
  // Remove the sample catalogue from the visible home screen; populate it only with real API tracks.
  $("#secTitle").textContent="Trending now";$("#count").textContent="";$("#grid").innerHTML='<div class="empty"><h3>Loading real trending music…</h3><p>Fetching live tracks</p></div>';
- window.__dbwebLive={search,play,audio};
+ const setSource=mode=>{sourceMode=mode;$("#sourceDbweb").classList.toggle("source-on",mode==="dbweb");$("#sourceSpotify").classList.toggle("source-on",mode==="spotify");$("#sourceDbweb").setAttribute("aria-pressed",mode==="dbweb");$("#sourceSpotify").setAttribute("aria-pressed",mode==="spotify");$("#q").placeholder=mode==="spotify"?"Search Spotify tracks and artists":"Search songs, artists, moods";if($("#q").value.trim())search();else{live=[];$("#grid").innerHTML='<div class="empty"><h3>Search a song or artist</h3><p>'+ (mode==="spotify"?"Spotify catalog metadata · audio remains with Dbweb Music":"Search using your existing Dbweb audio provider")+'</p></div>';$("#secTitle").textContent=mode==="spotify"?"Spotify catalog":"Dbweb Music";$("#count").textContent=""}};$("#sourceDbweb").addEventListener("click",()=>setSource("dbweb"));$("#sourceSpotify").addEventListener("click",()=>setSource("spotify"));window.__dbwebLive={search,play,audio,setSource};
  setTimeout(search,250);
 })();
 </script>
