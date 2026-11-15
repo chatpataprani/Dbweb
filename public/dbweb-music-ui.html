@@ -615,7 +615,7 @@ function setBg(t){
 function tick(){
   const t=cur(),pct=Math.min(100,S.pos/t.dur*100);
   $$('[data-b=cur]').forEach(e=>e.textContent=fm(S.pos));
-  $$$('.seekrng').forEach(r=>{if(!S.drag)r.value=pct*10;r.style.setProperty('--p',pct+'%')});
+  $$('.seekrng').forEach(r=>{if(!S.drag)r.value=pct*10;r.style.setProperty('--p',pct+'%')});
   $('#mini').style.setProperty('--p',pct+'%');
 }
 function sync(){
@@ -625,16 +625,16 @@ function sync(){
   document.body.classList.toggle('rep1',S.repeat===2);
   $$('[data-b=title]').forEach(e=>e.textContent=t.title);
   $$('[data-b=artist]').forEach(e=>e.textContent=t.artist);
-  $$$('[data-b=genre]').forEach(e=>e.textContent=t.genre);
+  $$('[data-b=genre]').forEach(e=>e.textContent=t.genre);
   $$('[data-b=dur]').forEach(e=>e.textContent=fm(t.dur));
-  $$$('[data-b=art]').forEach(e=>e.src=art(t));
-  $$$('[data-act=like-cur]').forEach(b=>b.classList.toggle('liked',S.liked.has(t.id)));
-  $$$('[data-act=dl-cur]').forEach(b=>b.classList.toggle('on',S.dl.has(t.id)));
-  $$$('[data-act=shuffle]').forEach(b=>b.classList.toggle('on',S.shuffle));
-  $$$('[data-act=repeat]').forEach(b=>b.classList.toggle('on',S.repeat>0));
+  $$('[data-b=art]').forEach(e=>e.src=art(t));
+  $$('[data-act=like-cur]').forEach(b=>b.classList.toggle('liked',S.liked.has(t.id)));
+  $$('[data-act=dl-cur]').forEach(b=>b.classList.toggle('on',S.dl.has(t.id)));
+  $$('[data-act=shuffle]').forEach(b=>b.classList.toggle('on',S.shuffle));
+  $$('[data-act=repeat]').forEach(b=>b.classList.toggle('on',S.repeat>0));
   const v=S.muted?0:S.vol;
-  $$$('.volrng').forEach(r=>{r.value=v;r.style.setProperty('--p',v+'%')});
-  $$$('.card').forEach(c=>c.classList.toggle('cur',+c.dataset.id===t.id));
+  $$('.volrng').forEach(r=>{r.value=v;r.style.setProperty('--p',v+'%')});
+  $$('.card').forEach(c=>c.classList.toggle('cur',+c.dataset.id===t.id));
   tick();
 }
 function setTrack(i){S.qi=i;S.pos=0;S.playing=true;sync();renderQueue();setBg(cur())}
@@ -687,7 +687,7 @@ mq.addEventListener('change',themeIcon);
 function syncScrim(){scrim.classList.toggle('on',mobile()&&(side.classList.contains('open')||shell.classList.contains('qopen')))}
 function setQueue(open){
   shell.classList.toggle('qopen',open);
-  $$$('[data-act=queue]').forEach(b=>b.setAttribute('aria-expanded',open));
+  $$('[data-act=queue]').forEach(b=>b.setAttribute('aria-expanded',open));
   syncScrim();
 }
 function setNp(open){
@@ -698,7 +698,7 @@ function closeAll(){setMenu(false);setQueue(false);setNp(false)}
 
 function setView(v){
   S.view=v;
-  $$$('#nav [data-view],#bnav [data-view]').forEach(b=>b.classList.toggle('on',b.dataset.view===v));
+  $$('#nav [data-view],#bnav [data-view]').forEach(b=>b.classList.toggle('on',b.dataset.view===v));
   setMenu(false);
   if(v==='home'||v==='library'){S.q='';$('#q').value='';$('#qClear').hidden=true}
   load(450);
@@ -748,7 +748,7 @@ document.addEventListener('click',e=>{
     case'genre':S.genre=b.dataset.genre;renderChips();load(450);break;
     case'mood':
       S.genre=b.dataset.genre;S.view='home';renderChips();load(450);
-      $$$('#nav [data-view],#bnav [data-view]').forEach(x=>x.classList.toggle('on',x.dataset.view==='home'));
+      $$('#nav [data-view],#bnav [data-view]').forEach(x=>x.classList.toggle('on',x.dataset.view==='home'));
       setMenu(false);$('#results').scrollIntoView({behavior:'smooth',block:'start'});break;
     case'clear':S.q='';$('#q').value='';$('#qClear').hidden=true;S.genre='All';renderChips();load(350);$('#q').focus({preventScroll:true});break;
   }
@@ -768,11 +768,11 @@ $('#q').addEventListener('input',e=>{
 /* seek + volume (visual only) */
 window.addEventListener('pointerup',()=>{S.drag=false});
 window.addEventListener('pointercancel',()=>{S.drag=false});
-$$$('.seekrng').forEach(r=>{
+$$('.seekrng').forEach(r=>{
   r.addEventListener('pointerdown',()=>{S.drag=true});
   r.addEventListener('input',()=>{S.pos=r.value/1000*cur().dur;tick()});
 });
-$$$('.volrng').forEach(r=>{
+$$('.volrng').forEach(r=>{
   r.addEventListener('input',()=>{S.vol=+r.value;S.muted=false;sync()});
 });
 
