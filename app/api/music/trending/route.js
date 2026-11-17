@@ -63,8 +63,10 @@ export async function GET() {
   try {
     // The trending endpoint supplies its own region and result count.
     // Do not send unsupported query parameters: they cause upstream validation errors.
+    const token = process.env.NUB_YT_API_KEY;
+    if (!token) return NextResponse.json({ error: "Music service is not configured.", results: [] }, { status: 503 });
     const response = await fetch("https://api.nubcoders.com/trending", {
-      headers: { Accept: "application/json" },
+      headers: { Accept: "application/json", Authorization: "Bearer " + token },
       cache: "no-store",
       signal: AbortSignal.timeout(20000),
     });
