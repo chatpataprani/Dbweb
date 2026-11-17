@@ -63,10 +63,8 @@ export async function GET() {
   try {
     // The trending endpoint supplies its own region and result count.
     // Do not send unsupported query parameters: they cause upstream validation errors.
-    const token = process.env.NUB_YT_API_KEY;
-    if (!token) return NextResponse.json({ error: "Music service is not configured.", results: [] }, { status: 503 });
     const response = await fetch("https://api.nubcoders.com/trending", {
-      headers: { Accept: "application/json", Authorization: "Bearer " + token },
+      headers: { Accept: "application/json" },
       cache: "no-store",
       signal: AbortSignal.timeout(20000),
     });
@@ -83,6 +81,7 @@ export async function GET() {
     }
 
     if (!response.ok) {
+      console.error("[Dbweb Music] Trending upstream error", response.status, raw.slice(0, 500));
       return NextResponse.json(
         { error: "Trending music is temporarily unavailable.", results: [] },
         { status: 502 }
@@ -97,7 +96,8 @@ export async function GET() {
       { results },
       { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" } }
     );
-  } catch {
+  } catch (e) {
+    console.error("[Dbweb Music] Trending request failed", e?.name, e?.message);
     return NextResponse.json(
       { error: "Trending music is temporarily unavailable.", results: [] },
       { status: 502 }
