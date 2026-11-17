@@ -887,10 +887,19 @@ icons();
   else if(a==="next"&&live.length){const i=live.findIndex(t=>t.id===active?.id);play(live[(i+1)%live.length])}
   else if(a==="prev"&&active){if(audio.currentTime>3)audio.currentTime=0;else{const i=live.findIndex(t=>t.id===active.id);play(live[(i-1+live.length)%live.length])}}
  },true);
- const qInput=$("#q");if(qInput&&!qInput.value.trim())qInput.value="trending music";
- $("#secTitle").textContent="Trending now";$("#count").textContent="";$("#grid").innerHTML='<div class="empty"><h3>Loading real trending music…</h3><p>Fetching live tracks</p></div>';
- const setSource=mode=>{sourceMode=mode;$("#sourceDbweb").classList.toggle("source-on",mode==="dbweb");$("#sourceSpotify").classList.toggle("source-on",mode==="spotify");$("#sourceDbweb").setAttribute("aria-pressed",mode==="dbweb");$("#sourceSpotify").setAttribute("aria-pressed",mode==="spotify");$("#q").placeholder=mode==="spotify"?"Search Spotify tracks and artists":"Search songs, artists, moods";if($("#q").value.trim())search();else{live=[];$("#grid").innerHTML='<div class="empty"><h3>Search a song or artist</h3><p>'+(mode==="spotify"?"Spotify catalog metadata · audio streams through NuB":"Search and stream audio through NuB")+'</p></div>';$("#secTitle").textContent=mode==="spotify"?"Spotify catalog":"Dbweb Music";$("#count").textContent=""}};
- $("#sourceDbweb").addEventListener("click",()=>setSource("dbweb"));$("#sourceSpotify").addEventListener("click",()=>setSource("spotify"));window.__dbwebLive={search,play,audio,setSource};
- setTimeout(search,250);
+ async function loadTrending(){
+  const n=++req;$("#secTitle").textContent="Trending now";$("#count").textContent="";$("#grid").innerHTML='<div class="empty"><h3>Loading trending music…</h3></div>';
+  try{
+   const r=await fetch("/api/music/trending?region=IN&limit=20",{cache:"no-store"}),d=await r.json();
+   if(!r.ok)throw Error(d.error||"Trending unavailable");
+   if(n!==req)return;
+   const rows=(d.results||[]).map((x,i)=>({id:i+1,title:x.title||"Untitled",artist:x.channel||x.artist||"YouTube",url:x.url||"",thumbnail:x.thumbnail||"",dur:x.duration||0})).filter(x=>x.url);
+   renderResults(rows);$("#secTitle").textContent="Trending now";$("#count").textContent=rows.length+" tracks";
+  }catch(e){if(n===req){$("#secTitle").textContent="Trending unavailable";$("#grid").innerHTML='<div class="empty"><h3>Could not load trending</h3><p>'+esc(e.message)+'</p></div>'}}
+ }
+ $("#secTitle").textContent="Trending now";$("#count").textContent="";$("#grid").innerHTML='<div class="empty"><h3>Loading trending music…</h3><p>Fetching regional tracks from NuB</p></div>';
+ const setSource=mode=>{sourceMode=mode;$("#sourceDbweb").classList.toggle("source-on",mode==="dbweb");$("#sourceSpotify").classList.toggle("source-on",mode==="spotify");$("#sourceDbweb").setAttribute("aria-pressed",mode==="dbweb");$("#sourceSpotify").setAttribute("aria-pressed",mode==="spotify");$("#q").placeholder=mode==="spotify"?"Search Spotify tracks and artists":"Search songs, artists, moods";if($("#q").value.trim())search();else if(mode==="dbweb")loadTrending();else{live=[];$("#grid").innerHTML='<div class="empty"><h3>Search a song or artist</h3><p>Spotify catalog metadata · audio streams through NuB</p></div>';$("#secTitle").textContent="Spotify catalog";$("#count").textContent=""}};
+ $("#sourceDbweb").addEventListener("click",()=>setSource("dbweb"));$("#sourceSpotify").addEventListener("click",()=>setSource("spotify"));window.__dbwebLive={search,play,audio,setSource,loadTrending};
+ setTimeout(loadTrending,250);
 })();</script>
 </body></html>
