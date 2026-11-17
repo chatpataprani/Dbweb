@@ -820,9 +820,13 @@ icons();
   if(!t)return;active=t;audio.pause();
   try{
    const target=await resolveTrack(t);
+   // NuB's documented flow is metadata/stream resolution first, then its seekable media pipe.
+   const infoResponse=await fetch("/api/music/info?q="+encodeURIComponent(target),{cache:"no-store"});
+   const info=await infoResponse.json().catch(()=>({}));
+   if(!infoResponse.ok)throw Error(info.error||"NuB could not resolve this track (HTTP "+infoResponse.status+")");
    streamUrl="/api/music/stream?q="+encodeURIComponent(target)+"&mode=audio";
    audio.src=streamUrl;audio.load();
-   const p=audio.play();if(p)await p;
+   await audio.play();
    message("Now playing: "+t.title);
   }catch(e){message("NuB playback error: "+e.message)}
  }
