@@ -794,109 +794,56 @@ icons();
 
 
 <script>
-/* Dbweb live music layer: official YouTube playback, with Spotify catalog search. */
+/* Dbweb live music layer: NuB audio streaming + Spotify catalog search. */
 (()=> {
  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
- let live=[],active=null,searchTimer,req=0,sourceMode="dbweb",ytPlayer=null,ytModal=null,ytApiPromise=null,progressTimer=null;
+ const audio=new Audio();audio.preload="metadata";audio.crossOrigin="anonymous";
+ let live=[],active=null,searchTimer,req=0,sourceMode="dbweb",videoEl=null,streamUrl="";
  const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const fmt=n=>{n=Number(n)||0;return Math.floor(n/60)+":"+String(Math.floor(n%60)).padStart(2,"0")};
- function message(s){let el=$("#toast");if(el){el.textContent=s;el.classList.add("on");setTimeout(()=>el.classList.remove("on"),3500)}else alert(s)}
- function videoId(raw){
-  try{
-   const u=new URL(raw,location.href),host=u.hostname.replace(/^www\./,"");
-   if(host==="youtu.be")return u.pathname.split("/").filter(Boolean)[0]||"";
-   if(host.endsWith("youtube.com")||host.endsWith("youtube-nocookie.com")){
-    return u.searchParams.get("v")||u.pathname.match(/\/(?:embed|shorts|live)\/([^/?]+)/)?.[1]||"";
-   }
-  }catch{}
-  return /^[a-zA-Z0-9_-]{11}$/.test(String(raw||""))?String(raw):"";
- }
- function loadYouTubeApi(){
-  if(window.YT?.Player)return Promise.resolve(window.YT);
-  if(ytApiPromise)return ytApiPromise;
-  ytApiPromise=new Promise((resolve,reject)=>{
-   const previous=window.onYouTubeIframeAPIReady;
-   const timeout=setTimeout(()=>reject(new Error("YouTube player took too long to load.")),15000);
-   window.onYouTubeIframeAPIReady=()=>{clearTimeout(timeout);try{previous?.()}catch{};resolve(window.YT)};
-   let script=document.querySelector('script[src="https://www.youtube.com/iframe_api"]');
-   if(!script){script=document.createElement("script");script.src="https://www.youtube.com/iframe_api";script.async=true;script.onerror=()=>{clearTimeout(timeout);reject(new Error("Could not load the YouTube player."))};document.head.append(script)}
-  });
-  return ytApiPromise;
- }
- function closePlayer(){
-  clearInterval(progressTimer);progressTimer=null;
-  try{ytPlayer?.destroy()}catch{}
-  ytPlayer=null;
-  if(ytModal)ytModal.remove();
-  ytModal=null;
-  document.body.classList.remove("playing");
- }
- async function play(t){
-  if(!t)return;
-  active=t;
-  let target=t.url;
-  if(t.spotify){
-   message("Finding this track on YouTube…");
-   try{
-    const r=await fetch("/api/music/search?q="+encodeURIComponent(t.title+" "+t.artist),{cache:"no-store"});
-    const d=await r.json();
-    if(!r.ok)throw new Error(d.error||"Search failed");
-    target=d.results?.find(x=>x.url)?.url;
-    if(!target)throw new Error("No playable YouTube result was found");
-   }catch(e){message("Couldn't find a playable version: "+e.message);return}
-  }
-  const id=videoId(target);
-  if(!id){message("This result doesn't contain a valid YouTube video link.");return}
-  closePlayer();
-  try{
-   const YT=await loadYouTubeApi();
-   const modal=document.createElement("div");
-   modal.style="position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:18px";
-   const bar=document.createElement("div");
-   bar.style="width:min(100%,960px);display:flex;align-items:center;gap:12px;color:white;font:500 14px system-ui";
-   const title=document.createElement("div");
-   title.textContent=t.title+" · "+t.artist;
-   title.style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap";
-   const close=document.createElement("button");
-   close.type="button";close.textContent="Close";close.setAttribute("aria-label","Close player");
-   close.style="padding:10px 16px;border:1px solid #777;border-radius:999px;color:white;background:#222";
-   close.addEventListener("click",closePlayer);
-   bar.append(title,close);
-   const frame=document.createElement("div");
-   frame.style="width:min(100%,960px);aspect-ratio:16/9;background:#111;border-radius:12px;overflow:hidden";
-   const host=document.createElement("div");host.id="dbweb-youtube-player";host.style="width:100%;height:100%";frame.append(host);
-   modal.append(bar,frame);document.body.append(modal);ytModal=modal;
-   ytPlayer=new YT.Player(host.id,{width:"100%",height:"100%",videoId:id,playerVars:{autoplay:1,controls:1,playsinline:1,rel:0,origin:location.origin},events:{
-    onReady:e=>{e.target.setVolume(Number($(".volrng")?.value||60));e.target.playVideo();document.body.classList.add("playing");$$('[data-b=title]').forEach(x=>x.textContent=t.title);$$('[data-b=artist]').forEach(x=>x.textContent=t.artist);},
-    onStateChange:e=>{
-     if(e.data===YT.PlayerState.PLAYING)document.body.classList.add("playing");
-     if(e.data===YT.PlayerState.PAUSED||e.data===YT.PlayerState.ENDED)document.body.classList.remove("playing");
-     if(e.data===YT.PlayerState.ENDED&&live.length){const i=live.findIndex(x=>x.id===active?.id);play(live[(i+1)%live.length]);}
-    },
-    onError:e=>message("YouTube can't play this video (error "+e.data+"). Try another result.")
-   }});
-   progressTimer=setInterval(()=>{
-    if(!ytPlayer?.getCurrentTime)return;
-    const now=ytPlayer.getCurrentTime()||0,dur=ytPlayer.getDuration()||0;
-    $$('[data-b=cur]').forEach(x=>x.textContent=fmt(now));
-    $$('[data-b=dur]').forEach(x=>x.textContent=fmt(dur));
-    $$(".seekrng").forEach(r=>{r.max=dur||100;r.value=now});
-   },500);
-  }catch(e){closePlayer();message(e.message||"YouTube playback could not start.");}
- }
+ function message(s){let el=$("#toast");if(el){el.textContent=s;el.classList.add("on");setTimeout(()=>el.classList.remove("on"),4500)}else alert(s)}
  function renderResults(list){
   live=list;window.__dbweb.T=list;window.__dbweb.byId=Object.fromEntries(list.map(t=>[t.id,t]));
   const grid=$("#grid");$("#secTitle").textContent="Search results";$("#count").textContent=list.length+" tracks";
-  grid.innerHTML=list.length?list.map(t=>'<article class="card" data-live-id="'+t.id+'"><button class="art" data-live-play="'+t.id+'" aria-label="Play"><img src="'+esc(t.thumbnail||"")+'" alt="" onerror="this.style.opacity=0"><span class="pbtn"><i data-lucide="play"></i></span></button><div class="meta"><div class="txt"><h3>'+esc(t.title)+'</h3><p>'+esc(t.artist)+'</p><span class="tag">'+fmt(t.dur)+(t.spotify?' · Spotify':'')+'</span></div><div class="acts">'+(t.spotify?'<button class="ibtn" data-spotify-open="'+t.id+'" title="Open on Spotify"><i data-lucide="external-link"></i></button>':'<button class="ibtn" data-live-video="'+t.id+'" title="Play on YouTube"><i data-lucide="video"></i></button>')+'</div></div></article>').join(""):'<div class="empty"><h3>No results</h3><p>Try another title or artist.</p></div>';
+  grid.innerHTML=list.length?list.map(t=>'<article class="card" data-live-id="'+t.id+'"><button class="art" data-live-play="'+t.id+'" aria-label="Play"><img src="'+esc(t.thumbnail||"")+'" alt="" onerror="this.style.opacity=0"><span class="pbtn"><i data-lucide="play"></i></span></button><div class="meta"><div class="txt"><h3>'+esc(t.title)+'</h3><p>'+esc(t.artist)+'</p><span class="tag">'+fmt(t.dur)+(t.spotify?' · Spotify':'')+'</span></div><div class="acts">'+(t.spotify?'<button class="ibtn" data-spotify-open="'+t.id+'" title="Open on Spotify"><i data-lucide="external-link"></i></button>':'<button class="ibtn" data-live-video="'+t.id+'" title="Play video"><i data-lucide="video"></i></button><button class="ibtn" data-live-download="'+t.id+'" title="Download"><i data-lucide="download"></i></button>')+'</div></div></article>').join(""):'<div class="empty"><h3>No results</h3><p>Try another title or artist.</p></div>';
   try{window.lucide?.createIcons()}catch{}
+ }
+ async function resolveTrack(t){
+  if(!t.spotify)return t.url;
+  message("Finding playable audio for "+t.title+"…");
+  const r=await fetch("/api/music/search?q="+encodeURIComponent(t.title+" "+t.artist),{cache:"no-store"});
+  const d=await r.json();if(!r.ok)throw Error(d.error||"Music search failed");
+  const url=d.results?.find(x=>x.url)?.url;if(!url)throw Error("No matching audio result found");
+  return url;
+ }
+ async function play(t){
+  if(!t)return;active=t;audio.pause();
+  try{
+   const target=await resolveTrack(t);
+   streamUrl="/api/music/stream?q="+encodeURIComponent(target)+"&mode=audio";
+   audio.src=streamUrl;audio.load();
+   const p=audio.play();if(p)await p;
+   message("Now playing: "+t.title);
+  }catch(e){message("NuB playback error: "+e.message)}
+ }
+ async function diagnoseStream(){
+  if(!streamUrl)return;
+  try{
+   const r=await fetch(streamUrl,{headers:{Range:"bytes=0-0"},cache:"no-store"});
+   const type=r.headers.get("content-type")||"";
+   if(!r.ok||type.includes("application/json")||type.includes("text/")){
+    const body=await r.text();let detail=body;
+    try{detail=JSON.parse(body).error||body}catch{}
+    message("NuB stream error (HTTP "+r.status+"): "+String(detail).slice(0,180));
+   }else message("NuB returned an audio response, but the browser couldn't decode it. Try another track.");
+  }catch(e){message("NuB stream could not be reached: "+e.message)}
  }
  async function search(){
   const q=$("#q").value.trim();if(!q)return;const n=++req;$("#secTitle").textContent="Searching…";$("#count").textContent="";$("#grid").innerHTML='<div class="empty"><h3>Searching music…</h3></div>';
   try{
    const endpoint=sourceMode==="spotify"?"/api/music/spotify-search":"/api/music/search";
    const r=await fetch(endpoint+"?q="+encodeURIComponent(q),{cache:"no-store"}),d=await r.json();
-   if(!r.ok)throw Error(d.error||"Search failed (HTTP "+r.status+")");
-   if(n!==req)return;
+   if(!r.ok)throw Error(d.error||"Search failed (HTTP "+r.status+")");if(n!==req)return;
    const rows=(d.results||[]).map((x,i)=>sourceMode==="spotify"
     ?({id:i+1,title:x.title||"Untitled",artist:x.artist||"Spotify",url:x.spotifyUrl||"",thumbnail:x.thumbnail||"",dur:x.duration||0,spotify:true,spotifyUrl:x.spotifyUrl||"",album:x.album||""})
     :({id:i+1,title:x.title||x.name||"Untitled",artist:x.channel||x.artist||x.uploader||"YouTube",url:x.url||x.youtube_link||x.link,thumbnail:x.thumbnail||x.thumbnail_url||x.thumbnails?.high?.url||x.thumbnails?.[0]?.url||"",dur:x.duration||x.duration_seconds||0}))
@@ -908,35 +855,38 @@ icons();
  $("#q").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();search()}});
  $("#qClear").addEventListener("click",e=>{e.preventDefault();$("#q").value="";live=[];$("#grid").innerHTML="";$("#count").textContent="";$("#secTitle").textContent="Trending now"});
  document.addEventListener("click",e=>{
-  const b=e.target.closest("[data-live-play],[data-live-video],[data-spotify-open]");if(!b)return;
-  e.preventDefault();e.stopImmediatePropagation();
-  const t=live.find(x=>x.id===Number(b.dataset.livePlay||b.dataset.liveVideo||b.dataset.spotifyOpen));if(!t)return;
-  if(b.dataset.livePlay||b.dataset.liveVideo)play(t);
+  const b=e.target.closest("[data-live-play],[data-live-video],[data-live-download],[data-spotify-open]");if(!b)return;e.preventDefault();e.stopImmediatePropagation();
+  const t=live.find(x=>x.id===Number(b.dataset.livePlay||b.dataset.liveVideo||b.dataset.liveDownload||b.dataset.spotifyOpen));if(!t)return;
+  if(b.dataset.livePlay)play(t);
   if(b.dataset.spotifyOpen)window.open(t.spotifyUrl,"_blank","noopener,noreferrer");
+  if(b.dataset.liveDownload){
+   resolveTrack(t).then(url=>{const u="/api/music/stream?q="+encodeURIComponent(url)+"&mode=audio&download=1";const a=document.createElement("a");a.href=u;a.download="dbweb-audio";document.body.append(a);a.click();a.remove()}).catch(e=>message(e.message));
+  }
+  if(b.dataset.liveVideo){
+   resolveTrack(t).then(url=>{
+    const modal=document.createElement("div");modal.style="position:fixed;inset:0;z-index:99999;background:#000;display:grid;place-items:center;padding:12px";
+    const v=document.createElement("video");v.controls=true;v.autoplay=true;v.playsInline=true;v.style="width:100%;height:100%;object-fit:contain";v.src="/api/music/stream?q="+encodeURIComponent(url)+"&mode=video";
+    modal.append(v);modal.onclick=e=>{if(e.target===modal){v.pause();modal.remove()}};document.body.append(modal);videoEl=v;v.play().catch(()=>message("NuB video stream could not start."));
+   }).catch(e=>message(e.message));
+  }
  },true);
- $(".seekrng").forEach(r=>r.addEventListener("input",()=>{if(ytPlayer?.seekTo)ytPlayer.seekTo(Number(r.value),true)}));
- $$(".volrng").forEach(r=>r.addEventListener("input",()=>ytPlayer?.setVolume?.(Number(r.value))));
- document.addEventListener("click",e=>{
-  const b=e.target.closest("[data-act]");if(!b)return;
-  const a=b.dataset.act;if(!["toggle","next","prev"].includes(a))return;
-  e.preventDefault();e.stopImmediatePropagation();
-  if(a==="toggle"){
-   if(!ytPlayer){if(active)play(active);else if(live[0])play(live[0]);}
-   else{const state=ytPlayer.getPlayerState();if(state===1)ytPlayer.pauseVideo();else ytPlayer.playVideo();}
-  }else if(a==="next"&&live.length){const i=live.findIndex(t=>t.id===active?.id);play(live[(i+1+live.length)%live.length]);}
-  else if(a==="prev"&&active){if(ytPlayer?.getCurrentTime?.()>3)ytPlayer.seekTo(0,true);else{const i=live.findIndex(t=>t.id===active.id);play(live[(i-1+live.length)%live.length]);}}
+ audio.addEventListener("error",()=>{diagnoseStream()});
+ audio.addEventListener("timeupdate",()=>{$$('[data-b=cur]').forEach(e=>e.textContent=fmt(audio.currentTime));$$(".seekrng").forEach(r=>{r.max=audio.duration||100;r.value=audio.currentTime||0})});
+ audio.addEventListener("loadedmetadata",()=>{$$('[data-b=dur]').forEach(e=>e.textContent=fmt(audio.duration))});
+ audio.addEventListener("play",()=>{document.body.classList.add("playing");$$('[data-b=title]').forEach(e=>e.textContent=active?.title||"");$$('[data-b=artist]').forEach(e=>e.textContent=active?.artist||"")});
+ audio.addEventListener("pause",()=>document.body.classList.remove("playing"));
+ audio.addEventListener("ended",()=>{if(active&&live.length){const i=live.findIndex(t=>t.id===active.id);play(live[(i+1)%live.length])}});
+ $(".seekrng").forEach(r=>r.addEventListener("input",()=>{if(audio.duration)audio.currentTime=Number(r.value)}));
+ $$(".volrng").forEach(r=>r.addEventListener("input",()=>audio.volume=Number(r.value)/100));
+ document.addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b)return;const a=b.dataset.act;if(!["toggle","next","prev"].includes(a))return;e.preventDefault();e.stopImmediatePropagation();
+  if(a==="toggle"){if(!active&&live[0])play(live[0]);else if(audio.paused)audio.play().catch(()=>message("Tap play again"));else audio.pause()}
+  else if(a==="next"&&live.length){const i=live.findIndex(t=>t.id===active?.id);play(live[(i+1)%live.length])}
+  else if(a==="prev"&&active){if(audio.currentTime>3)audio.currentTime=0;else{const i=live.findIndex(t=>t.id===active.id);play(live[(i-1+live.length)%live.length])}}
  },true);
- const qInput=$("#q");
- if(qInput&&!qInput.value.trim())qInput.value="trending music";
+ const qInput=$("#q");if(qInput&&!qInput.value.trim())qInput.value="trending music";
  $("#secTitle").textContent="Trending now";$("#count").textContent="";$("#grid").innerHTML='<div class="empty"><h3>Loading real trending music…</h3><p>Fetching live tracks</p></div>';
- const setSource=mode=>{
-  sourceMode=mode;$("#sourceDbweb").classList.toggle("source-on",mode==="dbweb");$("#sourceSpotify").classList.toggle("source-on",mode==="spotify");
-  $("#sourceDbweb").setAttribute("aria-pressed",mode==="dbweb");$("#sourceSpotify").setAttribute("aria-pressed",mode==="spotify");
-  $("#q").placeholder=mode==="spotify"?"Search Spotify tracks and artists":"Search songs, artists, moods";
-  if($("#q").value.trim())search();else{live=[];$("#grid").innerHTML='<div class="empty"><h3>Search a song or artist</h3><p>'+(mode==="spotify"?"Spotify catalog · playback uses official YouTube results":"Search music and play through the official YouTube player")+'</p></div>';$("#secTitle").textContent=mode==="spotify"?"Spotify catalog":"Dbweb Music";$("#count").textContent=""}
- };
- $("#sourceDbweb").addEventListener("click",()=>setSource("dbweb"));$("#sourceSpotify").addEventListener("click",()=>setSource("spotify"));
- window.__dbwebLive={search,play,setSource,closePlayer};
+ const setSource=mode=>{sourceMode=mode;$("#sourceDbweb").classList.toggle("source-on",mode==="dbweb");$("#sourceSpotify").classList.toggle("source-on",mode==="spotify");$("#sourceDbweb").setAttribute("aria-pressed",mode==="dbweb");$("#sourceSpotify").setAttribute("aria-pressed",mode==="spotify");$("#q").placeholder=mode==="spotify"?"Search Spotify tracks and artists":"Search songs, artists, moods";if($("#q").value.trim())search();else{live=[];$("#grid").innerHTML='<div class="empty"><h3>Search a song or artist</h3><p>'+(mode==="spotify"?"Spotify catalog metadata · audio streams through NuB":"Search and stream audio through NuB")+'</p></div>';$("#secTitle").textContent=mode==="spotify"?"Spotify catalog":"Dbweb Music";$("#count").textContent=""}};
+ $("#sourceDbweb").addEventListener("click",()=>setSource("dbweb"));$("#sourceSpotify").addEventListener("click",()=>setSource("spotify"));window.__dbwebLive={search,play,audio,setSource};
  setTimeout(search,250);
 })();</script>
 </body></html>
