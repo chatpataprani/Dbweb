@@ -4,8 +4,6 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const SHARE_TTL_SECONDS = 24 * 60 * 60;
-
 function getSecret() {
   return process.env.DBWEB_MUSIC_SHARE_SECRET || process.env.NUB_YT_API_KEY || "";
 }
@@ -26,7 +24,7 @@ function validToken(token, secret) {
   if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
   try {
     const data = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
-    if (!data?.title || !Number.isInteger(data.exp) || data.exp <= Math.floor(Date.now() / 1000)) return null;
+    if (!data?.title || typeof data.nonce !== "string") return null;
     return data;
   } catch {
     return null;
@@ -44,11 +42,10 @@ export async function POST(request) {
     const payload = Buffer.from(JSON.stringify({
       title,
       artist,
-      exp: Math.floor(Date.now() / 1000) + SHARE_TTL_SECONDS,
       nonce: crypto.randomUUID()
     })).toString("base64url");
     const token = payload + "." + sign(payload, secret);
-    return NextResponse.json({ token, expiresIn: SHARE_TTL_SECONDS }, {
+    return NextResponse.json({ token, permanent: true }, {
       headers: { "Cache-Control": "no-store, max-age=0" }
     });
   } catch {
