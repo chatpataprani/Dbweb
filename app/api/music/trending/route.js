@@ -1,8 +1,104 @@
 import { NextResponse } from "next/server";
-export const runtime="nodejs";export const dynamic="force-dynamic";
-export async function GET(request){
- const p=new URL(request.url).searchParams,region=(p.get("region")||"IN").slice(0,8),limit=Math.min(30,Math.max(1,Number(p.get("limit")||20)));
- try{const r=await fetch("https://api.nubcoders.com/trending?"+new URLSearchParams({region,limit:String(limit)}),{headers:{Accept:"application/json"},cache:"no-store",signal:AbortSignal.timeout(18000)});const raw=await r.text();let data;try{data=JSON.parse(raw)}catch{return NextResponse.json({error:"Trending music is temporarily unavailable."},{status:502})};if(!r.ok)return NextResponse.json({error:data?.detail||data?.error||data?.message||"Trending music is temporarily unavailable."},{status:r.status});
- const items=Array.isArray(data)?data:(data?.results||data?.items||data?.trending||data?.videos||data?.data||[]);const results=items.map(x=>{const id=x.video_id||x.videoId||x.id||"";return{title:x.title||x.name||"Untitled",channel:x.channel||x.artist||x.uploader||x.author||"YouTube",url:x.url||x.youtube_link||x.link||x.webpage_url||(id?"https://www.youtube.com/watch?v="+id:""),thumbnail:x.thumbnail||x.thumbnail_url||x.thumbnails?.high?.url||x.thumbnails?.[0]?.url||"",duration:x.duration||x.duration_seconds||x.duration_string||0}}).filter(x=>x.url);
- return NextResponse.json({results,region})}catch{return NextResponse.json({error:"Trending music is temporarily unavailable."},{status:502})}
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+function extractItems(payload) {
+  if (Array.isArray(payload)) return payload;
+  const candidates = [
+    payload?.results,
+    payload?.items,
+    payload?.trending,
+    payload?.tracks,
+    payload?.songs,
+    payload?.videos,
+    payload?.data?.results,
+    payload?.data?.items,
+    payload?.data?.tracks,
+    payload?.data?.songs,
+    payload?.data,
+  ];
+  return candidates.find(Array.isArray) || [];
+}
+
+function normalizeTrack(track, index) {
+  const id = track?.video_id || track?.videoId || track?.id || track?.youtube_id || "";
+  const url =
+    track?.url ||
+    track?.youtube_link ||
+    track?.link ||
+    track?.webpage_url ||
+    track?.video_url ||
+    (id ? "https://www.youtube.com/watch?v=" + id : "");
+
+  return {
+    id: String(id || track?.id || index),
+    title: track?.title || track?.name || track?.track || "Untitled",
+    channel:
+      track?.channel ||
+      track?.artist ||
+      track?.uploader ||
+      track?.author ||
+      track?.creator ||
+      "YouTube",
+    url,
+    thumbnail:
+      track?.thumbnail ||
+      track?.thumbnail_url ||
+      track?.thumbnailUrl ||
+      track?.image ||
+      track?.artwork ||
+      track?.thumbnails?.high?.url ||
+      track?.thumbnails?.[0]?.url ||
+      "",
+    duration:
+      track?.duration_seconds ||
+      track?.duration ||
+      track?.duration_string ||
+      0,
+  };
+}
+
+export async function GET() {
+  try {
+    // The trending endpoint supplies its own region and result count.
+    // Do not send unsupported query parameters: they cause upstream validation errors.
+    const response = await fetch("https://api.nubcoders.com/trending", {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+      signal: AbortSignal.timeout(20000),
+    });
+
+    const raw = await response.text();
+    let payload;
+    try {
+      payload = JSON.parse(raw);
+    } catch {
+      return NextResponse.json(
+        { error: "Trending music is temporarily unavailable.", results: [] },
+        { status: 502 }
+      );
+    }
+
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: "Trending music is temporarily unavailable.", results: [] },
+        { status: 502 }
+      );
+    }
+
+    const results = extractItems(payload)
+      .map(normalizeTrack)
+      .filter((track) => track.url && track.title !== "Untitled");
+
+    return NextResponse.json(
+      { results },
+      { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" } }
+    );
+  } catch {
+    return NextResponse.json(
+      { error: "Trending music is temporarily unavailable.", results: [] },
+      { status: 502 }
+    );
+  }
 }
