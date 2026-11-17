@@ -98,6 +98,7 @@ img{display:block}
 .hero h1 span{background:linear-gradient(90deg,var(--g1),var(--g2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .hero p{color:var(--fg);opacity:.82;max-width:52ch;font-size:15px}
 .search{display:flex;align-items:center;gap:10px;height:56px;padding:0 6px 0 18px;border-radius:20px;max-width:660px;background:var(--glass-2);border:1px solid var(--line);box-shadow:var(--shadow);transition:border-color .2s,box-shadow .2s}
+.search-wrap{position:relative;max-width:660px}.suggestions{position:absolute;z-index:30;top:calc(100% + 8px);left:0;right:0;padding:6px;border:1px solid var(--line);border-radius:16px;background:var(--sheet);box-shadow:var(--shadow);backdrop-filter:blur(20px)}.suggestions button{display:block;width:100%;padding:11px 13px;text-align:left;border-radius:10px;color:var(--fg)}.suggestions button:hover{background:var(--hover)}
 .search:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
 .search svg{color:var(--muted)}
 .search input{flex:1;min-width:0;height:100%;background:none;border:0;outline:0;color:var(--fg);font:500 16px var(--f-body)}
@@ -381,12 +382,16 @@ body.muted .i-vol,body.rep1 .i-rep{display:none}
         <span class="eyebrow">Dbweb Music</span>
         <h1>Find your next <span>favorite sound</span></h1>
         <p class="only-d">Search artists, tracks and moods. The whole page takes on the colors of whatever is playing.</p>
+        <div class="search-wrap">
         <label class="search" for="q">
           <i data-lucide="search"></i>
           <input id="q" type="search" placeholder="Search songs, artists, moods" autocomplete="off" enterkeyhint="search">
           <button class="ibtn" id="qClear" data-act="clear" aria-label="Clear search" hidden><i data-lucide="x"></i></button>
         </label>
+        <div id="musicSuggestions" class="suggestions" hidden></div>
+        </div>
         <div class="music-sources" style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button type="button" class="btn" id="importPlaylist" style="padding:8px 14px">Import playlist</button>
           <button type="button" class="btn source-on" id="sourceDbweb" style="padding:8px 14px" aria-pressed="true">Dbweb Music · Audio</button>
           <button type="button" class="btn" id="sourceSpotify" style="padding:8px 14px" aria-pressed="false">Spotify catalog</button>
         </div>
@@ -794,7 +799,7 @@ icons();
 
 
 <script>
-/* Dbweb live music layer: NuB audio streaming + Spotify catalog search. */
+/* Dbweb live music layer. */
 (()=> {
  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
  const audio=new Audio();audio.preload="metadata";audio.crossOrigin="anonymous";
@@ -820,15 +825,15 @@ icons();
   if(!t)return;active=t;audio.pause();
   try{
    const target=await resolveTrack(t);
-   // NuB's documented flow is metadata/stream resolution first, then its seekable media pipe.
+   // Music service's documented flow is metadata/stream resolution first, then its seekable media pipe.
    const infoResponse=await fetch("/api/music/info?q="+encodeURIComponent(target),{cache:"no-store"});
    const info=await infoResponse.json().catch(()=>({}));
-   if(!infoResponse.ok)throw Error(info.error||"NuB could not resolve this track (HTTP "+infoResponse.status+")");
+   if(!infoResponse.ok)throw Error(info.error||"Music service could not resolve this track (HTTP "+infoResponse.status+")");
    streamUrl="/api/music/stream?q="+encodeURIComponent(target)+"&mode=audio";
    audio.src=streamUrl;audio.load();
    await audio.play();
    message("Now playing: "+t.title);
-  }catch(e){message("NuB playback error: "+e.message)}
+  }catch(e){message("Music service playback error: "+e.message)}
  }
  async function diagnoseStream(){
   if(!streamUrl)return;
@@ -838,9 +843,9 @@ icons();
    if(!r.ok||type.includes("application/json")||type.includes("text/")){
     const body=await r.text();let detail=body;
     try{detail=JSON.parse(body).error||body}catch{}
-    message("NuB stream error (HTTP "+r.status+"): "+String(detail).slice(0,180));
-   }else message("NuB returned an audio response, but the browser couldn't decode it. Try another track.");
-  }catch(e){message("NuB stream could not be reached: "+e.message)}
+    message("Music service stream error (HTTP "+r.status+"): "+String(detail).slice(0,180));
+   }else message("Music service returned an audio response, but the browser couldn't decode it. Try another track.");
+  }catch(e){message("Music service stream could not be reached: "+e.message)}
  }
  async function search(){
   const q=$("#q").value.trim();if(!q)return;const n=++req;$("#secTitle").textContent="Searching…";$("#count").textContent="";$("#grid").innerHTML='<div class="empty"><h3>Searching music…</h3></div>';
@@ -855,9 +860,28 @@ icons();
    renderResults(rows);window.__dbweb.S.q=q;
   }catch(e){if(n===req){$("#secTitle").textContent="Search failed";$("#grid").innerHTML='<div class="empty"><h3>Music search unavailable</h3><p>'+esc(e.message)+'</p></div>';message(e.message)}}
  }
- $("#q").addEventListener("input",e=>{e.stopImmediatePropagation();clearTimeout(searchTimer);searchTimer=setTimeout(search,500)},true);
- $("#q").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();search()}});
- $("#qClear").addEventListener("click",e=>{e.preventDefault();$("#q").value="";live=[];$("#grid").innerHTML="";$("#count").textContent="";$("#secTitle").textContent="Trending now"});
+ const suggestionBox=$("#musicSuggestions");let suggestTimer,suggestReq=0;
+ function hideSuggestions(){suggestionBox.hidden=true;suggestionBox.innerHTML=""}
+ async function loadSuggestions(value){
+  const n=++suggestReq;if(sourceMode!=="dbweb"||value.trim().length<2){hideSuggestions();return}
+  try{const r=await fetch("/api/music/suggest?q="+encodeURIComponent(value.trim()),{cache:"no-store"}),d=await r.json();if(n!==suggestReq||$("#q").value.trim()!==value.trim())return;const items=(d.suggestions||[]).slice(0,7);if(!items.length){hideSuggestions();return}suggestionBox.innerHTML=items.map(s=>'<button type="button" data-suggestion="'+esc(s)+'">'+esc(s)+'</button>').join("");suggestionBox.hidden=false}catch{hideSuggestions()}
+ }
+ $("#q").addEventListener("input",e=>{e.stopImmediatePropagation();clearTimeout(searchTimer);clearTimeout(suggestTimer);const value=e.target.value;searchTimer=setTimeout(search,500);suggestTimer=setTimeout(()=>loadSuggestions(value),180)},true);
+ suggestionBox.addEventListener("click",e=>{const b=e.target.closest("[data-suggestion]");if(!b)return;$("#q").value=b.dataset.suggestion;hideSuggestions();search()});
+ document.addEventListener("click",e=>{if(!e.target.closest(".search-wrap"))hideSuggestions()});
+ $("#q").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();hideSuggestions();search()}if(e.key==="Escape")hideSuggestions()});
+ $("#qClear").addEventListener("click",e=>{e.preventDefault();$("#q").value="";live=[];hideSuggestions();$("#grid").innerHTML="";$("#count").textContent="";$("#secTitle").textContent="Trending now"});
+ $("#importPlaylist").addEventListener("click",async()=>{
+  const link=prompt("Paste a YouTube playlist link");if(!link)return;
+  const button=$("#importPlaylist");button.disabled=true;button.textContent="Importing…";
+  try{
+   const r=await fetch("/api/music/playlist?q="+encodeURIComponent(link.trim()),{cache:"no-store"}),d=await r.json();if(!r.ok)throw Error(d.error||"Could not import this playlist.");
+   const rows=(d.results||[]).map((x,i)=>({id:i+1,title:x.title||"Untitled",artist:x.channel||"YouTube",url:x.url||"",thumbnail:x.thumbnail||"",dur:x.duration||0})).filter(x=>x.url);
+   if(!rows.length)throw Error("No playable tracks were found in this playlist.");
+   renderResults(rows);$("#secTitle").textContent=d.title||"Imported playlist";$("#count").textContent=rows.length+" tracks";message("Playlist imported · "+rows.length+" tracks");
+  }catch(e){message(e.message||"Playlist import failed")}finally{button.disabled=false;button.textContent="Import playlist"}
+ });
+
  document.addEventListener("click",e=>{
   const b=e.target.closest("[data-live-play],[data-live-video],[data-live-download],[data-spotify-open]");if(!b)return;e.preventDefault();e.stopImmediatePropagation();
   const t=live.find(x=>x.id===Number(b.dataset.livePlay||b.dataset.liveVideo||b.dataset.liveDownload||b.dataset.spotifyOpen));if(!t)return;
@@ -870,7 +894,7 @@ icons();
    resolveTrack(t).then(url=>{
     const modal=document.createElement("div");modal.style="position:fixed;inset:0;z-index:99999;background:#000;display:grid;place-items:center;padding:12px";
     const v=document.createElement("video");v.controls=true;v.autoplay=true;v.playsInline=true;v.style="width:100%;height:100%;object-fit:contain";v.src="/api/music/stream?q="+encodeURIComponent(url)+"&mode=video";
-    modal.append(v);modal.onclick=e=>{if(e.target===modal){v.pause();modal.remove()}};document.body.append(modal);videoEl=v;v.play().catch(()=>message("NuB video stream could not start."));
+    modal.append(v);modal.onclick=e=>{if(e.target===modal){v.pause();modal.remove()}};document.body.append(modal);videoEl=v;v.play().catch(()=>message("Music service video stream could not start."));
    }).catch(e=>message(e.message));
   }
  },true);
@@ -897,8 +921,8 @@ icons();
    renderResults(rows);$("#secTitle").textContent="Trending now";$("#count").textContent=rows.length+" tracks";
   }catch(e){if(n===req){$("#secTitle").textContent="Trending unavailable";$("#grid").innerHTML='<div class="empty"><h3>Could not load trending</h3><p>'+esc(e.message)+'</p></div>'}}
  }
- $("#secTitle").textContent="Trending now";$("#count").textContent="";$("#grid").innerHTML='<div class="empty"><h3>Loading trending music…</h3><p>Fetching regional tracks from NuB</p></div>';
- const setSource=mode=>{sourceMode=mode;$("#sourceDbweb").classList.toggle("source-on",mode==="dbweb");$("#sourceSpotify").classList.toggle("source-on",mode==="spotify");$("#sourceDbweb").setAttribute("aria-pressed",mode==="dbweb");$("#sourceSpotify").setAttribute("aria-pressed",mode==="spotify");$("#q").placeholder=mode==="spotify"?"Search Spotify tracks and artists":"Search songs, artists, moods";if($("#q").value.trim())search();else if(mode==="dbweb")loadTrending();else{live=[];$("#grid").innerHTML='<div class="empty"><h3>Search a song or artist</h3><p>Spotify catalog metadata · audio streams through NuB</p></div>';$("#secTitle").textContent="Spotify catalog";$("#count").textContent=""}};
+ $("#secTitle").textContent="Trending now";$("#count").textContent="";$("#grid").innerHTML='<div class="empty"><h3>Loading trending music…</h3><p>Fetching regional tracks from Music service</p></div>';
+ const setSource=mode=>{sourceMode=mode;$("#sourceDbweb").classList.toggle("source-on",mode==="dbweb");$("#sourceSpotify").classList.toggle("source-on",mode==="spotify");$("#sourceDbweb").setAttribute("aria-pressed",mode==="dbweb");$("#sourceSpotify").setAttribute("aria-pressed",mode==="spotify");$("#q").placeholder=mode==="spotify"?"Search Spotify tracks and artists":"Search songs, artists, moods";if($("#q").value.trim())search();else if(mode==="dbweb")loadTrending();else{live=[];$("#grid").innerHTML='<div class="empty"><h3>Search a song or artist</h3><p>Spotify catalog metadata · audio streams through Music service</p></div>';$("#secTitle").textContent="Spotify catalog";$("#count").textContent=""}};
  $("#sourceDbweb").addEventListener("click",()=>setSource("dbweb"));$("#sourceSpotify").addEventListener("click",()=>setSource("spotify"));window.__dbwebLive={search,play,audio,setSource,loadTrending};
  setTimeout(loadTrending,250);
 })();</script>
