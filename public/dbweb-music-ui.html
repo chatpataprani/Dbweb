@@ -803,7 +803,7 @@ icons();
 (()=> {
  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
  const audio=new Audio();audio.preload="metadata";audio.crossOrigin="anonymous";
- let live=[],active=null,searchTimer,req=0,sourceMode="dbweb",videoEl=null,streamUrl="";
+ let live=[],active=null,searchTimer,req=0,sourceMode="dbweb",videoEl=null,streamUrl="",playPending=false,playToken=0;
  const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const fmt=n=>{n=Number(n)||0;return Math.floor(n/60)+":"+String(Math.floor(n%60)).padStart(2,"0")};
  function message(s){let el=$("#toast");if(el){el.textContent=s;el.classList.add("on");setTimeout(()=>el.classList.remove("on"),4500)}else alert(s)}
@@ -822,18 +822,18 @@ icons();
   return url;
  }
  async function play(t){
-  if(!t)return;active=t;audio.pause();
+  if(!t||playPending)return;
+  if(active?.id===t.id&&!audio.paused)return;
+  playPending=true;const token=++playToken;active=t;audio.pause();
   try{
    const target=await resolveTrack(t);
-   // Music service's documented flow is metadata/stream resolution first, then its seekable media pipe.
-   const infoResponse=await fetch("/api/music/info?q="+encodeURIComponent(target),{cache:"no-store"});
-   const info=await infoResponse.json().catch(()=>({}));
-   if(!infoResponse.ok)throw Error(info.error||"Music service could not resolve this track (HTTP "+infoResponse.status+")");
+   if(token!==playToken)return;
    streamUrl="/api/music/stream?q="+encodeURIComponent(target)+"&mode=audio";
-   audio.src=streamUrl;audio.load();
+   audio.src=streamUrl;audio.volume=Number($(".volrng")[0]?.value??70)/100;audio.load();
    await audio.play();
    message("Now playing: "+t.title);
-  }catch(e){message("Music service playback error: "+e.message)}
+  }catch(e){if(token===playToken)message("Playback could not start. "+(e.message||"Try another track."))}
+  finally{if(token===playToken)playPending=false}
  }
  async function diagnoseStream(){
   if(!streamUrl)return;
@@ -869,7 +869,7 @@ icons();
  $("#q").addEventListener("input",e=>{e.stopImmediatePropagation();clearTimeout(searchTimer);clearTimeout(suggestTimer);const value=e.target.value;searchTimer=setTimeout(search,500);suggestTimer=setTimeout(()=>loadSuggestions(value),180)},true);
  suggestionBox.addEventListener("click",e=>{const b=e.target.closest("[data-suggestion]");if(!b)return;$("#q").value=b.dataset.suggestion;hideSuggestions();search()});
  document.addEventListener("click",e=>{if(!e.target.closest(".search-wrap"))hideSuggestions()});
- $("#q").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();hideSuggestions();search()}if(e.key==="Escape")hideSuggestions()});
+ $("#q").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();clearTimeout(searchTimer);hideSuggestions();search()}if(e.key==="Escape")hideSuggestions()});
  $("#qClear").addEventListener("click",e=>{e.preventDefault();$("#q").value="";live=[];hideSuggestions();$("#grid").innerHTML="";$("#count").textContent="";$("#secTitle").textContent="Trending now"});
  $("#importPlaylist").addEventListener("click",async()=>{
   const link=prompt("Paste a YouTube playlist link");if(!link)return;
@@ -905,7 +905,7 @@ icons();
  audio.addEventListener("pause",()=>document.body.classList.remove("playing"));
  audio.addEventListener("ended",()=>{if(active&&live.length){const i=live.findIndex(t=>t.id===active.id);play(live[(i+1)%live.length])}});
  $(".seekrng").forEach(r=>r.addEventListener("input",()=>{if(audio.duration)audio.currentTime=Number(r.value)}));
- $$(".volrng").forEach(r=>r.addEventListener("input",()=>audio.volume=Number(r.value)/100));
+ $(".volrng").forEach(r=>r.addEventListener("input",()=>{audio.volume=Number(r.value)/100;$(".volrng").forEach(other=>{if(other!==r)other.value=r.value})}));audio.volume=.7;
  document.addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b)return;const a=b.dataset.act;if(!["toggle","next","prev"].includes(a))return;e.preventDefault();e.stopImmediatePropagation();
   if(a==="toggle"){if(!active&&live[0])play(live[0]);else if(audio.paused)audio.play().catch(()=>message("Tap play again"));else audio.pause()}
   else if(a==="next"&&live.length){const i=live.findIndex(t=>t.id===active?.id);play(live[(i+1)%live.length])}
